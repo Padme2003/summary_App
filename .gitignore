@@ -1,0 +1,30 @@
+# Backend
+sumly_backend/node_modules/
+sumly_backend/uploads/*
+!sumly_backend/uploads/.gitkeep
+sumly_backend/.env
+sumly_backend/*.log
+
+# Flutter
+sumly_app/.dart_tool/
+sumly_app/.flutter-plugins
+sumly_app/.flutter-plugins-dependencies
+sumly_app/.packages
+sumly_app/.pub-cache/
+sumly_app/.pub/
+sumly_app/build/
+sumly_app/flutter_*.png
+sumly_app/linux/
+sumly_app/macos/
+sumly_app/windows/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
