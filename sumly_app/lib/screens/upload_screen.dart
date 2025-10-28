@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../services/document_service.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -11,10 +13,12 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen>
     with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
+  final DocumentService _documentService = DocumentService();
   String? _selectedFileName;
   String? _selectedFilePath;
   int _selectedTab = 0; // 0 = Archivo, 1 = Texto
   int _selectedMode = 0; // 0 = Resumen, 1 = Audiolibro
+  bool _isProcessing = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -67,12 +71,47 @@ class _UploadScreenState extends State<UploadScreen>
       return;
     }
 
-    // Navegar a la pantalla de procesamiento
-    Navigator.pushNamed(
-      context,
-      '/processing',
-      arguments: {'mode': _selectedMode == 0 ? 'summary' : 'audiobook'},
-    );
+    setState(() => _isProcessing = true);
+
+    try {
+      final type = _selectedMode == 0 ? 'summary' : 'audiobook';
+
+      final result = await _documentService.uploadDocument(
+        file: _selectedFilePath != null ? File(_selectedFilePath!) : null,
+        text: _selectedTab == 1 ? _textController.text.trim() : null,
+        type: type,
+      );
+
+      if (mounted) {
+        setState(() => _isProcessing = false);
+
+        if (result['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Documento subido exitosamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Navegar a la pantalla de procesamiento con el documento ID
+          Navigator.pushNamed(
+            context,
+            '/processing',
+            arguments: {
+              'mode': type,
+              'documentId': result['data']['documentId'],
+            },
+          );
+        } else {
+          _showErrorSnackBar(result['message'] ?? 'Error al subir documento');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        _showErrorSnackBar('Error: ${e.toString()}');
+      }
+    }
   }
 
   void _showErrorSnackBar(String message) {
@@ -515,7 +554,7 @@ class _UploadScreenState extends State<UploadScreen>
         (_selectedTab == 1 && _textController.text.trim().isNotEmpty);
 
     return ElevatedButton(
-      onPressed: canProcess ? _processContent : null,
+      onPressed: (canProcess && !_isProcessing) ? _processContent : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: canProcess
             ? Theme.of(context).colorScheme.primary
@@ -523,24 +562,33 @@ class _UploadScreenState extends State<UploadScreen>
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            _selectedMode == 0 ? Icons.auto_awesome : Icons.headphones,
-            color: canProcess ? Colors.white : Colors.grey[500],
-          ),
-          const SizedBox(width: 8),
-          Text(
-            _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: canProcess ? Colors.white : Colors.grey[500],
+      child: _isProcessing
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  _selectedMode == 0 ? Icons.auto_awesome : Icons.headphones,
+                  color: canProcess ? Colors.white : Colors.grey[500],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: canProcess ? Colors.white : Colors.grey[500],
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
