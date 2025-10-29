@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/document_service.dart';
@@ -15,7 +14,7 @@ class _UploadScreenState extends State<UploadScreen>
   final TextEditingController _textController = TextEditingController();
   final DocumentService _documentService = DocumentService();
   String? _selectedFileName;
-  String? _selectedFilePath;
+  PlatformFile? _selectedFile; // ✅ Cambiado de String path a PlatformFile
   int _selectedTab = 0; // 0 = Archivo, 1 = Texto
   int _selectedMode = 0; // 0 = Resumen, 1 = Audiolibro
   bool _isProcessing = false;
@@ -47,12 +46,14 @@ class _UploadScreenState extends State<UploadScreen>
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'txt', 'doc', 'docx'],
+        withData: true, // ✅ Importante para Web - carga los bytes
       );
 
       if (result != null) {
         setState(() {
           _selectedFileName = result.files.single.name;
-          _selectedFilePath = result.files.single.path;
+          _selectedFile =
+              result.files.single; // ✅ Guardamos el PlatformFile completo
         });
       }
     } catch (e) {
@@ -61,7 +62,7 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Future<void> _processContent() async {
-    if (_selectedTab == 0 && _selectedFilePath == null) {
+    if (_selectedTab == 0 && _selectedFile == null) {
       _showErrorSnackBar('Por favor selecciona un archivo');
       return;
     }
@@ -77,7 +78,8 @@ class _UploadScreenState extends State<UploadScreen>
       final type = _selectedMode == 0 ? 'summary' : 'audiobook';
 
       final result = await _documentService.uploadDocument(
-        file: _selectedFilePath != null ? File(_selectedFilePath!) : null,
+        platformFile:
+            _selectedFile, // ✅ Pasamos el PlatformFile en lugar de File
         text: _selectedTab == 1 ? _textController.text.trim() : null,
         type: type,
       );
@@ -550,7 +552,9 @@ class _UploadScreenState extends State<UploadScreen>
 
   Widget _buildProcessButton() {
     final canProcess =
-        (_selectedTab == 0 && _selectedFilePath != null) ||
+        (_selectedTab == 0 &&
+            _selectedFile !=
+                null) || // ✅ Cambiado de _selectedFilePath a _selectedFile
         (_selectedTab == 1 && _textController.text.trim().isNotEmpty);
 
     return ElevatedButton(

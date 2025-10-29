@@ -1,15 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 import 'auth_service.dart';
 import 'api_config.dart';
 
 class DocumentService {
   final AuthService _authService = AuthService();
 
-  // Subir documento
+  // Subir documento compatible con Web y Mobile
   Future<Map<String, dynamic>> uploadDocument({
-    File? file,
+    PlatformFile? platformFile, // ✅ Cambiado de File a PlatformFile
     String? text,
     required String type, // 'summary' o 'audiobook'
   }) async {
@@ -29,28 +29,38 @@ class DocumentService {
       request.fields['type'] = type;
 
       // Agregar archivo o texto
-      if (file != null) {
-        final fileStream = http.ByteStream(file.openRead());
-        final fileLength = await file.length();
-        final multipartFile = http.MultipartFile(
-          'file',
-          fileStream,
-          fileLength,
-          filename: file.path.split('/').last,
-        );
-        request.files.add(multipartFile);
+      if (platformFile != null) {
+        // ✅ Usar bytes del archivo (compatible con web y mobile)
+        if (platformFile.bytes != null) {
+          // Para Web - usa bytes directamente
+          final multipartFile = http.MultipartFile.fromBytes(
+            'file',
+            platformFile.bytes!,
+            filename: platformFile.name,
+          );
+          request.files.add(multipartFile);
+        } else if (platformFile.path != null) {
+          // Para Mobile - usa path
+          final multipartFile = await http.MultipartFile.fromPath(
+            'file',
+            platformFile.path!,
+            filename: platformFile.name,
+          );
+          request.files.add(multipartFile);
+        } else {
+          return {'success': false, 'message': 'No se pudo leer el archivo'};
+        }
       } else if (text != null) {
         request.fields['text'] = text;
       } else {
         return {
           'success': false,
-          'message': 'Debe proporcionar un archivo o texto'
+          'message': 'Debe proporcionar un archivo o texto',
         };
       }
 
       // Enviar request
-      final streamedResponse =
-          await request.send().timeout(ApiConfig.timeout);
+      final streamedResponse = await request.send().timeout(ApiConfig.timeout);
       final response = await http.Response.fromStream(streamedResponse);
       final data = jsonDecode(response.body);
 
@@ -59,13 +69,13 @@ class DocumentService {
       } else {
         return {
           'success': false,
-          'message': data['message'] ?? 'Error al subir documento'
+          'message': data['message'] ?? 'Error al subir documento',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error de conexión: ${e.toString()}'
+        'message': 'Error de conexión: ${e.toString()}',
       };
     }
   }
@@ -79,13 +89,15 @@ class DocumentService {
       }
 
       final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents}');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(ApiConfig.timeout);
+      final response = await http
+          .get(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(ApiConfig.timeout);
 
       final data = jsonDecode(response.body);
 
@@ -94,13 +106,13 @@ class DocumentService {
       } else {
         return {
           'success': false,
-          'message': data['message'] ?? 'Error al obtener documentos'
+          'message': data['message'] ?? 'Error al obtener documentos',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error de conexión: ${e.toString()}'
+        'message': 'Error de conexión: ${e.toString()}',
       };
     }
   }
@@ -113,15 +125,18 @@ class DocumentService {
         return {'success': false, 'message': 'No autenticado'};
       }
 
-      final url =
-          Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents}/$documentId');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(ApiConfig.timeout);
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.documents}/$documentId',
+      );
+      final response = await http
+          .get(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(ApiConfig.timeout);
 
       final data = jsonDecode(response.body);
 
@@ -130,13 +145,13 @@ class DocumentService {
       } else {
         return {
           'success': false,
-          'message': data['message'] ?? 'Error al obtener documento'
+          'message': data['message'] ?? 'Error al obtener documento',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error de conexión: ${e.toString()}'
+        'message': 'Error de conexión: ${e.toString()}',
       };
     }
   }
@@ -149,15 +164,18 @@ class DocumentService {
         return {'success': false, 'message': 'No autenticado'};
       }
 
-      final url =
-          Uri.parse('${ApiConfig.baseUrl}${ApiConfig.documents}/$documentId');
-      final response = await http.delete(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      ).timeout(ApiConfig.timeout);
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.documents}/$documentId',
+      );
+      final response = await http
+          .delete(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(ApiConfig.timeout);
 
       final data = jsonDecode(response.body);
 
@@ -166,13 +184,13 @@ class DocumentService {
       } else {
         return {
           'success': false,
-          'message': data['message'] ?? 'Error al eliminar documento'
+          'message': data['message'] ?? 'Error al eliminar documento',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error de conexión: ${e.toString()}'
+        'message': 'Error de conexión: ${e.toString()}',
       };
     }
   }
