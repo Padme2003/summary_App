@@ -1,6 +1,7 @@
 const Summary = require('../models/Summary');
 const Document = require('../models/Document');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { generateAudioFile } = require('../services/tts.service');
 const config = require('../config/environment');
 
 // Inicializar Gemini AI
@@ -130,6 +131,28 @@ FORMATO DE RESPUESTA (JSON):
       estimatedReadingTime,
       language: 'es',
     };
+
+    // Generar audio del resumen
+    try {
+      const audioFilename = `summary_${summary._id}`;
+      const audioResult = await generateAudioFile(
+        summaryData.summary,
+        audioFilename,
+        {
+          languageCode: 'es-ES',
+          voiceName: 'es-ES-Standard-A',
+          speed: 1.0,
+        },
+      );
+
+      summary.audioUrl = audioResult.audioUrl;
+      summary.audioDuration = audioResult.duration;
+
+      console.log(`✅ Audio del resumen generado: ${audioResult.audioUrl}`);
+    } catch (audioError) {
+      console.error('Error al generar audio del resumen:', audioError);
+      // Continuar sin audio si hay error
+    }
 
     await summary.save();
 

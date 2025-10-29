@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Servir archivos estáticos
+// Servir archivos estï¿½ticos
 app.use('/uploads', express.static('uploads'));
 
 // Rutas
@@ -25,7 +25,8 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       users: '/api/users',
       documents: '/api/documents',
-      summaries: '/api/summaries'
+      summaries: '/api/summaries',
+      audiobooks: '/api/audiobooks'
     }
   });
 });
@@ -35,11 +36,13 @@ const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const documentRoutes = require('./routes/document.routes');
 const summaryRoutes = require('./routes/summary.routes');
+const audiobookRoutes = require('./routes/audiobook.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/summaries', summaryRoutes);
+app.use('/api/audiobooks', audiobookRoutes);
 
 // Manejo de errores
 app.use((err, req, res, next) => {
@@ -62,8 +65,8 @@ app.use('*', (req, res) => {
 // Iniciar servidor
 const PORT = config.port;
 app.listen(PORT, () => {
-  console.log(`=€ Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`=Ý Entorno: ${config.nodeEnv}`);
+  console.log(`=ï¿½ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`=ï¿½ Entorno: ${config.nodeEnv}`);
 });
 
 module.exports = app;
