@@ -83,10 +83,33 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   @override
   Widget build(BuildContext context) {
     final isSummary = widget.mode == 'summary';
-    final primaryColor = isSummary ? Colors.blue : Colors.purple;
+    final primaryColor = isSummary ? Colors.blue[600]! : Colors.purple[600]!;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isSummary
+                ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
+                : [Colors.white, Colors.purple.shade50, Colors.pink.shade50],
+          ),
+        ),
+        child: SafeArea(
+          child: _buildProcessingContent(context, isSummary, primaryColor),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProcessingContent(
+    BuildContext context,
+    bool isSummary,
+    Color primaryColor,
+  ) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
