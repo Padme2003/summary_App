@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import '../services/auth_service.dart';
+import '../services/document_service.dart';
+import '../models/models.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -9,19 +12,113 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Datos de ejemplo (después vendrán del backend)
-  final String _userName = 'María González';
-  final String _userEmail = 'maria.gonzalez@email.com';
-  final String _memberSince = 'Miembro desde Oct 2024';
+  final AuthService _authService = AuthService();
+  final DocumentService _documentService = DocumentService();
 
-  // Estadísticas
-  final int _totalSummaries = 24;
-  final int _totalMinutes = 180;
-  final int _streak = 7;
-  final int _favorites = 8;
+  User? _user;
+  List<DocumentModel> _documents = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Cargar datos del usuario
+      final userResult = await _authService.getProfile();
+
+      // Cargar documentos para las estadísticas
+      final docsResult = await _documentService.getDocuments();
+
+      if (mounted) {
+        if (userResult['success'] == true && docsResult['success'] == true) {
+          setState(() {
+            _user = userResult['user'];
+            _documents = docsResult['documents'] ?? [];
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = userResult['message'] ?? 'Error al cargar perfil';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error de conexión: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  String _formatMemberSince(DateTime? date) {
+    if (date == null) return 'Nuevo miembro';
+    final months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic'
+    ];
+    return 'Miembro desde ${months[date.month - 1]} ${date.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  _errorMessage!,
+                  style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _loadUserData,
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: CustomScrollView(
@@ -80,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         radius: 50,
                         backgroundColor: Colors.white,
                         child: Text(
-                          _userName.substring(0, 1).toUpperCase(),
+                          (_user?.name ?? 'U').substring(0, 1).toUpperCase(),
                           style: TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
@@ -109,7 +206,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _userName,
+                  _user?.name ?? 'Usuario',
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -118,12 +215,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _userEmail,
+                  _user?.email ?? '',
                   style: const TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _memberSince,
+                  _formatMemberSince(_user?.createdAt),
                   style: const TextStyle(fontSize: 12, color: Colors.white60),
                 ),
               ],
@@ -135,29 +232,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatsSection() {
+    final totalDocs = _documents.length;
+    final processedDocs = _documents.where((d) => d.status == 'processed').length;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           _buildStatCard(
-            'Resúmenes',
-            '$_totalSummaries',
+            'Documentos',
+            '$totalDocs',
             Icons.library_books,
             Colors.blue,
           ),
           const SizedBox(width: 12),
           _buildStatCard(
-            'Minutos',
-            '$_totalMinutes',
-            Icons.schedule,
-            Colors.orange,
+            'Procesados',
+            '$processedDocs',
+            Icons.check_circle,
+            Colors.green,
           ),
           const SizedBox(width: 12),
           _buildStatCard(
-            'Racha',
-            '$_streak días',
-            Icons.local_fire_department,
-            Colors.red,
+            'Almacenamiento',
+            '${(_user?.storage ?? 0) ~/ 1024} KB',
+            Icons.storage,
+            Colors.orange,
           ),
         ],
       ),
@@ -333,24 +433,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildOptionTile(
             icon: Icons.favorite,
             title: 'Favoritos',
-            subtitle: '$_favorites resúmenes guardados',
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '$_favorites',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red[700],
-                ),
-              ),
-            ),
+            subtitle: 'Ver documentos favoritos',
             onTap: () {
-              // Navegar y reemplazar con HomeScreen en el tab de favoritos
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -476,6 +560,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showStatsDialog() {
+    final totalDocs = _documents.length;
+    final processedDocs = _documents.where((d) => d.status == 'processed').length;
+    final pendingDocs = _documents.where((d) => d.status == 'pending').length;
+    final failedDocs = _documents.where((d) => d.status == 'failed').length;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -484,14 +573,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStatRow('Total de resúmenes:', '$_totalSummaries'),
-            _buildStatRow('Tiempo total:', '$_totalMinutes minutos'),
-            _buildStatRow(
-              'Promedio por día:',
-              '${(_totalSummaries / 30).toStringAsFixed(1)}',
-            ),
-            _buildStatRow('Racha actual:', '$_streak días'),
-            _buildStatRow('Favoritos:', '$_favorites'),
+            _buildStatRow('Total documentos:', '$totalDocs'),
+            _buildStatRow('Procesados:', '$processedDocs'),
+            _buildStatRow('Pendientes:', '$pendingDocs'),
+            _buildStatRow('Con errores:', '$failedDocs'),
+            _buildStatRow('Almacenamiento:', '${(_user?.storage ?? 0) ~/ 1024} KB'),
           ],
         ),
         actions: [
@@ -549,13 +635,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: const Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
-              );
+
+              // Cerrar sesión usando AuthService
+              await _authService.logout();
+
+              if (mounted) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/login',
+                  (route) => false,
+                );
+              }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Cerrar Sesión'),
