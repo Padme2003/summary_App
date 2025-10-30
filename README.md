@@ -26,6 +26,7 @@ Aplicación completa para generar resúmenes inteligentes de documentos y conver
 - ✅ Almacenamiento de sesión (JWT token persiste)
 
 #### ✅ **PANTALLAS PRINCIPALES 100% FUNCIONALES:**
+- ✅ Dashboard/Inicio (estadísticas reales, documentos recientes, acciones rápidas)
 - ✅ Upload Screen (conectado al backend, sube archivos y texto REALES)
 - ✅ Processing Screen (genera resúmenes/audiobooks REALES con polling)
 - ✅ Summary Screen (muestra datos REALES del backend)
@@ -227,12 +228,15 @@ http://localhost:5000/uploads/audio/summary_XXX.mp3
 2. ✅ Integración con Gemini AI para resúmenes
 3. ✅ Text-to-Speech con Google Cloud TTS
 4. ✅ Autenticación real (login/register)
-5. ✅ Upload de archivos y texto
-6. ✅ Generación de resúmenes con polling en tiempo real
-7. ✅ Reproductor de audio funcional
-8. ✅ Biblioteca de documentos con datos reales
-9. ✅ Perfil de usuario con estadísticas reales
-10. ✅ Logout funcional
+5. ✅ Dashboard con estadísticas en tiempo real
+6. ✅ Upload de archivos y texto
+7. ✅ Generación de resúmenes con polling en tiempo real
+8. ✅ Reproductor de audio funcional
+9. ✅ Biblioteca de documentos con datos reales
+10. ✅ Perfil de usuario con estadísticas reales
+11. ✅ Logout funcional
+12. ✅ Documentos recientes en Dashboard
+13. ✅ Acciones rápidas (Nuevo Resumen/Audiolibro)
 
 ### **⏳ FEATURES ADICIONALES (Opcionales):**
 - Google Sign-In (alternativa de autenticación)
@@ -292,6 +296,7 @@ http://localhost:5000/uploads/audio/summary_XXX.mp3
 Backend:            ████████████████████ 100% ✅
 Flutter Auth:       ████████████████████ 100% ✅
 Flutter Servicios:  ████████████████████ 100% ✅
+Flutter Dashboard:  ████████████████████ 100% ✅ (NUEVO!)
 Flutter Upload:     ████████████████████ 100% ✅
 Flutter Processing: ████████████████████ 100% ✅
 Flutter Summary:    ████████████████████ 100% ✅
@@ -320,13 +325,17 @@ TOTAL:              ████████████████████
 
 ### **🚀 Lo que la app puede hacer AHORA:**
 1. ✅ Registrarte y hacer login con credenciales reales
-2. ✅ Subir documentos (archivos PDF, TXT, DOC o texto directo)
-3. ✅ Generar resúmenes con IA (Gemini AI)
-4. ✅ Escuchar el audio del resumen (Text-to-Speech real)
-5. ✅ Ver tu biblioteca de documentos con estadísticas reales
-6. ✅ Ver tu perfil con información real
-7. ✅ Cerrar sesión correctamente
-8. ✅ Eliminar documentos
+2. ✅ Ver Dashboard con estadísticas en tiempo real al entrar
+3. ✅ Ver documentos recientes en el Dashboard
+4. ✅ Acceso rápido a crear contenido desde el Dashboard
+5. ✅ Subir documentos (archivos PDF, TXT, DOC o texto directo)
+6. ✅ Generar resúmenes con IA (Gemini AI)
+7. ✅ Escuchar el audio del resumen (Text-to-Speech real)
+8. ✅ Ver tu biblioteca completa de documentos
+9. ✅ Ver tu perfil con información y estadísticas reales
+10. ✅ Cerrar sesión correctamente
+11. ✅ Eliminar documentos
+12. ✅ Pull-to-refresh para actualizar datos
 
 ### **⏳ Features extras (no críticos):**
 - Google Sign-In (alternativa de autenticación)
