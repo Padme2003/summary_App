@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 import 'library_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
@@ -16,6 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
 
   final List<Widget> _pages = const [
+    DashboardScreen(),
     LibraryScreen(),
     FavoritesScreen(),
     ProfileScreen(),
@@ -37,6 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() => _selectedIndex = index);
         },
         destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
           NavigationDestination(
             icon: Icon(Icons.library_books_outlined),
             selectedIcon: Icon(Icons.library_books),

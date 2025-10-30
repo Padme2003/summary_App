@@ -438,7 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const HomeScreen(initialTab: 1),
+                  builder: (context) => const HomeScreen(initialTab: 2),
                 ),
               );
             },
