@@ -81,12 +81,17 @@ class SummaryService {
   }
 
   // Obtener todos los resúmenes
-  Future<Map<String, dynamic>> getSummaries() async {
+  Future<Map<String, dynamic>> getSummaries({bool? isFavorite}) async {
     try {
       final headers = await _getHeaders();
 
+      String url = ApiConfig.summaries;
+      if (isFavorite != null) {
+        url += '?isFavorite=$isFavorite';
+      }
+
       final response = await http.get(
-        Uri.parse(ApiConfig.summaries),
+        Uri.parse(url),
         headers: headers,
       ).timeout(ApiConfig.connectionTimeout);
 
@@ -113,5 +118,42 @@ class SummaryService {
         'message': 'Error de conexión: $e',
       };
     }
+  }
+
+  // Alternar favorito
+  Future<Map<String, dynamic>> toggleFavorite(String summaryId) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.put(
+        Uri.parse(ApiConfig.toggleFavorite(summaryId)),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'summary': Summary.fromJson(data['data']['summary']),
+          'message': data['message'] ?? 'Favorito actualizado',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al actualizar favorito',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
+
+  // Obtener favoritos
+  Future<Map<String, dynamic>> getFavorites() async {
+    return getSummaries(isFavorite: true);
   }
 }

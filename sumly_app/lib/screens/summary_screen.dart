@@ -49,6 +49,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
         if (result['success'] == true) {
           setState(() {
             _summary = result['summary'];
+            _isFavorite = _summary?.isFavorite ?? false;
             _isLoading = false;
           });
 
@@ -119,6 +120,58 @@ class _SummaryScreenState extends State<SummaryScreen> {
   Future<void> _changeSpeed(double speed) async {
     await _audioPlayer.setSpeed(speed);
     setState(() => _playbackSpeed = speed);
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_summary == null) return;
+
+    // Actualizar UI optimista
+    setState(() => _isFavorite = !_isFavorite);
+
+    try {
+      final result = await _summaryService.toggleFavorite(_summary!.id);
+
+      if (mounted) {
+        if (result['success'] == true) {
+          setState(() {
+            _summary = result['summary'];
+            _isFavorite = _summary!.isFavorite;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Favorito actualizado'),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        } else {
+          // Revertir si falló
+          setState(() => _isFavorite = !_isFavorite);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Error al actualizar favorito'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Revertir si hay error
+      if (mounted) {
+        setState(() => _isFavorite = !_isFavorite);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error de conexión: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   void _shareSummary() {
@@ -209,9 +262,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         actions: [
           AnimatedHeartIcon(
             isFavorite: _isFavorite,
-            onTap: () {
-              setState(() => _isFavorite = !_isFavorite);
-            },
+            onTap: _toggleFavorite,
           ),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.black87),

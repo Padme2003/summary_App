@@ -14,6 +14,10 @@ class ApiConfig {
   static const String summaries = '$baseUrl/summaries';
   static const String audiobooks = '$baseUrl/audiobooks';
 
+  // Helper methods for dynamic endpoints
+  static String toggleFavorite(String summaryId) => '$summaries/$summaryId/favorite';
+  static String getSummary(String summaryId) => '$summaries/$summaryId';
+
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

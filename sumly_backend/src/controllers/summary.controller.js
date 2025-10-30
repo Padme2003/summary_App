@@ -279,6 +279,41 @@ exports.updateSummary = async (req, res) => {
   }
 };
 
+// Alternar favorito
+exports.toggleFavorite = async (req, res) => {
+  try {
+    const summary = await Summary.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!summary) {
+      return res.status(404).json({
+        success: false,
+        message: 'Resumen no encontrado',
+      });
+    }
+
+    summary.isFavorite = !summary.isFavorite;
+    await summary.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: summary.isFavorite ? 'Agregado a favoritos' : 'Removido de favoritos',
+      data: {
+        summary,
+      },
+    });
+  } catch (error) {
+    console.error('Error al alternar favorito:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al alternar favorito',
+      error: error.message,
+    });
+  }
+};
+
 // Eliminar resumen
 exports.deleteSummary = async (req, res) => {
   try {

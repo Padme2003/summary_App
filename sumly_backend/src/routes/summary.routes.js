@@ -11,6 +11,7 @@ router.post('/generate', summaryController.generateSummary);
 router.get('/', summaryController.getSummaries);
 router.get('/:id', summaryController.getSummary);
 router.put('/:id', summaryController.updateSummary);
+router.put('/:id/favorite', summaryController.toggleFavorite);
 router.delete('/:id', summaryController.deleteSummary);
 
 module.exports = router;
