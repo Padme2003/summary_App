@@ -9,6 +9,7 @@ class ApiConfig {
   static const String login = '$baseUrl/auth/login';
   static const String register = '$baseUrl/auth/register';
   static const String profile = '$baseUrl/auth/me';
+  static const String updateProfile = '$baseUrl/auth/update-profile';
   static const String documents = '$baseUrl/documents';
   static const String summaries = '$baseUrl/summaries';
   static const String audiobooks = '$baseUrl/audiobooks';

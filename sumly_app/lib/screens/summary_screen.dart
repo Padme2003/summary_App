@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:share_plus/share_plus.dart';
 import '../widgets/animated_widgets.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
@@ -120,6 +121,26 @@ class _SummaryScreenState extends State<SummaryScreen> {
     setState(() => _playbackSpeed = speed);
   }
 
+  void _shareSummary() {
+    if (_summary == null) return;
+
+    final shareText = '''
+📚 Resumen: ${_summary!.documentId}
+
+${_summary!.content}
+
+${_summary!.keyPoints.isNotEmpty ? '\n🔑 Puntos Clave:\n${_summary!.keyPoints.map((p) => '• $p').join('\n')}' : ''}
+
+---
+Generado con Sumly - Resúmenes Inteligentes con IA
+''';
+
+    Share.share(
+      shareText,
+      subject: 'Resumen - ${_summary!.documentId}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -194,9 +215,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.black87),
-            onPressed: () {
-              // TODO: Compartir resumen
-            },
+            onPressed: _shareSummary,
           ),
           IconButton(
             icon: const Icon(Icons.more_vert, color: Colors.black87),

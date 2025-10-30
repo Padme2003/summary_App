@@ -179,4 +179,56 @@ class AuthService {
       };
     }
   }
+
+  // Actualizar perfil
+  Future<Map<String, dynamic>> updateProfile({
+    String? name,
+    String? avatar,
+  }) async {
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        return {
+          'success': false,
+          'message': 'No autenticado',
+        };
+      }
+
+      final body = <String, dynamic>{};
+      if (name != null) body['name'] = name;
+      if (avatar != null) body['avatar'] = avatar;
+
+      final response = await http.put(
+        Uri.parse(ApiConfig.updateProfile),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(body),
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final user = User.fromJson(data['data']['user']);
+        await _saveUser(user);
+
+        return {
+          'success': true,
+          'user': user,
+          'message': 'Perfil actualizado',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al actualizar perfil',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
 }

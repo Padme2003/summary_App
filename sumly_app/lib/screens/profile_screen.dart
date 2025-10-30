@@ -544,15 +544,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showEditProfileDialog() {
+    final nameController = TextEditingController(text: _user?.name ?? '');
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Editar Perfil'),
-        content: const Text('Próximamente podrás editar tu perfil aquí.'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Nombre',
+            border: OutlineInputBorder(),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) {
+                return;
+              }
+
+              Navigator.pop(context);
+
+              // Mostrar loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+
+              // Actualizar perfil
+              final result = await _authService.updateProfile(
+                name: nameController.text.trim(),
+              );
+
+              if (mounted) {
+                Navigator.pop(context); // Cerrar loading
+
+                if (result['success'] == true) {
+                  setState(() {
+                    _user = result['user'];
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Perfil actualizado'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(result['message'] ?? 'Error al actualizar'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Guardar'),
           ),
         ],
       ),

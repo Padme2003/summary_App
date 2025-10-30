@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -8,7 +10,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _darkMode = false;
   bool _notifications = true;
   bool _autoPlay = false;
   double _defaultSpeed = 1.0;
@@ -42,14 +43,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Apariencia',
             icon: Icons.palette_outlined,
             children: [
-              _buildSwitchTile(
-                title: 'Modo oscuro',
-                subtitle: 'Tema oscuro para la aplicación',
-                icon: Icons.dark_mode_outlined,
-                value: _darkMode,
-                onChanged: (value) {
-                  setState(() => _darkMode = value);
-                  _showComingSoonSnackBar('Modo oscuro');
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return _buildSwitchTile(
+                    title: 'Modo oscuro',
+                    subtitle: 'Tema oscuro para la aplicación',
+                    icon: Icons.dark_mode_outlined,
+                    value: themeProvider.isDarkMode,
+                    onChanged: (value) {
+                      themeProvider.toggleTheme();
+                    },
+                  );
                 },
               ),
             ],
