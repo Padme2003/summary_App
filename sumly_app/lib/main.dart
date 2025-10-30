@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -11,7 +12,18 @@ import 'screens/audiobook_player_screen.dart';
 import 'screens/processing_screen.dart';
 import 'providers/theme_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase (opcional - solo si los archivos de configuración existen)
+  try {
+    await Firebase.initializeApp();
+    debugPrint('✅ Firebase inicializado correctamente');
+  } catch (e) {
+    debugPrint('⚠️  Firebase no configurado (esto es normal si no has agregado google-services.json)');
+    debugPrint('   Para habilitar Firebase, sigue las instrucciones en FIREBASE_SETUP.md');
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),

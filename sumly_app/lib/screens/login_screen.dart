@@ -374,6 +374,57 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         const SizedBox(height: 24),
 
+                        // Google Sign-In Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: OutlinedButton.icon(
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    setState(() => _isLoading = true);
+
+                                    final result = await _authService.signInWithGoogle();
+
+                                    if (mounted) {
+                                      setState(() => _isLoading = false);
+
+                                      if (result['success'] == true) {
+                                        Navigator.pushReplacementNamed(context, '/home');
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              result['message'] ?? 'Error al iniciar sesión',
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                            icon: Image.network(
+                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                              height: 24,
+                            ),
+                            label: const Text(
+                              'Continuar con Google',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.grey[800],
+                              side: BorderSide(color: Colors.grey[300]!),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
                         // Link a Register
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

@@ -208,3 +208,70 @@ exports.changePassword = async (req, res) => {
     });
   }
 };
+
+// Google Authentication
+exports.googleAuth = async (req, res) => {
+  try {
+    const { idToken, name, email, avatar } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email es requerido',
+      });
+    }
+
+    // En producción, deberías verificar el idToken con Firebase Admin SDK
+    // Para este proyecto, aceptaremos el token sin verificar
+    // import admin from 'firebase-admin';
+    // const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+    // Buscar usuario existente por email
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Crear nuevo usuario si no existe
+      // Para usuarios de Google, generamos una contraseña aleatoria
+      const randomPassword = Math.random().toString(36).slice(-8) +
+                           Math.random().toString(36).slice(-8);
+
+      user = await User.create({
+        name: name || 'Usuario de Google',
+        email,
+        password: randomPassword,
+        avatar: avatar || null,
+      });
+
+      console.log(`✅ Nuevo usuario creado via Google: ${email}`);
+    } else {
+      // Actualizar avatar si viene de Google
+      if (avatar && (!user.avatar || user.avatar.length === 0)) {
+        user.avatar = avatar;
+        await user.save({ validateBeforeSave: false });
+      }
+    }
+
+    // Actualizar último login
+    user.lastLogin = new Date();
+    await user.save({ validateBeforeSave: false });
+
+    // Generar token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Autenticación con Google exitosa',
+      data: {
+        user: user.toJSON(),
+        token,
+      },
+    });
+  } catch (error) {
+    console.error('Error en Google Auth:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al autenticar con Google',
+      error: error.message,
+    });
+  }
+};

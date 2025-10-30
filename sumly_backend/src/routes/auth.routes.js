@@ -6,6 +6,7 @@ const { protect } = require('../middleware/auth.middleware');
 // Rutas públicas
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.post('/google', authController.googleAuth);
 
 // Rutas protegidas
 router.get('/me', protect, authController.getMe);

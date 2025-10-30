@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart';
 import '../config/api_config.dart';
 import '../models/models.dart';
 
@@ -229,6 +232,118 @@ class AuthService {
         'success': false,
         'message': 'Error de conexión: $e',
       };
+    }
+  }
+
+  // Google Sign-In
+  Future<Map<String, dynamic>> signInWithGoogle() async {
+    try {
+      // Configurar GoogleSignIn
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
+
+      // Trigger el flujo de autenticación
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // Usuario canceló el sign-in
+        return {
+          'success': false,
+          'message': 'Sign-in cancelado',
+        };
+      }
+
+      // Obtener los detalles de autenticación
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Crear credenciales de Firebase
+      final firebase_auth.OAuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in con Firebase
+      final firebase_auth.UserCredential userCredential =
+          await firebase_auth.FirebaseAuth.instance.signInWithCredential(credential);
+
+      final firebase_auth.User? firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
+        return {
+          'success': false,
+          'message': 'Error al autenticar con Firebase',
+        };
+      }
+
+      // Obtener el ID token de Firebase para enviarlo al backend
+      final String? idToken = await firebaseUser.getIdToken();
+
+      if (idToken == null) {
+        return {
+          'success': false,
+          'message': 'Error al obtener token',
+        };
+      }
+
+      // Aquí deberías crear un endpoint en tu backend para login/register con Google
+      // Por ahora, creamos un usuario mock con los datos de Google
+
+      // Registrar o hacer login en tu backend
+      // Este endpoint debe verificar el idToken con Firebase Admin SDK
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'idToken': idToken,
+          'name': firebaseUser.displayName ?? 'Usuario',
+          'email': firebaseUser.email ?? '',
+          'avatar': firebaseUser.photoURL ?? '',
+        }),
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final token = data['data']['token'];
+        final user = User.fromJson(data['data']['user']);
+
+        await _saveToken(token);
+        await _saveUser(user);
+
+        return {
+          'success': true,
+          'user': user,
+          'message': 'Login exitoso con Google',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al autenticar con el servidor',
+        };
+      }
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      debugPrint('Firebase Auth Error: ${e.code} - ${e.message}');
+      return {
+        'success': false,
+        'message': 'Error de autenticación: ${e.message}',
+      };
+    } catch (e) {
+      debugPrint('Google Sign-In Error: $e');
+      return {
+        'success': false,
+        'message': 'Error al iniciar sesión con Google: $e',
+      };
+    }
+  }
+
+  // Sign out from Google
+  Future<void> signOutGoogle() async {
+    try {
+      await GoogleSignIn().signOut();
+      await firebase_auth.FirebaseAuth.instance.signOut();
+    } catch (e) {
+      debugPrint('Error signing out from Google: $e');
     }
   }
 }
