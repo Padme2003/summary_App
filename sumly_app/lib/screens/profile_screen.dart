@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'home_screen.dart';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
@@ -176,14 +179,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.white,
-                        child: Text(
-                          (_user?.name ?? 'U').substring(0, 1).toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
+                        backgroundImage: _user?.avatar != null && _user!.avatar!.isNotEmpty
+                            ? (_user!.avatar!.startsWith('data:')
+                                ? MemoryImage(base64Decode(_user!.avatar!.split(',')[1]))
+                                : NetworkImage(_user!.avatar!) as ImageProvider)
+                            : null,
+                        child: _user?.avatar == null || _user!.avatar!.isEmpty
+                            ? Text(
+                                (_user?.name ?? 'U').substring(0, 1).toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 36,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                     Positioned(
@@ -545,72 +555,148 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _user?.name ?? '');
+    File? selectedImage;
+    String? selectedImageBase64;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Editar Perfil'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Nombre',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                return;
-              }
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('Editar Perfil'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Avatar preview
+                  GestureDetector(
+                    onTap: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? image = await picker.pickImage(
+                        source: ImageSource.gallery,
+                        maxWidth: 512,
+                        maxHeight: 512,
+                        imageQuality: 85,
+                      );
 
-              Navigator.pop(context);
+                      if (image != null) {
+                        final bytes = await image.readAsBytes();
+                        final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
-              // Mostrar loading
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
+                        setDialogState(() {
+                          selectedImage = File(image.path);
+                          selectedImageBase64 = base64Image;
+                        });
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[200],
+                          backgroundImage: selectedImage != null
+                              ? FileImage(selectedImage!)
+                              : (_user?.avatar != null && _user!.avatar!.isNotEmpty
+                                  ? (_user!.avatar!.startsWith('data:')
+                                      ? MemoryImage(base64Decode(_user!.avatar!.split(',')[1]))
+                                      : NetworkImage(_user!.avatar!) as ImageProvider)
+                                  : null),
+                          child: selectedImage == null && (_user?.avatar == null || _user!.avatar!.isEmpty)
+                              ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                              : null,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Toca para cambiar foto',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (nameController.text.trim().isEmpty) {
+                    return;
+                  }
 
-              // Actualizar perfil
-              final result = await _authService.updateProfile(
-                name: nameController.text.trim(),
-              );
+                  Navigator.pop(context);
 
-              if (mounted) {
-                Navigator.pop(context); // Cerrar loading
-
-                if (result['success'] == true) {
-                  setState(() {
-                    _user = result['user'];
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Perfil actualizado'),
-                      backgroundColor: Colors.green,
+                  // Mostrar loading
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
                     ),
                   );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(result['message'] ?? 'Error al actualizar'),
-                      backgroundColor: Colors.red,
-                    ),
+
+                  // Actualizar perfil
+                  final result = await _authService.updateProfile(
+                    name: nameController.text.trim(),
+                    avatar: selectedImageBase64,
                   );
-                }
-              }
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
+
+                  if (mounted) {
+                    Navigator.pop(context); // Cerrar loading
+
+                    if (result['success'] == true) {
+                      setState(() {
+                        _user = result['user'];
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Perfil actualizado'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(result['message'] ?? 'Error al actualizar'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
