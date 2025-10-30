@@ -1,40 +1,181 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import '../widgets/animated_widgets.dart';
+import '../services/summary_service.dart';
+import '../models/models.dart';
+import '../config/api_config.dart';
 
 class SummaryScreen extends StatefulWidget {
-  const SummaryScreen({super.key});
+  final String? summaryId;
+
+  const SummaryScreen({super.key, this.summaryId});
 
   @override
   State<SummaryScreen> createState() => _SummaryScreenState();
 }
 
 class _SummaryScreenState extends State<SummaryScreen> {
-  bool _isPlaying = false;
-  double _playbackSpeed = 1.0;
-  double _progress = 0.0;
+  final SummaryService _summaryService = SummaryService();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  Summary? _summary;
+  bool _isLoading = true;
+  String? _errorMessage;
   bool _isFavorite = false;
 
-  final String _summaryText = '''
-El Arte de la Guerra es un tratado militar chino escrito durante el siglo VI a.C. por Sun Tzu. Contiene una detallada explicación de la estrategia militar y las tácticas de combate.
+  double _playbackSpeed = 1.0;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
 
-Puntos clave:
+  @override
+  void initState() {
+    super.initState();
+    _loadSummary();
+    _setupAudioPlayer();
+  }
 
-• La guerra debe evitarse siempre que sea posible, pero cuando sea inevitable, debe ganarse rápidamente.
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
 
-• Conocer al enemigo y conocerse a sí mismo es esencial para la victoria.
+  Future<void> _loadSummary() async {
+    try {
+      final result = await _summaryService.getSummary(widget.summaryId!);
 
-• La estrategia es más importante que la fuerza bruta.
+      if (mounted) {
+        if (result['success'] == true) {
+          setState(() {
+            _summary = result['summary'];
+            _isLoading = false;
+          });
 
-• La victoria completa se obtiene sin luchar, haciendo que el enemigo se rinda.
+          // Cargar audio si está disponible
+          if (_summary?.audioUrl != null && _summary!.audioUrl!.isNotEmpty) {
+            final audioUrl = _summary!.audioUrl!.startsWith('http')
+                ? _summary!.audioUrl!
+                : '${ApiConfig.baseUrl.replaceAll('/api', '')}${_summary!.audioUrl}';
 
-• Un líder debe ser flexible y adaptarse a las circunstancias cambiantes.
+            try {
+              await _audioPlayer.setUrl(audioUrl);
+            } catch (e) {
+              debugPrint('Error loading audio: $e');
+            }
+          }
+        } else {
+          setState(() {
+            _errorMessage = result['message'] ?? 'Error al cargar resumen';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error de conexión: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
-Conclusión:
-El libro enfatiza la importancia de la planificación, la estrategia y la comprensión tanto de uno mismo como del adversario para lograr el éxito en cualquier conflicto.
-''';
+  void _setupAudioPlayer() {
+    _audioPlayer.durationStream.listen((duration) {
+      if (mounted) {
+        setState(() => _duration = duration ?? Duration.zero);
+      }
+    });
+
+    _audioPlayer.positionStream.listen((position) {
+      if (mounted) {
+        setState(() => _position = position);
+      }
+    });
+
+    _audioPlayer.playerStateStream.listen((state) {
+      // Auto-navegar cuando termine el audio
+      if (state.processingState == ProcessingState.completed) {
+        _audioPlayer.seek(Duration.zero);
+        _audioPlayer.pause();
+      }
+    });
+  }
+
+  Future<void> _togglePlayPause() async {
+    if (_audioPlayer.playing) {
+      await _audioPlayer.pause();
+    } else {
+      await _audioPlayer.play();
+    }
+  }
+
+  Future<void> _seekRelative(int seconds) async {
+    final newPosition = _position + Duration(seconds: seconds);
+    await _audioPlayer.seek(newPosition.clamp(Duration.zero, _duration));
+  }
+
+  Future<void> _changeSpeed(double speed) async {
+    await _audioPlayer.setSpeed(speed);
+    setState(() => _playbackSpeed = speed);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _errorMessage = null;
+                  });
+                  _loadSummary();
+                },
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -76,6 +217,10 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
   }
 
   Widget _buildHeader() {
+    final durationText = _summary?.audioDuration != null
+        ? '${(_summary!.audioDuration! / 60).floor()} min'
+        : 'Sin audio';
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -103,28 +248,39 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'El Arte de la Guerra',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            _summary?.documentId.toString() ?? 'Resumen',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
-            'Sun Tzu',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            'Generado el ${_formatDate(_summary?.createdAt)}',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             children: [
-              _buildTag('Estrategia', Colors.blue),
-              _buildTag('Filosofía', Colors.purple),
-              _buildTag('12 min', Colors.orange),
+              _buildTag('Resumen IA', Colors.blue),
+              _buildTag(durationText, Colors.orange),
+              if (_summary?.keyPoints.isNotEmpty ?? false)
+                _buildTag('${_summary!.keyPoints.length} puntos', Colors.purple),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Hoy';
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inDays == 0) return 'Hoy';
+    if (diff.inDays == 1) return 'Ayer';
+    if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
+    return '${date.day}/${date.month}/${date.year}';
   }
 
   Widget _buildTag(String label, Color color) {
@@ -146,6 +302,9 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
   }
 
   Widget _buildContent() {
+    final summaryContent = _summary?.content ?? 'No hay contenido disponible';
+    final keyPoints = _summary?.keyPoints ?? [];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
@@ -181,13 +340,48 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
             ),
             const SizedBox(height: 16),
             Text(
-              _summaryText,
+              summaryContent,
               style: const TextStyle(
                 fontSize: 16,
                 height: 1.6,
                 color: Colors.black87,
               ),
             ),
+            if (keyPoints.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              const Text(
+                'Puntos Clave',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              ...keyPoints.map((point) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          margin: const EdgeInsets.only(top: 8, right: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[600],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            point,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              height: 1.5,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+            ],
           ],
         ),
       ),
@@ -195,6 +389,38 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
   }
 
   Widget _buildAudioControls() {
+    final hasAudio = _summary?.audioUrl != null && _summary!.audioUrl!.isNotEmpty;
+
+    if (!hasAudio) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Text(
+                'Audio no disponible',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -215,19 +441,24 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
             Row(
               children: [
                 Text(
-                  _formatDuration(_progress * 720),
+                  _formatDuration(_position),
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 Expanded(
                   child: Slider(
-                    value: _progress,
+                    value: _duration.inSeconds > 0
+                        ? _position.inSeconds / _duration.inSeconds
+                        : 0.0,
                     onChanged: (value) {
-                      setState(() => _progress = value);
+                      final newPosition = Duration(
+                        seconds: (value * _duration.inSeconds).round(),
+                      );
+                      _audioPlayer.seek(newPosition);
                     },
                   ),
                 ),
                 Text(
-                  '12:00',
+                  _formatDuration(_duration),
                   style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
@@ -259,56 +490,55 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
                   ),
                 ),
                 AnimatedScaleButton(
-                  onPressed: () {
-                    setState(() {
-                      _progress = (_progress - 15 / 720).clamp(0.0, 1.0);
-                    });
-                  },
+                  onPressed: () => _seekRelative(-10),
                   child: Icon(
                     Icons.replay_10,
                     size: 32,
                     color: Colors.grey[700],
                   ),
                 ),
-                AnimatedScaleButton(
-                  onPressed: () {
-                    setState(() => _isPlaying = !_isPlaying);
-                  },
-                  scaleValue: 0.9,
-                  child: Container(
-                    width: 70,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primaryContainer,
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                StreamBuilder<PlayerState>(
+                  stream: _audioPlayer.playerStateStream,
+                  builder: (context, snapshot) {
+                    final playerState = snapshot.data;
+                    final isPlaying = playerState?.playing ?? false;
+
+                    return AnimatedScaleButton(
+                      onPressed: _togglePlayPause,
+                      scaleValue: 0.9,
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primaryContainer,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Icon(
-                      _isPlaying ? Icons.pause : Icons.play_arrow,
-                      size: 36,
-                      color: Colors.white,
-                    ),
-                  ),
+                        child: Icon(
+                          isPlaying ? Icons.pause : Icons.play_arrow,
+                          size: 36,
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 AnimatedScaleButton(
-                  onPressed: () {
-                    setState(() {
-                      _progress = (_progress + 15 / 720).clamp(0.0, 1.0);
-                    });
-                  },
+                  onPressed: () => _seekRelative(10),
                   child: Icon(
                     Icons.forward_10,
                     size: 32,
@@ -338,7 +568,8 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
     );
   }
 
-  String _formatDuration(double seconds) {
+  String _formatDuration(Duration duration) {
+    final seconds = duration.inSeconds;
     final min = (seconds / 60).floor();
     final sec = (seconds % 60).floor();
     return '${min.toString().padLeft(2, '0')}:${sec.toString().padLeft(2, '0')}';
@@ -357,7 +588,7 @@ El libro enfatiza la importancia de la planificación, la estrategia y la compre
               value: speed,
               groupValue: _playbackSpeed,
               onChanged: (value) {
-                setState(() => _playbackSpeed = value!);
+                _changeSpeed(value!);
                 Navigator.pop(context);
               },
             );

@@ -42,7 +42,6 @@ class SumlyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
-        '/summary': (context) => const SummaryScreen(),
         '/upload': (context) => const UploadScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/audiobook': (context) => const AudiobookPlayerScreen(),
@@ -52,8 +51,18 @@ class SumlyApp extends StatelessWidget {
         if (settings.name == '/processing') {
           final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (context) =>
-                ProcessingScreen(mode: args?['mode'] ?? 'summary'),
+            builder: (context) => ProcessingScreen(
+              mode: args?['mode'] ?? 'summary',
+              documentId: args?['documentId'] ?? '',
+            ),
+          );
+        }
+        if (settings.name == '/summary') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (context) => SummaryScreen(
+              summaryId: args?['id'],
+            ),
           );
         }
         return null;

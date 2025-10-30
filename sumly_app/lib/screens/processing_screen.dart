@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import '../services/summary_service.dart';
+import '../services/audiobook_service.dart';
 
 class ProcessingScreen extends StatefulWidget {
   final String mode; // 'summary' o 'audiobook'
+  final String documentId;
 
-  const ProcessingScreen({super.key, required this.mode});
+  const ProcessingScreen({
+    super.key,
+    required this.mode,
+    required this.documentId,
+  });
 
   @override
   State<ProcessingScreen> createState() => _ProcessingScreenState();
@@ -14,25 +21,29 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   double _progress = 0.0;
-  String _currentStep = 'Extrayendo texto...';
+  String _currentStep = 'Iniciando procesamiento...';
 
-  final List<Map<String, String>> _summarySteps = [
-    {'text': 'Extrayendo texto del documento...', 'duration': '2'},
-    {'text': 'Analizando contenido con IA...', 'duration': '3'},
-    {'text': 'Generando resumen inteligente...', 'duration': '2'},
-    {'text': 'Creando audio del resumen...', 'duration': '1'},
-    {'text': '¡Listo! Preparando visualización...', 'duration': '1'},
+  final SummaryService _summaryService = SummaryService();
+  final AudiobookService _audiobookService = AudiobookService();
+
+  String? _generatedId;
+  bool _hasError = false;
+  String _errorMessage = '';
+
+  final List<String> _summarySteps = [
+    'Extrayendo texto del documento...',
+    'Analizando contenido con IA...',
+    'Generando resumen inteligente...',
+    'Creando audio del resumen...',
+    '¡Listo! Preparando visualización...',
   ];
 
-  final List<Map<String, String>> _audiobookSteps = [
-    {'text': 'Extrayendo texto del documento...', 'duration': '2'},
-    {'text': 'Detectando estructura de capítulos...', 'duration': '2'},
-    {
-      'text': 'Generando audio completo (esto puede tomar un momento)...',
-      'duration': '5',
-    },
-    {'text': 'Optimizando calidad de audio...', 'duration': '2'},
-    {'text': '¡Listo! Preparando reproductor...', 'duration': '1'},
+  final List<String> _audiobookSteps = [
+    'Extrayendo texto del documento...',
+    'Detectando estructura de capítulos...',
+    'Generando audio completo...',
+    'Optimizando calidad de audio...',
+    '¡Listo! Preparando reproductor...',
   ];
 
   @override
@@ -53,25 +64,124 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   }
 
   void _startProcessing() async {
-    final steps = widget.mode == 'summary' ? _summarySteps : _audiobookSteps;
-
-    for (int i = 0; i < steps.length; i++) {
-      if (!mounted) break;
-
+    try {
+      // Paso 1: Iniciar generación
       setState(() {
-        _currentStep = steps[i]['text']!;
-        _progress = (i + 1) / steps.length;
+        _currentStep = widget.mode == 'summary'
+            ? _summarySteps[0]
+            : _audiobookSteps[0];
+        _progress = 0.2;
       });
 
-      await Future.delayed(Duration(seconds: int.parse(steps[i]['duration']!)));
+      Map<String, dynamic> result;
+
+      if (widget.mode == 'summary') {
+        result = await _summaryService.generateSummary(widget.documentId);
+      } else {
+        result = await _audiobookService.generateAudiobook(widget.documentId);
+      }
+
+      if (result['success'] != true) {
+        _showError(result['message'] ?? 'Error al iniciar generación');
+        return;
+      }
+
+      // Obtener el ID generado
+      final generatedItem =
+          widget.mode == 'summary' ? result['summary'] : result['audiobook'];
+      _generatedId = generatedItem.id;
+
+      // Paso 2: Polling - verificar estado cada 3 segundos
+      await _pollForCompletion();
+    } catch (e) {
+      _showError('Error de conexión: $e');
+    }
+  }
+
+  Future<void> _pollForCompletion() async {
+    final steps = widget.mode == 'summary' ? _summarySteps : _audiobookSteps;
+    int currentStepIndex = 1;
+    int pollAttempts = 0;
+    const maxAttempts = 60; // 3 minutos máximo (60 * 3 segundos)
+
+    while (pollAttempts < maxAttempts) {
+      if (!mounted) break;
+
+      await Future.delayed(const Duration(seconds: 3));
+      pollAttempts++;
+
+      // Actualizar paso visual
+      if (currentStepIndex < steps.length - 1) {
+        setState(() {
+          _currentStep = steps[currentStepIndex];
+          _progress = 0.2 + (0.6 * currentStepIndex / (steps.length - 2));
+        });
+        currentStepIndex++;
+      }
+
+      // Verificar estado en el backend
+      Map<String, dynamic> statusResult;
+
+      try {
+        if (widget.mode == 'summary') {
+          statusResult = await _summaryService.getSummary(_generatedId!);
+        } else {
+          statusResult = await _audiobookService.getAudiobook(_generatedId!);
+        }
+
+        if (statusResult['success'] != true) {
+          continue; // Reintentar
+        }
+
+        final item = widget.mode == 'summary'
+            ? statusResult['summary']
+            : statusResult['audiobook'];
+        final status = item.status;
+
+        if (status == 'completed') {
+          // ¡Completado!
+          setState(() {
+            _currentStep = steps.last;
+            _progress = 1.0;
+          });
+
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          if (mounted) {
+            Navigator.pushReplacementNamed(
+              context,
+              widget.mode == 'summary' ? '/summary' : '/audiobook',
+              arguments: {'id': _generatedId},
+            );
+          }
+          break;
+        } else if (status == 'failed') {
+          _showError('La generación falló. Por favor, intenta nuevamente.');
+          break;
+        }
+      } catch (e) {
+        // Continuar intentando en caso de error de red temporal
+        continue;
+      }
     }
 
-    if (mounted) {
-      Navigator.pushReplacementNamed(
-        context,
-        widget.mode == 'summary' ? '/summary' : '/audiobook',
-      );
+    if (pollAttempts >= maxAttempts && mounted) {
+      _showError(
+          'La generación está tomando más tiempo del esperado. Por favor, verifica tu biblioteca más tarde.');
     }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _hasError = true;
+      _errorMessage = message;
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   @override
@@ -254,21 +364,47 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
               const Spacer(),
 
-              // Mensaje de espera
-              Text(
-                'Esto puede tomar unos momentos...',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                isSummary
-                    ? 'Estamos usando IA para crear un resumen de calidad'
-                    : 'Estamos convirtiendo todo el libro a audio',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                textAlign: TextAlign.center,
-              ),
+              // Mensaje de error o espera
+              if (_hasError)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red[300]!, width: 1),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red[700]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _errorMessage,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.red[900],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                Text(
+                  'Esto puede tomar unos momentos...',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  isSummary
+                      ? 'Estamos usando IA para crear un resumen de calidad'
+                      : 'Estamos convirtiendo todo el libro a audio',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),

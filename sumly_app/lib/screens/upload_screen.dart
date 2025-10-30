@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../services/document_service.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -11,10 +13,12 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen>
     with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
+  final DocumentService _documentService = DocumentService();
   String? _selectedFileName;
   String? _selectedFilePath;
   int _selectedTab = 0; // 0 = Archivo, 1 = Texto
   int _selectedMode = 0; // 0 = Resumen, 1 = Audiolibro
+  bool _isUploading = false;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -67,12 +71,46 @@ class _UploadScreenState extends State<UploadScreen>
       return;
     }
 
-    // Navegar a la pantalla de procesamiento
-    Navigator.pushNamed(
-      context,
-      '/processing',
-      arguments: {'mode': _selectedMode == 0 ? 'summary' : 'audiobook'},
-    );
+    setState(() => _isUploading = true);
+
+    try {
+      Map<String, dynamic> result;
+
+      if (_selectedTab == 0) {
+        // Subir archivo
+        final file = File(_selectedFilePath!);
+        result = await _documentService.uploadFile(file, _selectedFileName!);
+      } else {
+        // Subir texto
+        String title = 'Texto ${DateTime.now().toString().substring(0, 16)}';
+        result = await _documentService.uploadText(title, _textController.text.trim());
+      }
+
+      if (mounted) {
+        setState(() => _isUploading = false);
+
+        if (result['success'] == true) {
+          final documentId = result['document'].id;
+
+          // Navegar a processing con el documentId real
+          Navigator.pushNamed(
+            context,
+            '/processing',
+            arguments: {
+              'mode': _selectedMode == 0 ? 'summary' : 'audiobook',
+              'documentId': documentId,
+            },
+          );
+        } else {
+          _showErrorSnackBar(result['message'] ?? 'Error al subir contenido');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploading = false);
+        _showErrorSnackBar('Error: $e');
+      }
+    }
   }
 
   void _showErrorSnackBar(String message) {
@@ -515,7 +553,7 @@ class _UploadScreenState extends State<UploadScreen>
         (_selectedTab == 1 && _textController.text.trim().isNotEmpty);
 
     return ElevatedButton(
-      onPressed: canProcess ? _processContent : null,
+      onPressed: (canProcess && !_isUploading) ? _processContent : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: canProcess
             ? Theme.of(context).colorScheme.primary
@@ -523,24 +561,33 @@ class _UploadScreenState extends State<UploadScreen>
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            _selectedMode == 0 ? Icons.auto_awesome : Icons.headphones,
-            color: canProcess ? Colors.white : Colors.grey[500],
-          ),
-          const SizedBox(width: 8),
-          Text(
-            _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: canProcess ? Colors.white : Colors.grey[500],
+      child: _isUploading
+          ? const SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  _selectedMode == 0 ? Icons.auto_awesome : Icons.headphones,
+                  color: canProcess ? Colors.white : Colors.grey[500],
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: canProcess ? Colors.white : Colors.grey[500],
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
