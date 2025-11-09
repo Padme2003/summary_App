@@ -228,11 +228,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _user?.email ?? '',
                   style: const TextStyle(fontSize: 14, color: Colors.white70),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatMemberSince(_user?.createdAt),
-                  style: const TextStyle(fontSize: 12, color: Colors.white60),
-                ),
               ],
             ),
           ),
@@ -261,13 +256,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             '$processedDocs',
             Icons.check_circle,
             Colors.green,
-          ),
-          const SizedBox(width: 12),
-          _buildStatCard(
-            'Almacenamiento',
-            '${(_user?.storage ?? 0) ~/ 1024} KB',
-            Icons.storage,
-            Colors.orange,
           ),
         ],
       ),
@@ -719,7 +707,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildStatRow('Procesados:', '$processedDocs'),
             _buildStatRow('Pendientes:', '$pendingDocs'),
             _buildStatRow('Con errores:', '$failedDocs'),
-            _buildStatRow('Almacenamiento:', '${(_user?.storage ?? 0) ~/ 1024} KB'),
           ],
         ),
         actions: [

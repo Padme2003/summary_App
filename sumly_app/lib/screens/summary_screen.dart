@@ -114,7 +114,10 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
   Future<void> _seekRelative(int seconds) async {
     final newPosition = _position + Duration(seconds: seconds);
-    await _audioPlayer.seek(newPosition.clamp(Duration.zero, _duration));
+    final clampedPosition = newPosition < Duration.zero
+        ? Duration.zero
+        : (newPosition > _duration ? _duration : newPosition);
+    await _audioPlayer.seek(clampedPosition);
   }
 
   Future<void> _changeSpeed(double speed) async {
@@ -178,7 +181,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
     if (_summary == null) return;
 
     final shareText = '''
-📚 Resumen: ${_summary!.documentId}
+📚 Resumen: ${_summary!.title}
 
 ${_summary!.content}
 
@@ -190,7 +193,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
     Share.share(
       shareText,
-      subject: 'Resumen - ${_summary!.documentId}',
+      subject: 'Resumen - ${_summary!.title}',
     );
   }
 
@@ -319,7 +322,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           ),
           const SizedBox(height: 16),
           Text(
-            _summary?.documentId.toString() ?? 'Resumen',
+            _summary?.title ?? 'Resumen',
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),

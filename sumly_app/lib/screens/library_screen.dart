@@ -421,7 +421,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Navegar a procesamiento
-              ),
+              },
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),

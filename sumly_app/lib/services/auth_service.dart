@@ -189,7 +189,7 @@ class AuthService {
     String? avatar,
   }) async {
     try {
-      final token = await _getToken();
+      final token = await getToken();
       if (token == null) {
         return {
           'success': false,

@@ -224,16 +224,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Colors.orange,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Almacenamiento',
-                            '${(_user?.storage ?? 0) ~/ 1024} KB',
-                            'usado',
-                            Icons.storage,
-                            Colors.purple,
-                          ),
-                        ),
                       ],
                     ),
 
