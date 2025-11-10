@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import 'forgot_password_screen.dart';
 
@@ -65,7 +66,9 @@ class _LoginScreenState extends State<LoginScreen>
           setState(() => _isLoading = false);
 
           if (result['success'] == true) {
-            // Login exitoso
+            // Login exitoso - guardar credenciales en el sistema
+            TextInput.finishAutofillContext();
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(result['message'] ?? '¡Bienvenido!'),
@@ -126,10 +129,11 @@ class _LoginScreenState extends State<LoginScreen>
                   position: _slideAnimation,
                   child: Form(
                     key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
+                    child: AutofillGroup(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                         // Logo con círculo de fondo
                         Container(
                           padding: const EdgeInsets.all(20),
@@ -194,6 +198,7 @@ class _LoginScreenState extends State<LoginScreen>
                           child: TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
                             style: const TextStyle(fontSize: 16),
                             decoration: InputDecoration(
                               labelText: 'Email',
@@ -242,6 +247,7 @@ class _LoginScreenState extends State<LoginScreen>
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
+                            autofillHints: const [AutofillHints.password],
                             style: const TextStyle(fontSize: 16),
                             decoration: InputDecoration(
                               labelText: 'Contraseña',
@@ -467,6 +473,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ],
                         ),
                       ],
+                    ),
                     ),
                   ),
                 ),

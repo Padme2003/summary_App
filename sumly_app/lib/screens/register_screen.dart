@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -43,6 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           setState(() => _isLoading = false);
 
           if (result['success'] == true) {
+            // Registro exitoso - guardar credenciales en el sistema
+            TextInput.finishAutofillContext();
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(result['message'] ?? '¡Cuenta creada exitosamente!'),
@@ -94,10 +98,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: const EdgeInsets.all(24),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: AutofillGroup(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   // Título
                   Text(
                     "Crear Cuenta",
@@ -119,6 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Nombre
                   TextFormField(
                     controller: _nameController,
+                    autofillHints: const [AutofillHints.name],
                     decoration: InputDecoration(
                       labelText: "Nombre completo",
                       prefixIcon: const Icon(Icons.person_outline),
@@ -142,6 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
                     decoration: InputDecoration(
                       labelText: "Email",
                       prefixIcon: const Icon(Icons.email_outlined),
@@ -165,6 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    autofillHints: const [AutofillHints.newPassword],
                     decoration: InputDecoration(
                       labelText: "Contraseña",
                       prefixIcon: const Icon(Icons.lock_outline),
@@ -198,6 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
+                    autofillHints: const [AutofillHints.newPassword],
                     decoration: InputDecoration(
                       labelText: "Confirmar contraseña",
                       prefixIcon: const Icon(Icons.lock_outline),
@@ -275,6 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                 ],
+              ),
               ),
             ),
           ),
