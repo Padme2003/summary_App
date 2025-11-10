@@ -3,7 +3,11 @@ class ApiConfig {
   // Para Android Emulator: 10.0.2.2
   // Para iOS Simulator: localhost
   // Para dispositivo real: tu IP local (192.168.x.x)
-  static const String baseUrl = 'http://10.0.2.2:5000/api';
+
+  // IMPORTANTE: Para dispositivos físicos, cambia esto a tu IP local
+  // Ejemplo: 'http://192.168.1.100:5000/api'
+  // Para encontrar tu IP en Windows: abre PowerShell y ejecuta "ipconfig"
+  static const String baseUrl = 'http://192.168.1.100:5000/api';  // CAMBIAR POR TU IP LOCAL
 
   // Endpoints
   static const String login = '$baseUrl/auth/login';

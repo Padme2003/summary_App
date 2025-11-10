@@ -403,9 +403,18 @@ class _LoginScreenState extends State<LoginScreen>
                                       }
                                     }
                                   },
-                            icon: Image.network(
-                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                              height: 24,
+                            icon: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Icon(
+                                Icons.g_mobiledata_rounded,
+                                size: 28,
+                                color: Colors.red.shade600,
+                              ),
                             ),
                             label: const Text(
                               'Continuar con Google',
