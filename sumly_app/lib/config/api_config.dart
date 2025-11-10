@@ -7,13 +7,18 @@ class ApiConfig {
   // IMPORTANTE: Para dispositivos físicos, cambia esto a tu IP local
   // Ejemplo: 'http://192.168.1.100:5000/api'
   // Para encontrar tu IP en Windows: abre PowerShell y ejecuta "ipconfig"
-  static const String baseUrl = 'http://192.168.1.100:5000/api';  // CAMBIAR POR TU IP LOCAL
+  static const String baseUrl = 'http://192.168.18.54:5000/api';  // IP actual del dispositivo
 
-  // Endpoints
+  // Auth Endpoints
   static const String login = '$baseUrl/auth/login';
   static const String register = '$baseUrl/auth/register';
   static const String profile = '$baseUrl/auth/me';
-  static const String updateProfile = '$baseUrl/auth/update-profile';
+  static const String updateProfile = '$baseUrl/auth/profile';
+  static const String changePassword = '$baseUrl/auth/change-password';
+  static const String forgotPassword = '$baseUrl/auth/forgot-password';
+  static const String resetPassword = '$baseUrl/auth/reset-password';
+
+  // Resource Endpoints
   static const String documents = '$baseUrl/documents';
   static const String summaries = '$baseUrl/summaries';
   static const String audiobooks = '$baseUrl/audiobooks';
