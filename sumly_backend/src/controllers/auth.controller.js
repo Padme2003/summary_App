@@ -275,3 +275,101 @@ exports.googleAuth = async (req, res) => {
     });
   }
 };
+
+// Recuperar contraseña (enviar email con código)
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Por favor proporciona un email',
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      // Por seguridad, no revelamos si el email existe
+      return res.status(200).json({
+        success: true,
+        message: 'Si el email existe, recibirás instrucciones para recuperar tu contraseña',
+      });
+    }
+
+    // Generar código de 6 dígitos
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Guardar código (en producción, usa hash y expiración)
+    user.resetPasswordCode = resetCode;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutos
+    await user.save({ validateBeforeSave: false });
+
+    // TODO: En producción, enviar email con el código
+    // Para desarrollo, lo mostramos en logs
+    console.log(`🔑 Código de recuperación para ${email}: ${resetCode}`);
+    console.log(`   Expira en 15 minutos`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Si el email existe, recibirás instrucciones para recuperar tu contraseña',
+      // Solo para desarrollo - REMOVER EN PRODUCCIÓN
+      devOnly: { code: resetCode },
+    });
+  } catch (error) {
+    console.error('Error en forgot password:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al procesar solicitud',
+      error: error.message,
+    });
+  }
+};
+
+// Verificar código y resetear contraseña
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, código y nueva contraseña son requeridos',
+      });
+    }
+
+    const user = await User.findOne({
+      email,
+      resetPasswordCode: code,
+      resetPasswordExpires: { $gt: Date.now() },
+    }).select('+password');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Código inválido o expirado',
+      });
+    }
+
+    // Cambiar contraseña
+    user.password = newPassword;
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    console.log(`✅ Contraseña reseteada para: ${email}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Contraseña cambiada exitosamente. Ya puedes iniciar sesión',
+    });
+  } catch (error) {
+    console.error('Error en reset password:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al resetear contraseña',
+      error: error.message,
+    });
+  }
+};
