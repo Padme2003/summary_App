@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.19.0
   just_audio: ^0.9.36
   audio_video_progress_bar: ^1.0.1
+  flutter_tts: ^4.0.2
 
   # Features adicionales
   share_plus: ^7.2.1

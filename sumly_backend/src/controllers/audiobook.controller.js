@@ -1,6 +1,40 @@
 const Audiobook = require('../models/Audiobook');
 const Document = require('../models/Document');
+const User = require('../models/User');
 const { generateAudiobook, generateAudioFile } = require('../services/tts.service');
+
+// Obtener cuota de audiolibros del usuario
+exports.getAudiobookQuota = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    // Verificar y resetear cuota si es necesario
+    user.checkAndResetAudiobookQuota();
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        quota: {
+          used: user.audiobookQuota.used,
+          limit: user.audiobookQuota.limit,
+          remaining: user.audiobookQuota.limit === -1
+            ? -1
+            : Math.max(0, user.audiobookQuota.limit - user.audiobookQuota.used),
+          resetDate: user.audiobookQuota.resetDate,
+          isPremium: user.subscription.type === 'premium' || user.audiobookQuota.limit === -1,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error al obtener cuota:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener cuota de audiolibros',
+      error: error.message,
+    });
+  }
+};
 
 // Generar audiolibro completo
 exports.generateAudiobook = async (req, res) => {
@@ -26,6 +60,26 @@ exports.generateAudiobook = async (req, res) => {
       });
     }
 
+    // Obtener usuario con información completa
+    const user = await User.findById(req.user._id);
+
+    // Verificar cuota disponible
+    if (!user.hasAudiobookQuota()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Has alcanzado tu límite de audiolibros este mes',
+        code: 'QUOTA_EXCEEDED',
+        data: {
+          quota: {
+            used: user.audiobookQuota.used,
+            limit: user.audiobookQuota.limit,
+            resetDate: user.audiobookQuota.resetDate,
+          },
+          suggestion: 'Usa TTS nativo del dispositivo o actualiza a Premium para audiolibros ilimitados',
+        },
+      });
+    }
+
     // Crear audiolibro inicial
     const audiobook = await Audiobook.create({
       document: document._id,
@@ -36,14 +90,25 @@ exports.generateAudiobook = async (req, res) => {
       status: 'generating',
     });
 
+    // Incrementar contador de cuota
+    user.audiobookQuota.used += 1;
+    await user.save({ validateBeforeSave: false });
+
     // Generar audio en segundo plano
-    generateAudiobookAsync(document, audiobook, req.user, { voice, speed });
+    generateAudiobookAsync(document, audiobook, user, { voice, speed });
 
     res.status(202).json({
       success: true,
-      message: 'Generación de audiolibro iniciada',
+      message: 'Generación de audiolibro iniciada con Google Cloud TTS',
       data: {
         audiobook,
+        quota: {
+          used: user.audiobookQuota.used,
+          limit: user.audiobookQuota.limit,
+          remaining: user.audiobookQuota.limit === -1
+            ? -1
+            : Math.max(0, user.audiobookQuota.limit - user.audiobookQuota.used),
+        },
       },
     });
   } catch (error) {

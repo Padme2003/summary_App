@@ -7,6 +7,7 @@ const { protect } = require('../middleware/auth.middleware');
 router.use(protect);
 
 // Rutas de audiolibros
+router.get('/quota', audiobookController.getAudiobookQuota);
 router.post('/generate', audiobookController.generateAudiobook);
 router.get('/', audiobookController.getAudiobooks);
 router.get('/:id', audiobookController.getAudiobook);

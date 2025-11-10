@@ -67,6 +67,26 @@ const userSchema = new mongoose.Schema({
       default: 0,
     },
   },
+  audiobookQuota: {
+    used: {
+      type: Number,
+      default: 0,
+    },
+    limit: {
+      type: Number,
+      default: 10, // 10 para usuarios gratuitos, -1 para premium (ilimitado)
+    },
+    resetDate: {
+      type: Date,
+      default: () => {
+        const date = new Date();
+        date.setMonth(date.getMonth() + 1);
+        date.setDate(1);
+        date.setHours(0, 0, 0, 0);
+        return date;
+      },
+    },
+  },
   isActive: {
     type: Boolean,
     default: true,
@@ -102,6 +122,33 @@ userSchema.pre('save', async function(next) {
 // Método para comparar contraseñas
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Método para verificar y resetear cuota de audiolibros
+userSchema.methods.checkAndResetAudiobookQuota = function() {
+  const now = new Date();
+  if (now >= this.audiobookQuota.resetDate) {
+    // Reset mensual
+    this.audiobookQuota.used = 0;
+    const nextReset = new Date(now);
+    nextReset.setMonth(nextReset.getMonth() + 1);
+    nextReset.setDate(1);
+    nextReset.setHours(0, 0, 0, 0);
+    this.audiobookQuota.resetDate = nextReset;
+  }
+};
+
+// Método para verificar si tiene cuota disponible
+userSchema.methods.hasAudiobookQuota = function() {
+  this.checkAndResetAudiobookQuota();
+
+  // Premium tiene ilimitado
+  if (this.subscription.type === 'premium' || this.audiobookQuota.limit === -1) {
+    return true;
+  }
+
+  // Verificar si aún tiene cuota disponible
+  return this.audiobookQuota.used < this.audiobookQuota.limit;
 };
 
 // Método para obtener datos públicos del usuario
