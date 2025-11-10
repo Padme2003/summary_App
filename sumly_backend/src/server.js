@@ -64,9 +64,10 @@ app.use('*', (req, res) => {
 
 // Iniciar servidor
 const PORT = config.port;
-app.listen(PORT, () => {
-  console.log(`=� Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`=� Entorno: ${config.nodeEnv}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✓ Servidor corriendo en http://0.0.0.0:${PORT}`);
+  console.log(`✓ Accesible desde la red en http://192.168.18.54:${PORT}`);
+  console.log(`✓ Entorno: ${config.nodeEnv}`);
 });
 
 module.exports = app;
