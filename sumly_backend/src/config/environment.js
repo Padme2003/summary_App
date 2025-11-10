@@ -8,5 +8,16 @@ module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   uploadDir: './uploads',
   maxFileSize: 52428800, // 50MB
-  allowedFileTypes: ['application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  allowedFileTypes: [
+    'application/pdf',
+    'application/x-pdf',
+    'application/acrobat',
+    'applications/vnd.pdf',
+    'text/pdf',
+    'text/x-pdf',
+    'text/plain',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/octet-stream', // Fallback para algunos sistemas
+  ],
 };

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -51,12 +52,35 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeController.forward();
     _scaleController.forward();
 
-    // Navegar al login después de 3 segundos
-    Future.delayed(const Duration(seconds: 3), () {
+    // Verificar autenticación y navegar
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    // Esperar animaciones (mínimo 2 segundos)
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
+    try {
+      final authService = AuthService();
+      final isAuthenticated = await authService.isAuthenticated();
+
+      if (!mounted) return;
+
+      if (isAuthenticated) {
+        // Usuario ya está autenticado, ir a home
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // No está autenticado, ir a login
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      // En caso de error, ir a login
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/login');
       }
-    });
+    }
   }
 
   @override

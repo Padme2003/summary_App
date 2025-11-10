@@ -24,11 +24,18 @@ const storage = multer.diskStorage({
 
 // Filtro de archivos
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = config.allowedFileTypes;
+  console.log(`📎 Archivo recibido: ${file.originalname}, MIME type: ${file.mimetype}`);
 
-  if (allowedTypes.includes(file.mimetype)) {
+  const allowedTypes = config.allowedFileTypes;
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExtensions = ['.pdf', '.txt', '.doc', '.docx'];
+
+  // Verificar por MIME type O por extensión
+  if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+    console.log('✓ Archivo aceptado');
     cb(null, true);
   } else {
+    console.log(`✗ Archivo rechazado - MIME: ${file.mimetype}, Ext: ${ext}`);
     cb(new Error('Tipo de archivo no permitido. Solo PDF, TXT, DOC, DOCX'), false);
   }
 };
