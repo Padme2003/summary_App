@@ -15,6 +15,37 @@ class AudiobookService {
     };
   }
 
+  // Obtener cuota de audiolibros
+  Future<Map<String, dynamic>> getQuota() async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.audiobooks}/quota'),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'quota': data['data']['quota'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al obtener cuota',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
+
   // Generar audiolibro
   Future<Map<String, dynamic>> generateAudiobook(String documentId) async {
     try {
@@ -33,7 +64,16 @@ class AudiobookService {
         return {
           'success': true,
           'audiobook': Audiobook.fromJson(data['data']['audiobook']),
+          'quota': data['data']['quota'],
           'message': data['message'] ?? 'Generación iniciada',
+        };
+      } else if (response.statusCode == 403 && data['code'] == 'QUOTA_EXCEEDED') {
+        return {
+          'success': false,
+          'quotaExceeded': true,
+          'quota': data['data']?['quota'],
+          'message': data['message'],
+          'suggestion': data['data']?['suggestion'],
         };
       } else {
         return {
