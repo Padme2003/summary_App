@@ -35,7 +35,18 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   double _progress = 0.0;
   bool _isFavorite = false;
   int _currentChapterIndex = 0;
+  int _currentChapter = 1;
   bool _showChapters = false;
+
+  // Duración total (en segundos)
+  int _totalDuration = 300; // 5 minutos por defecto
+
+  // Capítulos de ejemplo (para modo demo)
+  final List<Map<String, dynamic>> _chapters = [
+    {'num': 1, 'title': 'Introducción', 'duration': '5:30'},
+    {'num': 2, 'title': 'Desarrollo', 'duration': '8:45'},
+    {'num': 3, 'title': 'Conclusión', 'duration': '4:20'},
+  ];
 
   @override
   void initState() {
