@@ -94,6 +94,37 @@ class DocumentService {
     }
   }
 
+  // Obtener un documento por ID
+  Future<Map<String, dynamic>> getDocument(String documentId) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.documents}/$documentId'),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'document': DocumentModel.fromJson(data['data']['document']),
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al obtener documento',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
+
   // Obtener documentos
   Future<Map<String, dynamic>> getDocuments() async {
     try {
