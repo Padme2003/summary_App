@@ -18,19 +18,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Configuración',
           style: TextStyle(
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -174,6 +178,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required List<Widget> children,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -181,14 +187,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.only(left: 8, bottom: 12),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: Colors.grey[700]),
+              Icon(
+                icon,
+                size: 20,
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+              ),
               const SizedBox(width: 8),
               Text(
                 title,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[700],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
                   letterSpacing: 0.5,
                 ),
               ),
@@ -197,11 +207,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),
@@ -337,15 +347,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.grey[700], size: 24),
+        child: Icon(
+          icon,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+          size: 24,
+        ),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(

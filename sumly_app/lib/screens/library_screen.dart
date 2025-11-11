@@ -69,22 +69,26 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           'Mi Biblioteca',
           style: TextStyle(
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.black87),
+            icon: Icon(
+              Icons.refresh,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
             onPressed: _loadDocuments,
           ),
         ],
@@ -217,14 +221,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
     IconData icon,
     Color color,
   ) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -250,6 +256,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildDocumentCard(DocumentModel document) {
     final fileType = document.fileType?.toUpperCase() ?? 'TXT';
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     Color getStatusColor() {
       switch (document.status) {
@@ -292,11 +299,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -399,9 +406,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _showOptionsMenu(DocumentModel document) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
