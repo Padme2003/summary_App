@@ -11,6 +11,7 @@ import 'screens/upload_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/audiobook_player_screen.dart';
 import 'screens/processing_screen.dart';
+import 'screens/pdf_viewer_screen.dart';
 import 'providers/theme_provider.dart';
 import 'services/notification_service.dart';
 
@@ -81,6 +82,16 @@ class SumlyApp extends StatelessWidget {
           return MaterialPageRoute(
             builder: (context) => SummaryScreen(
               summaryId: args?['id'],
+            ),
+          );
+        }
+        if (settings.name == '/pdf-viewer') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (context) => PdfViewerScreen(
+              documentTitle: args?['documentTitle'] ?? 'PDF',
+              pdfUrl: args?['pdfUrl'],
+              pdfPath: args?['pdfPath'],
             ),
           );
         }

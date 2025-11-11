@@ -546,11 +546,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _viewPDF(DocumentModel document) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Visor de PDF en desarrollo'),
-        behavior: SnackBarBehavior.floating,
-      ),
+    Navigator.pushNamed(
+      context,
+      '/pdf-viewer',
+      arguments: {
+        'documentTitle': document.title,
+        'pdfUrl': document.fileUrl,
+      },
     );
   }
 
