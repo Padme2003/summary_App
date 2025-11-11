@@ -48,10 +48,20 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
     {'num': 3, 'title': 'Conclusión', 'duration': '4:20'},
   ];
 
+  bool _hasLoadedData = false;
+
   @override
   void initState() {
     super.initState();
-    _loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasLoadedData) {
+      _hasLoadedData = true;
+      _loadData();
+    }
   }
 
   @override
