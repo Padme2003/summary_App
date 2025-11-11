@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,9 +16,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _defaultSpeed = 1.0;
   String _voiceLanguage = 'es-ES';
   bool _wifiOnly = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notifications = prefs.getBool('notifications') ?? true;
+      _autoPlay = prefs.getBool('autoPlay') ?? false;
+      _defaultSpeed = prefs.getDouble('defaultSpeed') ?? 1.0;
+      _voiceLanguage = prefs.getString('voiceLanguage') ?? 'es-ES';
+      _wifiOnly = prefs.getBool('wifiOnly') ?? false;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications', _notifications);
+    await prefs.setBool('autoPlay', _autoPlay);
+    await prefs.setDouble('defaultSpeed', _defaultSpeed);
+    await prefs.setString('voiceLanguage', _voiceLanguage);
+    await prefs.setBool('wifiOnly', _wifiOnly);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -75,6 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: _autoPlay,
                 onChanged: (value) {
                   setState(() => _autoPlay = value);
+                  _saveSettings();
                 },
               ),
               _buildSliderTile(
@@ -87,6 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 divisions: 6,
                 onChanged: (value) {
                   setState(() => _defaultSpeed = value);
+                  _saveSettings();
                 },
               ),
               _buildSelectTile(
@@ -110,6 +148,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: _notifications,
                 onChanged: (value) {
                   setState(() => _notifications = value);
+                  _saveSettings();
                 },
               ),
             ],
@@ -127,6 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: _wifiOnly,
                 onChanged: (value) {
                   setState(() => _wifiOnly = value);
+                  _saveSettings();
                 },
               ),
               _buildActionTile(
@@ -397,6 +437,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _voiceLanguage,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
+                _saveSettings();
                 Navigator.pop(context);
               },
             ),
@@ -406,6 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _voiceLanguage,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
+                _saveSettings();
                 Navigator.pop(context);
               },
             ),
@@ -415,6 +457,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _voiceLanguage,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
+                _saveSettings();
                 Navigator.pop(context);
               },
             ),
@@ -424,6 +467,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               groupValue: _voiceLanguage,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
+                _saveSettings();
                 Navigator.pop(context);
               },
             ),
