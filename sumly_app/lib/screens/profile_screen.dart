@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'home_screen.dart';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
@@ -893,11 +894,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ayuda y Soporte'),
-        content: const Text(
-          '¿Tienes alguna pregunta o problema?\n\n'
-          'Contáctanos en:\nsupport@sumly.app\n\n'
-          'O visita nuestra página de ayuda.',
+        title: Row(
+          children: [
+            Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 8),
+            const Text('Ayuda y Soporte'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '¿Tienes alguna pregunta o problema?\n\n'
+              'Estamos aquí para ayudarte:',
+              style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 20),
+            // WhatsApp button
+            ElevatedButton.icon(
+              onPressed: () async {
+                final whatsappUrl = Uri.parse('https://wa.me/593984173150');
+                try {
+                  if (await canLaunchUrl(whatsappUrl)) {
+                    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+                  } else {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('No se pudo abrir WhatsApp'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.whatsapp),
+              label: const Text('Contactar por WhatsApp'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF25D366),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Email info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.email_outlined, size: 20, color: Colors.grey[700]),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'support@sumly.app',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
