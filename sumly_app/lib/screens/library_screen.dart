@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../services/document_service.dart';
+import '../services/summary_service.dart';
 import '../models/models.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -11,6 +13,7 @@ class LibraryScreen extends StatefulWidget {
 
 class _LibraryScreenState extends State<LibraryScreen> {
   final DocumentService _documentService = DocumentService();
+  final SummaryService _summaryService = SummaryService();
 
   List<DocumentModel> _documents = [];
   bool _isLoading = true;
@@ -303,9 +306,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            // TODO: Navegar a detalles del documento
-          },
+          onTap: () => _showOptionsMenu(document),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -400,6 +401,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   void _showOptionsMenu(DocumentModel document) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -407,20 +409,73 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Handle
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Document title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                document.title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Options
             ListTile(
-              leading: const Icon(Icons.auto_awesome),
-              title: const Text('Generar resumen'),
+              leading: const Icon(Icons.summarize, color: Colors.blue),
+              title: const Text('Generar Resumen'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navegar a procesamiento
+                _generateSummary(document);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.headphones),
-              title: const Text('Generar audiolibro'),
+              leading: const Icon(Icons.headphones, color: Colors.purple),
+              title: const Text('Generar Audiolibro'),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Navegar a procesamiento
+                Navigator.pushNamed(
+                  context,
+                  '/processing',
+                  arguments: {
+                    'mode': 'audiobook',
+                    'documentId': document.id,
+                  },
+                );
+              },
+            ),
+            if (document.fileType == 'pdf')
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                title: const Text('Ver PDF'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _viewPDF(document);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.share, color: Colors.green),
+              title: const Text('Compartir'),
+              onTap: () {
+                Navigator.pop(context);
+                _shareDocument(document);
               },
             ),
             ListTile(
@@ -429,26 +484,157 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 'Eliminar',
                 style: TextStyle(color: Colors.red),
               ),
-              onTap: () async {
+              onTap: () {
                 Navigator.pop(context);
-                final result =
-                    await _documentService.deleteDocument(document.id);
-                if (result['success'] == true) {
-                  _loadDocuments();
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Documento eliminado'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  }
-                }
+                _deleteDocument(document);
               },
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _generateSummary(DocumentModel document) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    final result = await _summaryService.generateSummary(document.id);
+
+    if (mounted) {
+      Navigator.pop(context);
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Resumen generado exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.pushNamed(
+          context,
+          '/summary',
+          arguments: {'id': result['summary']['_id']},
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result['message'] ?? 'Error al generar resumen',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _viewPDF(DocumentModel document) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Visor de PDF en desarrollo'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _shareDocument(DocumentModel document) async {
+    try {
+      final content = document.content ?? '';
+      final excerpt = content.length > 300
+          ? '${content.substring(0, 300)}...'
+          : content;
+
+      final shareText = '''
+📄 ${document.title}
+
+$excerpt
+
+---
+Compartido desde Sumly - Tu asistente de lectura inteligente
+      '''.trim();
+
+      await Share.share(
+        shareText,
+        subject: document.title,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al compartir: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteDocument(DocumentModel document) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar documento?'),
+        content: Text(
+          '¿Estás seguro de que deseas eliminar "${document.title}"?\n\n'
+          'Esta acción no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final result = await _documentService.deleteDocument(document.id);
+
+      if (mounted) {
+        Navigator.pop(context);
+
+        if (result['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Documento eliminado exitosamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _loadDocuments();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                result['message'] ?? 'Error al eliminar el documento',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }
