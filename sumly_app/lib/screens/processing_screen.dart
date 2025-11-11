@@ -65,36 +65,59 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
   void _startProcessing() async {
     try {
-      // Paso 1: Iniciar generación
+      // MODO AUDIOLIBRO: Ir directo a TTS Nativo (sin usar backend/cuotas)
+      if (widget.mode == 'audiobook') {
+        // Simular proceso de preparación
+        setState(() {
+          _currentStep = 'Preparando audiolibro con voz nativa...';
+          _progress = 0.3;
+        });
+
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        setState(() {
+          _currentStep = 'Optimizando para reproducción...';
+          _progress = 0.7;
+        });
+
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        setState(() {
+          _currentStep = '¡Listo! Preparando reproductor...';
+          _progress = 1.0;
+        });
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          // Navegar al reproductor con modo TTS nativo
+          Navigator.pushReplacementNamed(
+            context,
+            '/audiobook',
+            arguments: {
+              'documentId': widget.documentId,
+              'useTtsNative': true,
+            },
+          );
+        }
+        return;
+      }
+
+      // MODO RESUMEN: Usar backend como siempre
       setState(() {
-        _currentStep = widget.mode == 'summary'
-            ? _summarySteps[0]
-            : _audiobookSteps[0];
+        _currentStep = _summarySteps[0];
         _progress = 0.2;
       });
 
-      Map<String, dynamic> result;
-
-      if (widget.mode == 'summary') {
-        result = await _summaryService.generateSummary(widget.documentId);
-      } else {
-        result = await _audiobookService.generateAudiobook(widget.documentId);
-      }
+      final result = await _summaryService.generateSummary(widget.documentId);
 
       if (result['success'] != true) {
-        // Verificar si es error de cuota excedida (solo para audiolibros)
-        if (widget.mode == 'audiobook' && result['quotaExceeded'] == true) {
-          _showQuotaExceededDialog(result);
-          return;
-        }
         _showError(result['message'] ?? 'Error al iniciar generación');
         return;
       }
 
       // Obtener el ID generado
-      final generatedItem =
-          widget.mode == 'summary' ? result['summary'] : result['audiobook'];
-      _generatedId = generatedItem.id;
+      _generatedId = result['summary'].id;
 
       // Paso 2: Polling - verificar estado cada 3 segundos
       await _pollForCompletion();

@@ -195,7 +195,7 @@ class _UploadScreenState extends State<UploadScreen>
             child: _buildModeButton(
               label: 'Audiolibro',
               icon: Icons.headphones,
-              subtitle: 'Audio completo',
+              subtitle: 'Voz nativa',
               isSelected: _selectedMode == 1,
               color: Colors.purple,
               onTap: () => setState(() => _selectedMode = 1),
@@ -579,7 +579,7 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
+                  _selectedMode == 0 ? 'Generar Resumen' : 'Abrir Audiolibro',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -616,7 +616,7 @@ class _UploadScreenState extends State<UploadScreen>
                 Text(
                   _selectedMode == 0
                       ? 'Resumen Inteligente con IA'
-                      : 'Audiolibro Completo',
+                      : 'Audiolibro con Voz Nativa',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -629,7 +629,7 @@ class _UploadScreenState extends State<UploadScreen>
                 Text(
                   _selectedMode == 0
                       ? 'Se generará un resumen de 3-5 páginas con los puntos clave (5-15 min de audio)'
-                      : 'Se convertirá todo el contenido a audio navegable por capítulos (tiempo según longitud)',
+                      : 'Se reproducirá el contenido completo con la voz nativa de tu dispositivo (ilimitado y gratis)',
                   style: TextStyle(
                     fontSize: 12,
                     color: _selectedMode == 0
