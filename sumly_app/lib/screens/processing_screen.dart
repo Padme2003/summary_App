@@ -82,6 +82,11 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       }
 
       if (result['success'] != true) {
+        // Verificar si es error de cuota excedida (solo para audiolibros)
+        if (widget.mode == 'audiobook' && result['quotaExceeded'] == true) {
+          _showQuotaExceededDialog(result);
+          return;
+        }
         _showError(result['message'] ?? 'Error al iniciar generación');
         return;
       }
@@ -169,6 +174,154 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       _showError(
           'La generación está tomando más tiempo del esperado. Por favor, verifica tu biblioteca más tarde.');
     }
+  }
+
+  void _showQuotaExceededDialog(Map<String, dynamic> result) {
+    final quota = result['quota'];
+    final resetDate = quota?['resetDate'] != null
+        ? DateTime.parse(quota['resetDate'])
+        : null;
+    final daysUntilReset =
+        resetDate?.difference(DateTime.now()).inDays ?? 0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.warning_amber, color: Colors.orange[700], size: 28),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Cuota mensual alcanzada',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              result['message'] ?? 'Has alcanzado tu límite de audiolibros este mes',
+              style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.purple[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.purple[200]!, width: 1),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.purple[700], size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cuota mensual',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Usados:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '${quota?['used'] ?? 0} / ${quota?['limit'] ?? 10}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Se renueva en:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '$daysUntilReset días',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Puedes usar la voz nativa del dispositivo (ilimitado y gratis)',
+                      style: TextStyle(fontSize: 13, color: Colors.blue[900]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar diálogo
+              Navigator.pop(context); // Volver a pantalla anterior
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar diálogo
+              // Navegar al reproductor con modo TTS nativo
+              Navigator.pushReplacementNamed(
+                context,
+                '/audiobook',
+                arguments: {
+                  'documentId': widget.documentId,
+                  'useTtsNative': true,
+                },
+              );
+            },
+            icon: const Icon(Icons.volume_up),
+            label: const Text('Usar voz nativa'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple[600],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showError(String message) {

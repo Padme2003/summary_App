@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/animated_widgets.dart';
+import '../services/audiobook_service.dart';
+import '../services/tts_service.dart';
+import '../services/document_service.dart';
+import '../models/models.dart';
 
 class AudiobookPlayerScreen extends StatefulWidget {
   const AudiobookPlayerScreen({super.key});
@@ -9,59 +13,167 @@ class AudiobookPlayerScreen extends StatefulWidget {
 }
 
 class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
+  // Servicios
+  final AudiobookService _audiobookService = AudiobookService();
+  final TtsService _ttsService = TtsService();
+  final DocumentService _documentService = DocumentService();
+
+  // Estado de carga
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  // Datos
+  Audiobook? _audiobook;
+  DocumentModel? _document;
+  bool _useTtsNative = false;
+  Map<String, dynamic>? _quota;
+
+  // Reproducción
   bool _isPlaying = false;
   double _playbackSpeed = 1.0;
   double _progress = 0.0;
   bool _isFavorite = false;
-  int _currentChapter = 1;
+  int _currentChapterIndex = 0;
   bool _showChapters = false;
 
-  // Duración total en segundos (8h 42min = 31320 segundos)
-  final int _totalDuration = 31320;
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
-  final List<Map<String, dynamic>> _chapters = [
-    {
-      'num': 1,
-      'title': 'La fundación de Macondo',
-      'duration': '26:30',
-      'start': 0,
-    },
-    {
-      'num': 2,
-      'title': 'Las guerras civiles',
-      'duration': '26:15',
-      'start': 1590,
-    },
-    {
-      'num': 3,
-      'title': 'Remedios la bella',
-      'duration': '22:45',
-      'start': 3165,
-    },
-    {
-      'num': 4,
-      'title': 'El coronel Aureliano',
-      'duration': '29:10',
-      'start': 4530,
-    },
-    {
-      'num': 5,
-      'title': 'La llegada del tren',
-      'duration': '24:20',
-      'start': 6280,
-    },
-    {'num': 6, 'title': 'Los gitanos', 'duration': '21:50', 'start': 7740},
-    {'num': 7, 'title': 'El diluvio', 'duration': '28:15', 'start': 9050},
-    {
-      'num': 8,
-      'title': 'Aureliano Segundo',
-      'duration': '25:40',
-      'start': 10745,
-    },
-  ];
+  @override
+  void dispose() {
+    _ttsService.stop();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Obtener argumentos de navegación
+      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+      if (args == null) {
+        setState(() {
+          _errorMessage = 'Error: No se proporcionaron datos';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Verificar si usa TTS nativo
+      _useTtsNative = args['useTtsNative'] ?? false;
+
+      if (_useTtsNative) {
+        // Modo TTS nativo: cargar documento
+        final documentId = args['documentId'];
+        if (documentId == null) {
+          setState(() {
+            _errorMessage = 'Error: No se proporcionó ID del documento';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        final result = await _documentService.getDocument(documentId);
+        if (result['success'] == true) {
+          setState(() {
+            _document = result['document'];
+            _isLoading = false;
+          });
+
+          // Inicializar TTS
+          await _ttsService.initialize();
+        } else {
+          setState(() {
+            _errorMessage = result['message'] ?? 'Error al cargar documento';
+            _isLoading = false;
+          });
+        }
+      } else {
+        // Modo audiolibro: cargar audiolibro de Google Cloud TTS
+        final audiobookId = args['id'];
+        if (audiobookId == null) {
+          setState(() {
+            _errorMessage = 'Error: No se proporcionó ID del audiolibro';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        final result = await _audiobookService.getAudiobook(audiobookId);
+        if (result['success'] == true) {
+          setState(() {
+            _audiobook = result['audiobook'];
+            _isLoading = false;
+          });
+
+          // Obtener cuota
+          _loadQuota();
+        } else {
+          setState(() {
+            _errorMessage = result['message'] ?? 'Error al cargar audiolibro';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error de conexión: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadQuota() async {
+    final result = await _audiobookService.getQuota();
+    if (result['success'] == true) {
+      setState(() {
+        _quota = result['quota'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF1a1a2e),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.purple[400]!),
+          ),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF1a1a2e),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red[400]),
+                const SizedBox(height: 16),
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Volver'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       body: SafeArea(
@@ -104,6 +216,60 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           const Spacer(),
+          // Indicador de modo TTS
+          if (_useTtsNative)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.green[700]?.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green[400]!, width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.phone_android, size: 14, color: Colors.green[200]),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Voz Nativa',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.green[100],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          // Indicador de cuota (solo para Google Cloud TTS)
+          else if (_quota != null)
+            GestureDetector(
+              onTap: _showQuotaInfo,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.blue[700]?.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue[400]!, width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.cloud, size: 14, color: Colors.blue[200]),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${_quota!['remaining']}/${_quota!['limit']} cuota',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.blue[100],
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(width: 8),
           AnimatedHeartIcon(
             isFavorite: _isFavorite,
             onTap: () => setState(() => _isFavorite = !_isFavorite),
@@ -170,6 +336,13 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   }
 
   Widget _buildBookInfo() {
+    final title = _useTtsNative
+        ? (_document?.title ?? 'Documento')
+        : (_audiobook?.title ?? 'Audiolibro');
+
+    final chaptersCount = _useTtsNative ? 1 : (_audiobook?.chapters.length ?? 0);
+    final duration = _useTtsNative ? 0 : (_audiobook?.duration ?? 0);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -177,20 +350,29 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.purple[400]?.withOpacity(0.3),
+              color: _useTtsNative
+                  ? Colors.green[400]?.withOpacity(0.3)
+                  : Colors.purple[400]?.withOpacity(0.3),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.purple[300]!, width: 1),
+              border: Border.all(
+                color: _useTtsNative ? Colors.green[300]! : Colors.purple[300]!,
+                width: 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.headphones, size: 16, color: Colors.purple[200]),
+                Icon(
+                  _useTtsNative ? Icons.phone_android : Icons.headphones,
+                  size: 16,
+                  color: _useTtsNative ? Colors.green[200] : Colors.purple[200],
+                ),
                 const SizedBox(width: 6),
                 Text(
-                  'Audiolibro Completo',
+                  _useTtsNative ? 'Voz Nativa del Dispositivo' : 'Audiolibro Completo',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.purple[100],
+                    color: _useTtsNative ? Colors.green[100] : Colors.purple[100],
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -198,29 +380,38 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Cien Años de Soledad',
-            style: TextStyle(
+          Text(
+            title,
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
-            'Gabriel García Márquez',
+            _useTtsNative
+                ? 'Reproducción con TTS nativo'
+                : 'Generado con Google Cloud TTS',
             style: TextStyle(fontSize: 16, color: Colors.grey[400]),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildInfoChip('8h 42m', Icons.schedule),
-              const SizedBox(width: 12),
-              _buildInfoChip('471 pág', Icons.menu_book),
-              const SizedBox(width: 12),
-              _buildInfoChip('Cap ${_currentChapter}/20', Icons.bookmark),
+              if (!_useTtsNative && duration > 0)
+                _buildInfoChip(_formatDuration(duration), Icons.schedule),
+              if (!_useTtsNative && duration > 0) const SizedBox(width: 12),
+              if (chaptersCount > 0)
+                _buildInfoChip(
+                  _useTtsNative
+                      ? 'Documento completo'
+                      : 'Cap ${_currentChapterIndex + 1}/$chaptersCount',
+                  Icons.bookmark,
+                ),
             ],
           ),
         ],
@@ -395,7 +586,7 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
           ),
           const SizedBox(width: 24),
           AnimatedScaleButton(
-            onPressed: () => setState(() => _isPlaying = !_isPlaying),
+            onPressed: _togglePlayPause,
             scaleValue: 0.9,
             child: Container(
               width: 80,
@@ -727,6 +918,161 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
                 );
               }).toList(),
         ),
+      ),
+    );
+  }
+
+  Future<void> _togglePlayPause() async {
+    if (_useTtsNative) {
+      // Modo TTS nativo
+      if (_isPlaying) {
+        await _ttsService.pause();
+        setState(() => _isPlaying = false);
+      } else {
+        // Reproducir con TTS nativo
+        if (_document?.content != null && _document!.content!.isNotEmpty) {
+          await _ttsService.speak(_document!.content!);
+          setState(() => _isPlaying = true);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No hay contenido para reproducir'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      // Modo audiolibro (Google Cloud TTS)
+      // TODO: Implementar reproductor de audio para archivos MP3
+      // Por ahora, solo cambiamos el estado
+      setState(() => _isPlaying = !_isPlaying);
+
+      if (_isPlaying) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Reproductor de audio en desarrollo'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showQuotaInfo() {
+    if (_quota == null) return;
+
+    final resetDate = _quota!['resetDate'] != null
+        ? DateTime.parse(_quota!['resetDate'])
+        : null;
+    final daysUntilReset = resetDate?.difference(DateTime.now()).inDays ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.info_outline, color: Colors.blue[700], size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Text('Cuota de Audiolibros', style: TextStyle(fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.purple[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Usados:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '${_quota!['used']} audiolibros',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Disponibles:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '${_quota!['remaining']} audiolibros',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Límite mensual:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '${_quota!['limit']} audiolibros',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Se renueva en:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        '$daysUntilReset días',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Actualiza a Premium para audiolibros ilimitados',
+                      style: TextStyle(fontSize: 12, color: Colors.blue[900]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
       ),
     );
   }
