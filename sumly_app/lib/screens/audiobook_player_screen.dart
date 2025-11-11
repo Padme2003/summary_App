@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../widgets/animated_widgets.dart';
 import '../services/audiobook_service.dart';
 import '../services/tts_service.dart';
@@ -79,6 +80,7 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
         if (result['success'] == true) {
           setState(() {
             _document = result['document'];
+            _isFavorite = _document?.isFavorite ?? false;
             _isLoading = false;
           });
 
@@ -272,12 +274,12 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
           const SizedBox(width: 8),
           AnimatedHeartIcon(
             isFavorite: _isFavorite,
-            onTap: () => setState(() => _isFavorite = !_isFavorite),
+            onTap: _toggleFavorite,
           ),
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {},
+            onPressed: _shareDocument,
           ),
           IconButton(
             icon: const Icon(Icons.more_vert, color: Colors.white),
@@ -922,6 +924,70 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
     );
   }
 
+  Future<void> _shareDocument() async {
+    if (_document == null) return;
+
+    try {
+      final title = _document!.title;
+      final content = _document!.content ?? '';
+
+      // Crear texto para compartir con extracto
+      final excerpt = content.length > 300
+          ? '${content.substring(0, 300)}...'
+          : content;
+
+      final shareText = '''
+📖 $title
+
+$excerpt
+
+---
+Compartido desde Sumly - Tu asistente de lectura inteligente
+      '''.trim();
+
+      await Share.share(
+        shareText,
+        subject: title,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al compartir: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_document == null) return;
+
+    // Cambiar estado optimistically
+    setState(() => _isFavorite = !_isFavorite);
+
+    final result = await _documentService.toggleFavorite(_document!.id);
+
+    if (result['success'] == true) {
+      // Mostrar mensaje
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Favorito actualizado'),
+          duration: const Duration(seconds: 1),
+          backgroundColor: _isFavorite ? Colors.pink[600] : Colors.grey[700],
+        ),
+      );
+    } else {
+      // Revertir cambio si falló
+      setState(() => _isFavorite = !_isFavorite);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result['message'] ?? 'Error al actualizar favorito'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _togglePlayPause() async {
     if (_useTtsNative) {
       // Modo TTS nativo
@@ -1077,6 +1143,384 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
     );
   }
 
+  void _showDocumentInfo() {
+    if (_document == null) return;
+
+    final fileSize = _document!.fileSize != null
+        ? '${(_document!.fileSize! / 1024).toStringAsFixed(2)} KB'
+        : 'N/A';
+    final wordCount = _document!.metadata?['wordCount'] ?? 0;
+    final pages = _document!.metadata?['pages'] ?? 0;
+    final createdAt = _document!.createdAt;
+    final formattedDate = '${createdAt.day}/${createdAt.month}/${createdAt.year}';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.info_outline, color: Colors.purple[700], size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Información del Documento',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow(Icons.title, 'Título', _document!.title),
+              const Divider(height: 24),
+              _buildInfoRow(Icons.insert_drive_file, 'Tipo',
+                  _document!.fileType.toUpperCase()),
+              const Divider(height: 24),
+              _buildInfoRow(Icons.storage, 'Tamaño', fileSize),
+              const Divider(height: 24),
+              _buildInfoRow(Icons.text_fields, 'Palabras', '$wordCount palabras'),
+              if (pages > 0) ...[
+                const Divider(height: 24),
+                _buildInfoRow(Icons.menu_book, 'Páginas', '$pages páginas'),
+              ],
+              const Divider(height: 24),
+              _buildInfoRow(Icons.calendar_today, 'Fecha de creación', formattedDate),
+              const Divider(height: 24),
+              _buildInfoRow(
+                Icons.favorite,
+                'Favorito',
+                _document!.isFavorite ? 'Sí' : 'No',
+                color: _document!.isFavorite ? Colors.pink : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      {Color? color}) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: color ?? Colors.grey[600]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: color ?? Colors.grey[900],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showTtsNativeInfo() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.phone_android, color: Colors.green[700], size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Modo Voz Nativa',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Estás usando la voz nativa de tu dispositivo',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureItem(
+              Icons.check_circle,
+              'Ilimitado y gratis',
+              'No hay límites de uso',
+              Colors.green,
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              Icons.offline_bolt,
+              'Funciona sin conexión',
+              'No requiere internet una vez cargado',
+              Colors.blue,
+            ),
+            const SizedBox(height: 12),
+            _buildFeatureItem(
+              Icons.speed,
+              'Reproducción en tiempo real',
+              'No requiere descargar archivos',
+              Colors.orange,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Puedes ajustar la velocidad de reproducción y más desde los controles',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.blue[900],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendido'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(
+      IconData icon, String title, String subtitle, Color color) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    if (_document == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.warning_amber, color: Colors.red[700], size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                '¿Eliminar documento?',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Estás a punto de eliminar:',
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.description, color: Colors.grey[600], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _document!.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red[200]!, width: 1),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Esta acción no se puede deshacer',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red[900],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // Cerrar diálogo
+              await _deleteDocument();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteDocument() async {
+    if (_document == null) return;
+
+    // Mostrar indicador de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    final result = await _documentService.deleteDocument(_document!.id);
+
+    // Cerrar indicador de carga
+    if (mounted) Navigator.pop(context);
+
+    if (result['success'] == true) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Documento eliminado'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Volver a la pantalla anterior
+        Navigator.pop(context);
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? 'Error al eliminar documento'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   void _showOptionsMenu() {
     showModalBottomSheet(
       context: context,
@@ -1089,32 +1533,50 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.download, color: Colors.white),
-              title: const Text(
-                'Descargar audiolibro',
-                style: TextStyle(color: Colors.white),
+              leading: Icon(
+                _useTtsNative ? Icons.phone_android : Icons.cloud_download,
+                color: Colors.white,
               ),
-              subtitle: const Text(
-                'Solo Premium',
-                style: TextStyle(color: Colors.grey),
+              title: Text(
+                _useTtsNative
+                    ? 'Modo reproducción'
+                    : 'Descargar audiolibro',
+                style: const TextStyle(color: Colors.white),
               ),
-              onTap: () => Navigator.pop(context),
+              subtitle: Text(
+                _useTtsNative
+                    ? 'Voz nativa (sin descarga necesaria)'
+                    : 'No disponible con TTS nativo',
+                style: const TextStyle(color: Colors.grey),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                if (_useTtsNative) {
+                  _showTtsNativeInfo();
+                }
+              },
             ),
             ListTile(
               leading: const Icon(Icons.info_outline, color: Colors.white),
               title: const Text(
-                'Información del libro',
+                'Información del documento',
                 style: TextStyle(color: Colors.white),
               ),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                _showDocumentInfo();
+              },
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text(
-                'Eliminar audiolibro',
+                'Eliminar documento',
                 style: TextStyle(color: Colors.red),
               ),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation();
+              },
             ),
           ],
         ),

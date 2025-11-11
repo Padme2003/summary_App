@@ -20,6 +20,7 @@ router.post('/text', documentController.uploadText);
 router.get('/', documentController.getDocuments);
 router.get('/:id', documentController.getDocument);
 router.put('/:id', documentController.updateDocument);
+router.put('/:id/favorite', documentController.toggleFavorite);
 router.delete('/:id', documentController.deleteDocument);
 
 module.exports = router;

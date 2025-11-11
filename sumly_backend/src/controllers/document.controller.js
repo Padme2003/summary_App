@@ -233,6 +233,41 @@ exports.updateDocument = async (req, res) => {
   }
 };
 
+// Toggle favorito
+exports.toggleFavorite = async (req, res) => {
+  try {
+    const document = await Document.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: 'Documento no encontrado',
+      });
+    }
+
+    document.isFavorite = !document.isFavorite;
+    await document.save();
+
+    res.status(200).json({
+      success: true,
+      message: document.isFavorite ? 'Agregado a favoritos' : 'Eliminado de favoritos',
+      data: {
+        document,
+      },
+    });
+  } catch (error) {
+    console.error('Error al actualizar favorito:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar favorito',
+      error: error.message,
+    });
+  }
+};
+
 // Eliminar documento
 exports.deleteDocument = async (req, res) => {
   try {

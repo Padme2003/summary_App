@@ -160,6 +160,38 @@ class DocumentService {
     }
   }
 
+  // Toggle favorito
+  Future<Map<String, dynamic>> toggleFavorite(String documentId) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.put(
+        Uri.parse('${ApiConfig.documents}/$documentId/favorite'),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Favorito actualizado',
+          'document': DocumentModel.fromJson(data['data']['document']),
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al actualizar favorito',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
+
   // Eliminar documento
   Future<Map<String, dynamic>> deleteDocument(String documentId) async {
     try {
