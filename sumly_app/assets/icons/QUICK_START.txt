@@ -1,0 +1,71 @@
+╔══════════════════════════════════════════════════════════╗
+║         CAMBIAR ÍCONO DE SUMLY - GUÍA RÁPIDA             ║
+╚══════════════════════════════════════════════════════════╝
+
+📋 PASOS RÁPIDOS:
+
+1️⃣ CONSIGUE TU ÍCONO:
+   - Tamaño: 1024x1024 píxeles (PNG)
+   - Diseño simple que represente tu app
+   - Puedes usar: Canva, Figma, icon.kitchen
+
+2️⃣ COLOCA EL ARCHIVO:
+   - Nombre: icon.png
+   - Ubicación: sumly_app/assets/icons/icon.png
+   - (Esta misma carpeta donde está este archivo)
+
+3️⃣ EJECUTA COMANDOS:
+   cd sumly_app
+   flutter pub get
+   flutter pub run flutter_launcher_icons
+
+4️⃣ COMPILA LA APP:
+   flutter build apk
+
+   ¡Listo! Tu app tendrá el nuevo ícono.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎨 SITIOS PARA CREAR ÍCONOS GRATIS:
+
+• icon.kitchen - Generador automático de íconos
+  https://icon.kitchen
+
+• Canva - Editor con plantillas
+  https://www.canva.com
+
+• Figma - Diseño profesional
+  https://www.figma.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ IMPORTANTE:
+- El archivo DEBE llamarse: icon.png
+- Formato: PNG (no JPG)
+- Tamaño mínimo: 512x512px (recomendado 1024x1024)
+- Verifica que se vea bien en pequeño
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 TIPS:
+- Diseño simple funciona mejor
+- Colores vivos destacan más
+- Prueba en fondo claro Y oscuro
+- Evita texto pequeño (se verá borroso)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🆘 PROBLEMAS?
+
+Error: "image_path not found"
+→ Verifica que icon.png esté en assets/icons/
+
+Error: "flutter_launcher_icons not found"
+→ Ejecuta: flutter pub get
+
+Error al compilar
+→ Limpia: flutter clean && flutter pub get
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lee README.md en esta carpeta para más detalles.
