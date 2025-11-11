@@ -49,22 +49,26 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           'Favoritos',
           style: TextStyle(
-            color: Colors.black87,
+            color: isDarkMode ? Colors.white : Colors.black87,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.black87),
+            icon: Icon(
+              Icons.refresh,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
             onPressed: () {
               setState(() => _isLoading = true);
               _loadFavorites();
@@ -96,10 +100,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildSummaryCard(Summary summary) {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
+      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
