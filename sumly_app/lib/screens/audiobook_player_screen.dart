@@ -312,8 +312,13 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   }
 
   Widget _buildBookCover() {
+    // Usar un tag único basado en el ID del documento/audiobook
+    final heroTag = _useTtsNative
+        ? 'document-${_document?.id ?? "unknown"}'
+        : 'audiobook-${_audiobook?.id ?? "unknown"}';
+
     return Hero(
-      tag: 'book-cover',
+      tag: heroTag,
       child: Container(
         width: 200,
         height: 280,
