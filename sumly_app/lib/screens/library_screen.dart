@@ -546,12 +546,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _viewPDF(DocumentModel document) {
+    // TODO: El backend debe devolver la URL del PDF
+    // Por ahora, intentar obtenerla de metadata
+    final pdfUrl = document.metadata?['fileUrl'] as String?;
+
     Navigator.pushNamed(
       context,
       '/pdf-viewer',
       arguments: {
         'documentTitle': document.title,
-        'pdfUrl': document.fileUrl,
+        'pdfUrl': pdfUrl,
       },
     );
   }

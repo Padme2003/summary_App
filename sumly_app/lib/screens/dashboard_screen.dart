@@ -806,7 +806,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             ),
           );
           // Recargar datos
-          _loadDashboardData();
+          _loadData();
         }
       } else {
         if (mounted) {

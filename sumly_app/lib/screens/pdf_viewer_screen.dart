@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
@@ -104,7 +105,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             )
           else if (widget.pdfPath != null)
             SfPdfViewer.file(
-              widget.pdfPath!,
+              File(widget.pdfPath!),
               controller: _pdfViewerController,
               onDocumentLoaded: (PdfDocumentLoadedDetails details) {
                 setState(() {

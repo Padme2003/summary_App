@@ -939,7 +939,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 }
               },
-              icon: const Icon(Icons.whatsapp),
+              icon: const Icon(Icons.chat),
               label: const Text('Contactar por WhatsApp'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF25D366),
