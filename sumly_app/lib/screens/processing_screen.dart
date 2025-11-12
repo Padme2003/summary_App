@@ -371,22 +371,71 @@ class _ProcessingScreenState extends State<ProcessingScreen>
     final isSummary = widget.mode == 'summary';
     final primaryColor = isSummary ? Colors.blue[600]! : Colors.purple[600]!;
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isSummary
-                ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
-                : [Colors.white, Colors.purple.shade50, Colors.pink.shade50],
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        final shouldPop = await _showExitConfirmation(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isSummary
+                  ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
+                  : [Colors.white, Colors.purple.shade50, Colors.pink.shade50],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: _buildProcessingContent(context, isSummary, primaryColor),
+          child: SafeArea(
+            child: _buildProcessingContent(context, isSummary, primaryColor),
+          ),
         ),
       ),
     );
+  }
+
+  Future<bool> _showExitConfirmation(BuildContext context) async {
+    if (_progress >= 1.0 || _hasError) {
+      return true; // Si ya terminó o hubo error, permitir salir sin confirmación
+    }
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber, color: Colors.orange),
+            SizedBox(width: 8),
+            Expanded(child: Text('¿Cancelar procesamiento?')),
+          ],
+        ),
+        content: Text(
+          widget.mode == 'summary'
+              ? 'Si sales ahora, se cancelará la generación del resumen y deberás iniciarlo nuevamente.'
+              : 'Si sales ahora, se cancelará la generación del audiolibro y deberás iniciarlo nuevamente.',
+          style: const TextStyle(fontSize: 15),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Continuar esperando'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Cancelar y salir'),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
   }
 
   Widget _buildProcessingContent(

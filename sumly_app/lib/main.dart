@@ -12,6 +12,8 @@ import 'screens/settings_screen.dart';
 import 'screens/audiobook_player_screen.dart';
 import 'screens/processing_screen.dart';
 import 'screens/pdf_viewer_screen.dart';
+import 'screens/terms_screen.dart';
+import 'screens/privacy_screen.dart';
 import 'providers/theme_provider.dart';
 import 'services/notification_service.dart';
 
@@ -65,6 +67,8 @@ class SumlyApp extends StatelessWidget {
         '/upload': (context) => const UploadScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/audiobook': (context) => const AudiobookPlayerScreen(),
+        '/terms': (context) => const TermsScreen(),
+        '/privacy': (context) => const PrivacyScreen(),
       },
       // Rutas con argumentos
       onGenerateRoute: (settings) {

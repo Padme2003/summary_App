@@ -194,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: 'Ver políticas de uso',
                 icon: Icons.description_outlined,
                 onTap: () {
-                  _showComingSoonSnackBar('Términos y condiciones');
+                  Navigator.pushNamed(context, '/terms');
                 },
               ),
               _buildActionTile(
@@ -202,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: 'Cómo manejamos tus datos',
                 icon: Icons.privacy_tip_outlined,
                 onTap: () {
-                  _showComingSoonSnackBar('Política de privacidad');
+                  Navigator.pushNamed(context, '/privacy');
                 },
               ),
             ],
