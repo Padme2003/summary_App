@@ -359,3 +359,71 @@ TOTAL:              ████████████████████
 **Estado:** Backend 100% ✅ | Frontend 100% ✅ | **APP 100% FUNCIONAL 🎉**
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+## 🌐 Usando ngrok para Acceso Remoto
+
+Si quieres acceder al backend desde cualquier red (datos móviles, WiFi diferente, compartir con otros):
+
+### 1. Instalar ngrok
+- Descarga desde: https://ngrok.com/download
+- Descomprime el ejecutable
+- (Opcional) Regístrate gratis y obtén tu authtoken
+
+### 2. Iniciar con ngrok
+
+**Opción A - Script Automatizado (Recomendado):**
+
+Windows:
+```bash
+start-with-ngrok.bat
+```
+
+Linux/Mac:
+```bash
+chmod +x start-with-ngrok.sh
+./start-with-ngrok.sh
+```
+
+**Opción B - Manual:**
+
+Terminal 1 (Backend):
+```bash
+cd sumly_backend
+npm run dev
+```
+
+Terminal 2 (ngrok):
+```bash
+ngrok http 5000
+```
+
+### 3. Copiar URL de ngrok
+
+ngrok mostrará algo como:
+```
+Forwarding   https://abc123.ngrok-free.app -> http://localhost:5000
+```
+
+Copia esta URL: `https://abc123.ngrok-free.app`
+
+### 4. Configurar en Flutter
+
+Abre `sumly_app/lib/config/api_config.dart` y cambia:
+
+```dart
+// Descomenta y usa tu URL de ngrok:
+static const String baseUrl = 'https://abc123.ngrok-free.app/api';
+
+// Comenta la URL local:
+// static const String baseUrl = 'http://192.168.18.54:5000/api';
+```
+
+### 5. Ejecutar la app
+
+```bash
+cd sumly_app
+flutter run
+```
+
+¡Ahora tu app funciona desde cualquier red! ✅
+

@@ -1,13 +1,21 @@
 class ApiConfig {
-  // Cambiar según tu entorno
-  // Para Android Emulator: 10.0.2.2
-  // Para iOS Simulator: localhost
-  // Para dispositivo real: tu IP local (192.168.x.x)
+  // ========================================
+  // CONFIGURACIÓN DE URL DEL BACKEND
+  // ========================================
 
-  // IMPORTANTE: Para dispositivos físicos, cambia esto a tu IP local
-  // Ejemplo: 'http://192.168.1.100:5000/api'
-  // Para encontrar tu IP en Windows: abre PowerShell y ejecuta "ipconfig"
-  static const String baseUrl = 'http://192.168.18.54:5000/api';  // IP actual del dispositivo
+  // DESARROLLO LOCAL:
+  // - Android Emulator: http://10.0.2.2:5000/api
+  // - iOS Simulator: http://localhost:5000/api
+  // - Dispositivo real: http://TU_IP_LOCAL:5000/api (ej: 192.168.18.54)
+
+  // NGROK (para acceso desde cualquier red - datos móviles, WiFi diferente):
+  // 1. Inicia ngrok: ngrok http 5000
+  // 2. Copia la URL (ej: https://abc123.ngrok-free.app)
+  // 3. Úsala aquí: https://abc123.ngrok-free.app/api
+
+  static const String baseUrl = 'http://192.168.18.54:5000/api';  // Cambiar según necesites
+  // Ejemplo con ngrok:
+  // static const String baseUrl = 'https://abc123.ngrok-free.app/api';
 
   // Auth Endpoints
   static const String login = '$baseUrl/auth/login';
