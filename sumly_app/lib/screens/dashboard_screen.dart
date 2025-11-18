@@ -81,16 +81,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -118,11 +118,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final totalDocs = _documents.length;
     final processedDocs =
-        _documents.where((d) => d.status == 'processed').length;
-    final recentDocs = _documents.take(3).toList();
+        _documents.where((d) => d.status == 'completed' || d.status == 'processed').length;
+    final pendingDocs =
+        _documents.where((d) => d.status == 'processing' || d.status == 'pending').length;
+    final recentDocs = _documents.take(5).toList();
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
@@ -221,10 +222,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Expanded(
                           child: _buildStatCard(
                             'Pendientes',
-                            '${totalDocs - processedDocs}',
+                            '$pendingDocs',
                             'por procesar',
                             Icons.pending,
                             Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildStatCard(
+                            'Resúmenes',
+                            '${_user?.stats.totalSummaries ?? 0}',
+                            'generados',
+                            Icons.auto_stories,
+                            Colors.purple,
                           ),
                         ),
                       ],

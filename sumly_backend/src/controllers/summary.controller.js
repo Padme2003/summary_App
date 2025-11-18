@@ -27,7 +27,16 @@ exports.generateSummary = async (req, res) => {
     if (!document.content || document.content.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'El documento no tiene contenido para resumir',
+        message: 'El documento no tiene contenido para resumir. Verifica que el PDF sea válido y contenga texto.',
+      });
+    }
+
+    // Validar que hay suficiente contenido
+    const wordCount = document.content.split(/\s+/).filter(w => w.length > 0).length;
+    if (wordCount < 50) {
+      return res.status(400).json({
+        success: false,
+        message: `El documento es muy corto (${wordCount} palabras). Necesita al menos 50 palabras para generar un resumen.`,
       });
     }
 
@@ -65,7 +74,7 @@ exports.generateSummary = async (req, res) => {
 // Función para generar resumen con IA (asíncrona)
 async function generateSummaryWithAI(document, summary, user) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `
 Eres un experto en crear resúmenes claros y concisos. Analiza el siguiente texto y crea un resumen estructurado.
@@ -168,11 +177,24 @@ FORMATO DE RESPUESTA (JSON):
   } catch (error) {
     console.error('❌ Error al generar resumen con IA:', error);
     console.error('Detalles del error:', error.message);
-    console.error('Stack trace:', error.stack);
 
-    summary.status = 'error';
-    summary.content = `Error al generar el resumen: ${error.message || 'Error desconocido'}. Por favor, intenta nuevamente.`;
+    let errorMessage = 'Error desconocido al generar el resumen.';
+
+    if (error.message && error.message.includes('API key')) {
+      errorMessage = 'Error con la clave de API de Gemini. Verifica tu configuración.';
+    } else if (error.message && error.message.includes('quota')) {
+      errorMessage = 'Límite de cuota de API excedido. Intenta más tarde.';
+    } else if (error.message && error.message.includes('model')) {
+      errorMessage = 'El modelo de IA no está disponible. Contacta al administrador.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    summary.status = 'failed';
+    summary.content = `No se pudo generar el resumen: ${errorMessage}`;
     await summary.save();
+
+    console.log(`❌ Resumen marcado como failed: ${summary._id}`);
   }
 }
 

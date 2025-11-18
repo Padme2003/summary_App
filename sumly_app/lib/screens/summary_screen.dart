@@ -253,13 +253,14 @@ Generado con Sumly - Resúmenes Inteligentes con IA
       );
     }
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: isDarkMode ? Colors.white : Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -268,11 +269,11 @@ Generado con Sumly - Resúmenes Inteligentes con IA
             onTap: _toggleFavorite,
           ),
           IconButton(
-            icon: const Icon(Icons.share, color: Colors.black87),
+            icon: Icon(Icons.share, color: isDarkMode ? Colors.white : Colors.black87),
             onPressed: _shareSummary,
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Colors.black87),
+            icon: Icon(Icons.more_vert, color: isDarkMode ? Colors.white : Colors.black87),
             onPressed: () {
               _showOptionsMenu();
             },
