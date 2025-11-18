@@ -392,6 +392,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                 ),
 
+                // Botón de favoritos
+                IconButton(
+                  icon: Icon(
+                    document.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: document.isFavorite ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: () => _toggleFavorite(document),
+                ),
+
                 // Menú de opciones
                 IconButton(
                   icon: const Icon(Icons.more_vert),
@@ -403,6 +412,44 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _toggleFavorite(DocumentModel document) async {
+    try {
+      final result = await _documentService.toggleFavorite(document.id);
+
+      if (mounted) {
+        if (result['success'] == true) {
+          setState(() {
+            final index = _documents.indexWhere((d) => d.id == document.id);
+            if (index != -1) {
+              _documents[index] = result['document'];
+            }
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                document.isFavorite
+                    ? 'Eliminado de favoritos'
+                    : 'Agregado a favoritos',
+              ),
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showOptionsMenu(DocumentModel document) {

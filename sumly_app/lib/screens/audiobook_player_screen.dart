@@ -337,18 +337,22 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
             ),
           ],
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.menu_book, size: 60, color: Colors.white),
-              SizedBox(height: 16),
+              const Icon(Icons.menu_book, size: 60, color: Colors.white),
+              const SizedBox(height: 16),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  'CIEN AÑOS DE\nSOLEDAD',
+                  (_useTtsNative
+                      ? (_document?.title ?? 'DOCUMENTO')
+                      : (_audiobook?.title ?? 'AUDIOLIBRO')).toUpperCase(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

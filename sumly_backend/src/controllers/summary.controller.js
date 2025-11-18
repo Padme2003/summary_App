@@ -33,10 +33,10 @@ exports.generateSummary = async (req, res) => {
 
     // Validar que hay suficiente contenido
     const wordCount = document.content.split(/\s+/).filter(w => w.length > 0).length;
-    if (wordCount < 50) {
+    if (wordCount < 200) {
       return res.status(400).json({
         success: false,
-        message: `El documento es muy corto (${wordCount} palabras). Necesita al menos 50 palabras para generar un resumen.`,
+        message: `El documento es muy corto (${wordCount} palabras). Necesita al menos 200 palabras para generar un resumen útil.`,
       });
     }
 
