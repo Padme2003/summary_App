@@ -210,6 +210,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   }
 
   void _showQuotaExceededDialog(Map<String, dynamic> result) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final quota = result['quota'];
     final resetDate = quota?['resetDate'] != null
         ? DateTime.parse(quota['resetDate'])
@@ -221,22 +222,30 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange[100],
+                color: isDarkMode ? Colors.orange.withOpacity(0.2) : Colors.orange[100],
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.warning_amber, color: Colors.orange[700], size: 28),
+              child: Icon(
+                Icons.warning_amber,
+                color: isDarkMode ? Colors.orange[400] : Colors.orange[700],
+                size: 28,
+              ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Cuota mensual alcanzada',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
               ),
             ),
           ],
@@ -247,28 +256,38 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           children: [
             Text(
               result['message'] ?? 'Has alcanzado tu límite de audiolibros este mes',
-              style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+              style: TextStyle(
+                fontSize: 15,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+              ),
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.purple[50],
+                color: isDarkMode ? Colors.purple.withOpacity(0.2) : Colors.purple[50],
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.purple[200]!, width: 1),
+                border: Border.all(
+                  color: isDarkMode ? Colors.purple.withOpacity(0.3) : Colors.purple[200]!,
+                  width: 1,
+                ),
               ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.purple[700], size: 20),
+                      Icon(
+                        Icons.info_outline,
+                        color: isDarkMode ? Colors.purple[400] : Colors.purple[700],
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'Cuota mensual',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.purple[700],
+                          color: isDarkMode ? Colors.purple[300] : Colors.purple[700],
                         ),
                       ),
                     ],
@@ -277,10 +296,18 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Usados:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        'Usados:',
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                        ),
+                      ),
                       Text(
                         '${quota?['used'] ?? 0} / ${quota?['limit'] ?? 10}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
                       ),
                     ],
                   ),
@@ -288,10 +315,18 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Se renueva en:', style: TextStyle(color: Colors.grey[700])),
+                      Text(
+                        'Se renueva en:',
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                        ),
+                      ),
                       Text(
                         '$daysUntilReset días',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
                       ),
                     ],
                   ),
@@ -302,17 +337,24 @@ class _ProcessingScreenState extends State<ProcessingScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  Icon(
+                    Icons.lightbulb_outline,
+                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Puedes usar la voz nativa del dispositivo (ilimitado y gratis)',
-                      style: TextStyle(fontSize: 13, color: Colors.blue[900]),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
+                      ),
                     ),
                   ),
                 ],
@@ -417,21 +459,34 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       return true; // Si ya terminó o hubo error, permitir salir sin confirmación
     }
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Row(
           children: [
-            Icon(Icons.warning_amber, color: Colors.orange),
-            SizedBox(width: 8),
-            Expanded(child: Text('¿Cancelar procesamiento?')),
+            const Icon(Icons.warning_amber, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '¿Cancelar procesamiento?',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
           ],
         ),
         content: Text(
           widget.mode == 'summary'
               ? 'Si sales ahora, se cancelará la generación del resumen y deberás iniciarlo nuevamente.'
               : 'Si sales ahora, se cancelará la generación del audiolibro y deberás iniciarlo nuevamente.',
-          style: const TextStyle(fontSize: 15),
+          style: TextStyle(
+            fontSize: 15,
+            color: isDarkMode ? Colors.grey[300] : Colors.black87,
+          ),
         ),
         actions: [
           TextButton(

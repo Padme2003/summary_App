@@ -654,13 +654,20 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   Future<void> _deleteDocument(DocumentModel document) async {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar documento?'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          '¿Eliminar documento?',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
         content: Text(
           '¿Estás seguro de que deseas eliminar "${document.title}"?\n\n'
           'Esta acción no se puede deshacer.',
+          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
         ),
         actions: [
           TextButton(

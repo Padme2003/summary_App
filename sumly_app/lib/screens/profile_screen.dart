@@ -68,29 +68,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changeProfilePhoto() async {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Cambiar foto de perfil',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
             ),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Tomar foto'),
+              leading: Icon(
+                Icons.camera_alt,
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+              title: Text(
+                'Tomar foto',
+                style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Elegir de galería'),
+              leading: Icon(
+                Icons.photo_library,
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+              title: Text(
+                'Elegir de galería',
+                style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.gallery);
@@ -683,6 +702,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showEditProfileDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final nameController = TextEditingController(text: _user?.name ?? '');
     File? selectedImage;
     String? selectedImageBase64;
@@ -692,7 +712,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Editar Perfil'),
+            backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+            title: Text(
+              'Editar Perfil',
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -722,7 +746,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[200],
                           backgroundImage: selectedImage != null
                               ? FileImage(selectedImage!)
                               : (_user?.avatar != null && _user!.avatar!.isNotEmpty
@@ -731,7 +755,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : NetworkImage(_user!.avatar!) as ImageProvider)
                                   : null),
                           child: selectedImage == null && (_user?.avatar == null || _user!.avatar!.isEmpty)
-                              ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                              ? Icon(Icons.person, size: 50, color: isDarkMode ? Colors.grey[600] : Colors.grey[400])
                               : null,
                         ),
                         Positioned(
@@ -756,14 +780,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Toca para cambiar foto',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                   ),
                   const SizedBox(height: 20),
                   TextField(
                     controller: nameController,
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                    decoration: InputDecoration(
                       labelText: 'Nombre',
-                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
+                      border: const OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+                      ),
                     ),
                   ),
                 ],
@@ -831,6 +860,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showChangePasswordDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
@@ -842,7 +872,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Cambiar Contraseña'),
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          title: Text(
+            'Cambiar Contraseña',
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -850,12 +884,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextField(
                   controller: currentPasswordController,
                   obscureText: obscureCurrent,
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Contraseña actual',
+                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
                     border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscureCurrent ? Icons.visibility : Icons.visibility_off,
+                        color: isDarkMode ? Colors.grey[400] : null,
                       ),
                       onPressed: () {
                         setState(() => obscureCurrent = !obscureCurrent);
@@ -867,12 +907,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextField(
                   controller: newPasswordController,
                   obscureText: obscureNew,
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Nueva contraseña',
+                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
                     border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscureNew ? Icons.visibility : Icons.visibility_off,
+                        color: isDarkMode ? Colors.grey[400] : null,
                       ),
                       onPressed: () {
                         setState(() => obscureNew = !obscureNew);
@@ -884,12 +930,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextField(
                   controller: confirmPasswordController,
                   obscureText: obscureConfirm,
+                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
                     labelText: 'Confirmar nueva contraseña',
+                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
                     border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscureConfirm ? Icons.visibility : Icons.visibility_off,
+                        color: isDarkMode ? Colors.grey[400] : null,
                       ),
                       onPressed: () {
                         setState(() => obscureConfirm = !obscureConfirm);
@@ -978,6 +1030,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showStatsDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final totalDocs = _documents.length;
     final processedDocs = _documents.where((d) => d.status == 'processed').length;
     final pendingDocs = _documents.where((d) => d.status == 'pending').length;
@@ -986,7 +1039,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Estadísticas Detalladas'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Estadísticas Detalladas',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1008,37 +1065,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatRow(String label, String value) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey[600])),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            label,
+            style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _showHelpDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         title: Row(
           children: [
             Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            const Text('Ayuda y Soporte'),
+            Text(
+              'Ayuda y Soporte',
+              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '¿Tienes alguna pregunta o problema?\n\n'
               'Estamos aquí para ayudarte:',
-              style: TextStyle(fontSize: 15),
+              style: TextStyle(
+                fontSize: 15,
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
             ),
             const SizedBox(height: 20),
             // WhatsApp button
@@ -1082,17 +1159,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.email_outlined, size: 20, color: Colors.grey[700]),
+                  Icon(
+                    Icons.email_outlined,
+                    size: 20,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                  ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'support@sumly.app',
-                      style: TextStyle(fontSize: 14),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDarkMode ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -1111,11 +1195,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showLogoutDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cerrar Sesión'),
-        content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Cerrar Sesión',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
+        content: Text(
+          '¿Estás seguro de que quieres cerrar sesión?',
+          style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

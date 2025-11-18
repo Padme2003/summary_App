@@ -111,17 +111,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.indigo.shade400,
-              Colors.purple.shade300,
-              Colors.pink.shade200,
-            ],
+            colors: isDarkMode
+                ? [
+                    const Color(0xFF1A1A2E),
+                    const Color(0xFF16213E),
+                    const Color(0xFF0F3460),
+                  ]
+                : [
+                    Colors.indigo.shade400,
+                    Colors.purple.shade300,
+                    Colors.pink.shade200,
+                  ],
           ),
         ),
         child: SafeArea(
@@ -197,11 +205,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         // Code Field
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -210,20 +218,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           child: TextFormField(
                             controller: _codeController,
                             keyboardType: TextInputType.number,
-                            style: const TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Código de 6 dígitos',
-                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              labelStyle: TextStyle(
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              ),
                               prefixIcon: Icon(
                                 Icons.pin_outlined,
-                                color: Colors.indigo.shade400,
+                                color: isDarkMode ? Colors.purple[300] : Colors.indigo.shade400,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none,
                               ),
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 16,
@@ -245,11 +258,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         // New Password Field
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -258,20 +271,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            style: const TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Nueva Contraseña',
-                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              labelStyle: TextStyle(
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: Colors.indigo.shade400,
+                                color: isDarkMode ? Colors.purple[300] : Colors.indigo.shade400,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: Colors.grey[600],
+                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                 ),
                                 onPressed: () {
                                   setState(() => _obscurePassword = !_obscurePassword);
@@ -282,7 +300,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 borderSide: BorderSide.none,
                               ),
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 16,
@@ -304,11 +322,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         // Confirm Password Field
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -317,20 +335,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           child: TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirm,
-                            style: const TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
                             decoration: InputDecoration(
                               labelText: 'Confirmar Contraseña',
-                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              labelStyle: TextStyle(
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: Colors.indigo.shade400,
+                                color: isDarkMode ? Colors.purple[300] : Colors.indigo.shade400,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscureConfirm
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: Colors.grey[600],
+                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                 ),
                                 onPressed: () {
                                   setState(() => _obscureConfirm = !_obscureConfirm);
@@ -341,7 +364,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 borderSide: BorderSide.none,
                               ),
                               filled: true,
-                              fillColor: Colors.white,
+                              fillColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                               contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 16,
@@ -363,15 +386,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           width: double.infinity,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Colors.white.withOpacity(0.9),
-                              ],
+                              colors: isDarkMode
+                                  ? [
+                                      const Color(0xFF6B46C1),
+                                      const Color(0xFF553C9A),
+                                    ]
+                                  : [
+                                      Colors.white,
+                                      Colors.white.withOpacity(0.9),
+                                    ],
                             ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withOpacity(isDarkMode ? 0.4 : 0.2),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
@@ -393,7 +421,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.indigo.shade600,
+                                        isDarkMode ? Colors.white : Colors.indigo.shade600,
                                       ),
                                     ),
                                   )
@@ -402,7 +430,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                     style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.indigo.shade600,
+                                      color: isDarkMode ? Colors.white : Colors.indigo.shade600,
                                       letterSpacing: 0.5,
                                     ),
                                   ),

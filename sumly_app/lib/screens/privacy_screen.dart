@@ -129,20 +129,25 @@ class PrivacyScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue[200]!),
+                border: Border.all(
+                  color: isDarkMode ? Colors.blue.withOpacity(0.3) : Colors.blue[200]!,
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.security, color: Colors.blue[700]),
+                  Icon(
+                    Icons.security,
+                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Su privacidad es importante para nosotros. Trabajamos continuamente para mejorar la seguridad y protección de sus datos.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.blue[900],
+                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
                       ),
                     ),
                   ),

@@ -468,10 +468,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLanguageDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Seleccionar idioma'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Seleccionar idioma',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -522,13 +528,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showClearCacheDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Limpiar caché'),
-        content: const Text(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Limpiar caché',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
+        content: Text(
           '¿Estás seguro de que deseas limpiar el caché?\n\n'
           'Esto liberará espacio pero puede hacer que la app sea más lenta temporalmente.',
+          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
         ),
         actions: [
           TextButton(

@@ -623,9 +623,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showDocumentOptions(DocumentModel document) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -638,7 +640,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -647,9 +649,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 document.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -824,11 +827,20 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   Future<void> _deleteDocument(DocumentModel document) async {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar documento?'),
-        content: Text('¿Estás seguro de eliminar "${document.title}"?'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          '¿Eliminar documento?',
+          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+        ),
+        content: Text(
+          '¿Estás seguro de eliminar "${document.title}"?',
+          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

@@ -159,9 +159,14 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Detectar modo oscuro
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = isDarkMode ? const Color(0xFF1a1a2e) : Colors.grey[100]!;
+    final cardColor = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFF1a1a2e),
+        backgroundColor: backgroundColor,
         body: Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.purple[400]!),
@@ -171,8 +176,10 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
     }
 
     if (_errorMessage != null) {
+      final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+
       return Scaffold(
-        backgroundColor: const Color(0xFF1a1a2e),
+        backgroundColor: backgroundColor,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -183,13 +190,21 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
                 const SizedBox(height: 16),
                 Text(
                   _errorMessage!,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: textColor, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Volver'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  ),
+                  child: const Text('Volver', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -198,7 +213,7 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
       );
     }
     return Scaffold(
-      backgroundColor: const Color(0xFF1a1a2e),
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -901,17 +916,30 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   }
 
   void _showSpeedDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Velocidad de reproducción'),
+        backgroundColor: dialogBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Velocidad de reproducción',
+          style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) {
             return RadioListTile<double>(
-              title: Text('${speed}x'),
+              title: Text(
+                '${speed}x',
+                style: TextStyle(color: textColor, fontSize: 16),
+              ),
               value: speed,
               groupValue: _playbackSpeed,
+              activeColor: Colors.purple[400],
               onChanged: (value) {
                 setState(() => _playbackSpeed = value!);
                 Navigator.pop(context);
@@ -924,10 +952,25 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   }
 
   void _showSleepTimerDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Temporizador de sueño'),
+        backgroundColor: dialogBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.nights_stay, color: Colors.purple[400], size: 24),
+            const SizedBox(width: 12),
+            Text(
+              'Temporizador de sueño',
+              style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children:
@@ -940,7 +983,14 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
                 'Fin del capítulo',
               ].map((option) {
                 return ListTile(
-                  title: Text(option),
+                  title: Text(
+                    option,
+                    style: TextStyle(color: textColor, fontSize: 16),
+                  ),
+                  leading: Icon(
+                    option == 'Desactivado' ? Icons.close : Icons.access_time,
+                    color: Colors.purple[300],
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1058,6 +1108,14 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   void _showQuotaInfo() {
     if (_quota == null) return;
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+    final subtitleColor = isDarkMode ? Colors.grey[400]! : Colors.grey[700]!;
+    final iconBg = isDarkMode ? Colors.blue[900]!.withOpacity(0.3) : Colors.blue[100]!;
+    final containerBg = isDarkMode ? Colors.purple[900]!.withOpacity(0.2) : Colors.purple[50]!;
+    final tipBg = isDarkMode ? Colors.blue[900]!.withOpacity(0.2) : Colors.blue[50]!;
+
     final resetDate = _quota!['resetDate'] != null
         ? DateTime.parse(_quota!['resetDate'])
         : null;
@@ -1066,19 +1124,23 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: dialogBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.blue[100],
+                color: iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.info_outline, color: Colors.blue[700], size: 24),
+              child: Icon(Icons.info_outline, color: Colors.blue[400], size: 24),
             ),
             const SizedBox(width: 12),
-            const Text('Cuota de Audiolibros', style: TextStyle(fontSize: 18)),
+            Text(
+              'Cuota de Audiolibros',
+              style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         content: Column(
@@ -1087,18 +1149,24 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.purple[50],
+                color: containerBg,
                 borderRadius: BorderRadius.circular(12),
+                border: isDarkMode
+                    ? Border.all(color: Colors.purple[700]!.withOpacity(0.3), width: 1)
+                    : null,
               ),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Usados:', style: TextStyle(color: Colors.grey[700])),
+                      Text('Usados:', style: TextStyle(color: subtitleColor)),
                       Text(
                         '${_quota!['used']} audiolibros',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
                     ],
                   ),
@@ -1106,10 +1174,13 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Disponibles:', style: TextStyle(color: Colors.grey[700])),
+                      Text('Disponibles:', style: TextStyle(color: subtitleColor)),
                       Text(
                         '${_quota!['remaining']} audiolibros',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
                     ],
                   ),
@@ -1117,23 +1188,26 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Límite mensual:', style: TextStyle(color: Colors.grey[700])),
+                      Text('Límite mensual:', style: TextStyle(color: subtitleColor)),
                       Text(
                         '${_quota!['limit']} audiolibros',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
                       ),
                     ],
                   ),
-                  const Divider(height: 24),
+                  Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Se renueva en:', style: TextStyle(color: Colors.grey[700])),
+                      Text('Se renueva en:', style: TextStyle(color: subtitleColor)),
                       Text(
                         '$daysUntilReset días',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.purple[700],
+                          color: Colors.purple[400],
                         ),
                       ),
                     ],
@@ -1145,17 +1219,23 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: tipBg,
                 borderRadius: BorderRadius.circular(12),
+                border: isDarkMode
+                    ? Border.all(color: Colors.blue[700]!.withOpacity(0.3), width: 1)
+                    : null,
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  Icon(Icons.lightbulb_outline, color: Colors.blue[400], size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Actualiza a Premium para audiolibros ilimitados',
-                      style: TextStyle(fontSize: 12, color: Colors.blue[900]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
+                      ),
                     ),
                   ),
                 ],
@@ -1166,7 +1246,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: Text('Cerrar', style: TextStyle(color: Colors.purple[400])),
           ),
         ],
       ),
@@ -1175,6 +1255,11 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
 
   void _showDocumentInfo() {
     if (_document == null) return;
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+    final iconBg = isDarkMode ? Colors.purple[900]!.withOpacity(0.3) : Colors.purple[100]!;
 
     final fileSize = _document!.fileSize != null
         ? '${(_document!.fileSize! / 1024).toStringAsFixed(2)} KB'
@@ -1187,22 +1272,23 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: dialogBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.purple[100],
+                color: iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.info_outline, color: Colors.purple[700], size: 24),
+              child: Icon(Icons.info_outline, color: Colors.purple[400], size: 24),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Información del Documento',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -1212,25 +1298,26 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildInfoRow(Icons.title, 'Título', _document!.title),
-              const Divider(height: 24),
+              _buildInfoRow(Icons.title, 'Título', _document!.title, isDarkMode),
+              Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
               _buildInfoRow(Icons.insert_drive_file, 'Tipo',
-                  _document!.fileType.toUpperCase()),
-              const Divider(height: 24),
-              _buildInfoRow(Icons.storage, 'Tamaño', fileSize),
-              const Divider(height: 24),
-              _buildInfoRow(Icons.text_fields, 'Palabras', '$wordCount palabras'),
+                  _document!.fileType.toUpperCase(), isDarkMode),
+              Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
+              _buildInfoRow(Icons.storage, 'Tamaño', fileSize, isDarkMode),
+              Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
+              _buildInfoRow(Icons.text_fields, 'Palabras', '$wordCount palabras', isDarkMode),
               if (pages > 0) ...[
-                const Divider(height: 24),
-                _buildInfoRow(Icons.menu_book, 'Páginas', '$pages páginas'),
+                Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
+                _buildInfoRow(Icons.menu_book, 'Páginas', '$pages páginas', isDarkMode),
               ],
-              const Divider(height: 24),
-              _buildInfoRow(Icons.calendar_today, 'Fecha de creación', formattedDate),
-              const Divider(height: 24),
+              Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
+              _buildInfoRow(Icons.calendar_today, 'Fecha de creación', formattedDate, isDarkMode),
+              Divider(height: 24, color: isDarkMode ? Colors.purple[700]!.withOpacity(0.3) : null),
               _buildInfoRow(
                 Icons.favorite,
                 'Favorito',
                 _document!.isFavorite ? 'Sí' : 'No',
+                isDarkMode,
                 color: _document!.isFavorite ? Colors.pink : null,
               ),
             ],
@@ -1239,18 +1326,22 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: Text('Cerrar', style: TextStyle(color: Colors.purple[400])),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value,
+  Widget _buildInfoRow(IconData icon, String label, String value, bool isDarkMode,
       {Color? color}) {
+    final iconColor = color ?? (isDarkMode ? Colors.grey[400] : Colors.grey[600]);
+    final labelColor = isDarkMode ? Colors.grey[400] : Colors.grey[600];
+    final valueColor = color ?? (isDarkMode ? Colors.white : Colors.grey[900]);
+
     return Row(
       children: [
-        Icon(icon, size: 20, color: color ?? Colors.grey[600]),
+        Icon(icon, size: 20, color: iconColor),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -1260,7 +1351,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: labelColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1269,7 +1360,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
                 value,
                 style: TextStyle(
                   fontSize: 15,
-                  color: color ?? Colors.grey[900],
+                  color: valueColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1281,25 +1372,32 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   void _showTtsNativeInfo() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+    final iconBg = isDarkMode ? Colors.green[900]!.withOpacity(0.3) : Colors.green[100]!;
+    final tipBg = isDarkMode ? Colors.blue[900]!.withOpacity(0.2) : Colors.blue[50]!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: dialogBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.green[100],
+                color: iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.phone_android, color: Colors.green[700], size: 24),
+              child: Icon(Icons.phone_android, color: Colors.green[400], size: 24),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Modo Voz Nativa',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -1312,7 +1410,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               'Estás usando la voz nativa de tu dispositivo',
               style: TextStyle(
                 fontSize: 15,
-                color: Colors.grey[800],
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1322,6 +1420,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               'Ilimitado y gratis',
               'No hay límites de uso',
               Colors.green,
+              isDarkMode,
             ),
             const SizedBox(height: 12),
             _buildFeatureItem(
@@ -1329,6 +1428,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               'Funciona sin conexión',
               'No requiere internet una vez cargado',
               Colors.blue,
+              isDarkMode,
             ),
             const SizedBox(height: 12),
             _buildFeatureItem(
@@ -1336,24 +1436,28 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               'Reproducción en tiempo real',
               'No requiere descargar archivos',
               Colors.orange,
+              isDarkMode,
             ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue[50],
+                color: tipBg,
                 borderRadius: BorderRadius.circular(8),
+                border: isDarkMode
+                    ? Border.all(color: Colors.blue[700]!.withOpacity(0.3), width: 1)
+                    : null,
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.blue[700], size: 20),
+                  Icon(Icons.lightbulb_outline, color: Colors.blue[400], size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Puedes ajustar la velocidad de reproducción y más desde los controles',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.blue[900],
+                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
                       ),
                     ),
                   ),
@@ -1365,7 +1469,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Entendido'),
+            child: Text('Entendido', style: TextStyle(color: Colors.green[400])),
           ),
         ],
       ),
@@ -1373,10 +1477,13 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   Widget _buildFeatureItem(
-      IconData icon, String title, String subtitle, Color color) {
+      IconData icon, String title, String subtitle, Color color, bool isDarkMode) {
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+    final subtitleColor = isDarkMode ? Colors.grey[400] : Colors.grey[600];
+
     return Row(
       children: [
-        Icon(icon, color: color, size: 24),
+        Icon(icon, color: color[400], size: 24),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -1384,16 +1491,17 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
+                  color: textColor,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: subtitleColor,
                 ),
               ),
             ],
@@ -1406,25 +1514,34 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   void _showDeleteConfirmation() {
     if (_document == null) return;
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final dialogBg = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+    final subtitleColor = isDarkMode ? Colors.grey[400]! : Colors.grey[700]!;
+    final iconBg = isDarkMode ? Colors.red[900]!.withOpacity(0.3) : Colors.red[100]!;
+    final documentBg = isDarkMode ? Colors.grey[800]!.withOpacity(0.5) : Colors.grey[100]!;
+    final warningBg = isDarkMode ? Colors.red[900]!.withOpacity(0.2) : Colors.red[50]!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: dialogBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red[100],
+                color: iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.warning_amber, color: Colors.red[700], size: 24),
+              child: Icon(Icons.warning_amber, color: Colors.red[400], size: 24),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 '¿Eliminar documento?',
-                style: TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18, color: textColor, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -1435,25 +1552,33 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
           children: [
             Text(
               'Estás a punto de eliminar:',
-              style: TextStyle(color: Colors.grey[700]),
+              style: TextStyle(color: subtitleColor),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
+                color: documentBg,
                 borderRadius: BorderRadius.circular(8),
+                border: isDarkMode
+                    ? Border.all(color: Colors.grey[700]!.withOpacity(0.5), width: 1)
+                    : null,
               ),
               child: Row(
                 children: [
-                  Icon(Icons.description, color: Colors.grey[600], size: 20),
+                  Icon(
+                    Icons.description,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _document!.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
+                        color: textColor,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -1466,20 +1591,23 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red[50],
+                color: warningBg,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red[200]!, width: 1),
+                border: Border.all(
+                  color: Colors.red[isDarkMode ? 700 : 200]!,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                  Icon(Icons.info_outline, color: Colors.red[400], size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Esta acción no se puede deshacer',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.red[900],
+                        color: isDarkMode ? Colors.red[200] : Colors.red[900],
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1492,7 +1620,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: Colors.grey[400])),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1500,10 +1628,14 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               await _deleteDocument();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.red[600],
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text('Eliminar'),
+            child: const Text('Eliminar', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -1552,65 +1684,73 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   void _showOptionsMenu() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDarkMode ? const Color(0xFF2a2a3e) : Colors.white;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF2a2a3e),
+      backgroundColor: cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(
-                _useTtsNative ? Icons.phone_android : Icons.cloud_download,
-                color: Colors.white,
+      builder: (context) {
+        final textColor = isDarkMode ? Colors.white : Colors.grey[900]!;
+        final subtitleColor = isDarkMode ? Colors.grey : Colors.grey[600]!;
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  _useTtsNative ? Icons.phone_android : Icons.cloud_download,
+                  color: textColor,
+                ),
+                title: Text(
+                  _useTtsNative
+                      ? 'Modo reproducción'
+                      : 'Descargar audiolibro',
+                  style: TextStyle(color: textColor),
+                ),
+                subtitle: Text(
+                  _useTtsNative
+                      ? 'Voz nativa (sin descarga necesaria)'
+                      : 'No disponible con TTS nativo',
+                  style: TextStyle(color: subtitleColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (_useTtsNative) {
+                    _showTtsNativeInfo();
+                  }
+                },
               ),
-              title: Text(
-                _useTtsNative
-                    ? 'Modo reproducción'
-                    : 'Descargar audiolibro',
-                style: const TextStyle(color: Colors.white),
+              ListTile(
+                leading: Icon(Icons.info_outline, color: textColor),
+                title: Text(
+                  'Información del documento',
+                  style: TextStyle(color: textColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDocumentInfo();
+                },
               ),
-              subtitle: Text(
-                _useTtsNative
-                    ? 'Voz nativa (sin descarga necesaria)'
-                    : 'No disponible con TTS nativo',
-                style: const TextStyle(color: Colors.grey),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text(
+                  'Eliminar documento',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDeleteConfirmation();
+                },
               ),
-              onTap: () {
-                Navigator.pop(context);
-                if (_useTtsNative) {
-                  _showTtsNativeInfo();
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.white),
-              title: const Text(
-                'Información del documento',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDocumentInfo();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text(
-                'Eliminar documento',
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmation();
-              },
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

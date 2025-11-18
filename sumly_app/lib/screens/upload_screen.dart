@@ -167,10 +167,11 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildModeSelector() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -215,6 +216,7 @@ class _UploadScreenState extends State<UploadScreen>
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -235,7 +237,7 @@ class _UploadScreenState extends State<UploadScreen>
                 Icon(
                   icon,
                   size: 32,
-                  color: isSelected ? color : Colors.grey[600],
+                  color: isSelected ? color : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -243,7 +245,7 @@ class _UploadScreenState extends State<UploadScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? color : Colors.grey[600],
+                    color: isSelected ? color : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -254,7 +256,7 @@ class _UploadScreenState extends State<UploadScreen>
                     fontSize: 11,
                     color: isSelected
                         ? color.withOpacity(0.7)
-                        : Colors.grey[500],
+                        : (isDarkMode ? Colors.grey[500] : Colors.grey[500]),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -267,10 +269,11 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildTabSelector() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -309,6 +312,7 @@ class _UploadScreenState extends State<UploadScreen>
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -331,7 +335,7 @@ class _UploadScreenState extends State<UploadScreen>
                 Icon(
                   icon,
                   size: 20,
-                  color: isSelected ? Colors.white : Colors.grey[600],
+                  color: isSelected ? Colors.white : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -339,7 +343,7 @@ class _UploadScreenState extends State<UploadScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Colors.white : Colors.grey[600],
+                    color: isSelected ? Colors.white : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                   ),
                 ),
               ],
@@ -351,6 +355,7 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildFileUploadSection() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
         GestureDetector(
@@ -359,12 +364,12 @@ class _UploadScreenState extends State<UploadScreen>
             duration: const Duration(milliseconds: 300),
             height: 250,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: _selectedFileName != null
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.grey[300]!,
+                    : (isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
                 width: 2,
               ),
               boxShadow: [
@@ -385,6 +390,7 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildUploadPlaceholder() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return ScaleTransition(
       scale: _pulseAnimation,
       child: Column(
@@ -408,18 +414,18 @@ class _UploadScreenState extends State<UploadScreen>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'PDF, TXT, DOC, DOCX',
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[400] : Colors.grey[500]),
           ),
           const SizedBox(height: 4),
           Text(
             'Máximo 50 MB • 800 páginas',
-            style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+            style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[400]),
           ),
         ],
       ),
@@ -427,6 +433,7 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildFilePreview() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -439,14 +446,14 @@ class _UploadScreenState extends State<UploadScreen>
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -455,13 +462,13 @@ class _UploadScreenState extends State<UploadScreen>
                 Icon(
                   Icons.insert_drive_file,
                   size: 20,
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
                     _selectedFileName!,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[300] : Colors.grey[700]),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -481,10 +488,11 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildTextInputSection() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -499,14 +507,14 @@ class _UploadScreenState extends State<UploadScreen>
         children: [
           Row(
             children: [
-              Icon(Icons.edit_note, color: Colors.grey[600]),
+              Icon(Icons.edit_note, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
               const SizedBox(width: 8),
               Text(
                 'Escribe o pega tu texto aquí',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                 ),
               ),
             ],
@@ -515,12 +523,17 @@ class _UploadScreenState extends State<UploadScreen>
           TextField(
             controller: _textController,
             maxLines: 12,
+            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
             decoration: InputDecoration(
               hintText: 'Pega tu texto aquí...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
+              hintStyle: TextStyle(color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
+                borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -535,11 +548,11 @@ class _UploadScreenState extends State<UploadScreen>
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(Icons.info_outline, size: 16, color: Colors.grey[500]),
+              Icon(Icons.info_outline, size: 16, color: isDarkMode ? Colors.grey[500] : Colors.grey[500]),
               const SizedBox(width: 4),
               Text(
                 '${_textController.text.split(' ').where((word) => word.isNotEmpty).length} palabras',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
               ),
             ],
           ),
@@ -549,6 +562,7 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildProcessButton() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final canProcess =
         (_selectedTab == 0 && _selectedFilePath != null) ||
         (_selectedTab == 1 && _textController.text.trim().isNotEmpty);
@@ -558,9 +572,10 @@ class _UploadScreenState extends State<UploadScreen>
       style: ElevatedButton.styleFrom(
         backgroundColor: canProcess
             ? Theme.of(context).colorScheme.primary
-            : Colors.grey[300],
-        padding: const EdgeInsets.symmetric(vertical: 16),
+            : (isDarkMode ? Colors.grey[800] : Colors.grey[300]),
+        padding: const EdgeInsets.symmetric(vertical: 18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        minimumSize: const Size(double.infinity, 56),
       ),
       child: _isUploading
           ? const SizedBox(
@@ -593,20 +608,42 @@ class _UploadScreenState extends State<UploadScreen>
   }
 
   Widget _buildInfoCard() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isResumenMode = _selectedMode == 0;
+
+    // Colores para modo oscuro y claro
+    final Color bgColor = isDarkMode
+        ? (isResumenMode ? const Color(0xFF1A2332) : const Color(0xFF2A1A32))
+        : (isResumenMode ? Colors.blue[50]! : Colors.purple[50]!);
+
+    final Color borderColor = isDarkMode
+        ? (isResumenMode ? Colors.blue[800]! : Colors.purple[800]!)
+        : (isResumenMode ? Colors.blue[100]! : Colors.purple[100]!);
+
+    final Color iconColor = isDarkMode
+        ? (isResumenMode ? Colors.blue[400]! : Colors.purple[400]!)
+        : (isResumenMode ? Colors.blue[700]! : Colors.purple[700]!);
+
+    final Color titleColor = isDarkMode
+        ? (isResumenMode ? Colors.blue[300]! : Colors.purple[300]!)
+        : (isResumenMode ? Colors.blue[900]! : Colors.purple[900]!);
+
+    final Color textColor = isDarkMode
+        ? (isResumenMode ? Colors.blue[200]! : Colors.purple[200]!)
+        : (isResumenMode ? Colors.blue[800]! : Colors.purple[800]!);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _selectedMode == 0 ? Colors.blue[50] : Colors.purple[50],
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _selectedMode == 0 ? Colors.blue[100]! : Colors.purple[100]!,
-        ),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
           Icon(
             Icons.info_outline,
-            color: _selectedMode == 0 ? Colors.blue[700] : Colors.purple[700],
+            color: iconColor,
             size: 24,
           ),
           const SizedBox(width: 12),
@@ -615,27 +652,23 @@ class _UploadScreenState extends State<UploadScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _selectedMode == 0
+                  isResumenMode
                       ? 'Resumen Inteligente con IA'
                       : 'Audiolibro con Voz Nativa',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: _selectedMode == 0
-                        ? Colors.blue[900]
-                        : Colors.purple[900],
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _selectedMode == 0
+                  isResumenMode
                       ? 'Se generará un resumen de 3-5 páginas con los puntos clave (5-15 min de audio)'
                       : 'Se reproducirá el contenido completo con la voz nativa de tu dispositivo (ilimitado y gratis)',
                   style: TextStyle(
                     fontSize: 12,
-                    color: _selectedMode == 0
-                        ? Colors.blue[800]
-                        : Colors.purple[800],
+                    color: textColor,
                   ),
                 ),
               ],

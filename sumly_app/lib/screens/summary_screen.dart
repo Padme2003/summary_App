@@ -200,14 +200,16 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.grey[50],
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            icon: Icon(Icons.arrow_back, color: isDarkMode ? Colors.white : Colors.black87),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -217,12 +219,12 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.grey[50],
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            icon: Icon(Icons.arrow_back, color: isDarkMode ? Colors.white : Colors.black87),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -234,7 +236,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -253,8 +258,6 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         ),
       );
     }
-
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -292,6 +295,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   }
 
   Widget _buildHeader() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final durationText = _summary?.audioDuration != null
         ? '${(_summary!.audioDuration! / 60).floor()} min'
         : 'Sin audio';
@@ -325,13 +329,20 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           const SizedBox(height: 16),
           Text(
             _summary?.title ?? 'Resumen',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
             'Generado el ${_formatDate(_summary?.createdAt)}',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: TextStyle(
+              fontSize: 14,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+            ),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -377,6 +388,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   }
 
   Widget _buildContent() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final summaryContent = _summary?.content ?? 'No hay contenido disponible';
     final keyPoints = _summary?.keyPoints ?? [];
 
@@ -384,11 +396,11 @@ Generado con Sumly - Resúmenes Inteligentes con IA
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -400,13 +412,21 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           children: [
             Row(
               children: [
-                const Text(
+                Text(
                   'Resumen',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.text_fields, size: 20),
+                  icon: Icon(
+                    Icons.text_fields,
+                    size: 20,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                  ),
                   onPressed: () {
                     _showTextSizeDialog();
                   },
@@ -416,17 +436,21 @@ Generado con Sumly - Resúmenes Inteligentes con IA
             const SizedBox(height: 16),
             Text(
               summaryContent,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 height: 1.6,
-                color: Colors.black87,
+                color: isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
             if (keyPoints.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Puntos Clave',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
               ),
               const SizedBox(height: 12),
               ...keyPoints.map((point) => Padding(
@@ -446,10 +470,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                         Expanded(
                           child: Text(
                             point,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               height: 1.5,
-                              color: Colors.black87,
+                              color: isDarkMode ? Colors.white : Colors.black87,
                             ),
                           ),
                         ),
@@ -464,17 +488,18 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   }
 
   Widget _buildAudioControls() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final hasAudio = _summary?.audioUrl != null && _summary!.audioUrl!.isNotEmpty;
 
     if (!hasAudio) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
               blurRadius: 20,
               offset: const Offset(0, -5),
             ),
@@ -484,11 +509,17 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.info_outline, color: Colors.grey[600]),
+              Icon(
+                Icons.info_outline,
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              ),
               const SizedBox(width: 8),
               Text(
                 'Audio no disponible',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -499,11 +530,11 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -517,7 +548,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
               children: [
                 Text(
                   _formatDuration(_position),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
                 Expanded(
                   child: Slider(
@@ -534,7 +568,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 ),
                 Text(
                   _formatDuration(_duration),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
               ],
             ),
@@ -548,7 +585,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(
@@ -557,9 +594,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                     ),
                     child: Text(
                       '${_playbackSpeed}x',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                     ),
                   ),
@@ -569,7 +607,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   child: Icon(
                     Icons.replay_10,
                     size: 32,
-                    color: Colors.grey[700],
+                    color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                   ),
                 ),
                 StreamBuilder<PlayerState>(
@@ -617,7 +655,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   child: Icon(
                     Icons.forward_10,
                     size: 32,
-                    color: Colors.grey[700],
+                    color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                   ),
                 ),
                 AnimatedScaleButton(
@@ -626,11 +664,14 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.download),
+                      icon: Icon(
+                        Icons.download,
+                        color: isDarkMode ? Colors.white : Colors.black87,
+                      ),
                       onPressed: () {},
                     ),
                   ),
@@ -651,15 +692,28 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   }
 
   void _showSpeedDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Velocidad de reproducción'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Velocidad de reproducción',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) {
             return RadioListTile<double>(
-              title: Text('${speed}x'),
+              title: Text(
+                '${speed}x',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               value: speed,
               groupValue: _playbackSpeed,
               onChanged: (value) {
@@ -674,15 +728,28 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   }
 
   void _showTextSizeDialog() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Tamaño del texto'),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          'Tamaño del texto',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: ['Pequeño', 'Normal', 'Grande', 'Muy grande'].map((size) {
             return ListTile(
-              title: Text(size),
+              title: Text(
+                size,
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Cambiar tamaño de texto
@@ -721,18 +788,34 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
   Future<void> _deleteSummary() async {
     if (_summary == null) return;
 
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar resumen?'),
-        content: const Text(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Text(
+          '¿Eliminar resumen?',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
+        content: Text(
           '¿Estás seguro de que deseas eliminar este resumen?\n\n'
           'Esta acción no se puede deshacer.',
+          style: TextStyle(
+            color: isDarkMode ? Colors.grey[300] : Colors.black87,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -779,8 +862,11 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
   }
 
   void _showOptionsMenu() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -789,16 +875,32 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.copy),
-              title: const Text('Copiar texto'),
+              leading: Icon(
+                Icons.copy,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+              ),
+              title: Text(
+                'Copiar texto',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _copyToClipboard();
               },
             ),
             ListTile(
-              leading: const Icon(Icons.download),
-              title: const Text('Descargar audio'),
+              leading: Icon(
+                Icons.download,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+              ),
+              title: Text(
+                'Descargar audio',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
