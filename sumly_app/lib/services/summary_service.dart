@@ -156,4 +156,35 @@ class SummaryService {
   Future<Map<String, dynamic>> getFavorites() async {
     return getSummaries(isFavorite: true);
   }
+
+  // Eliminar resumen
+  Future<Map<String, dynamic>> deleteSummary(String summaryId) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.delete(
+        Uri.parse('${ApiConfig.summaries}/$summaryId'),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Resumen eliminado exitosamente',
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al eliminar resumen',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
 }
