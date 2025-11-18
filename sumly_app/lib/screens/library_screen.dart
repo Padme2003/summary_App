@@ -4,6 +4,7 @@ import '../services/document_service.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
+import '../utils/app_colors.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -95,14 +96,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await Navigator.pushNamed(context, '/upload');
-          _loadDocuments();
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo Contenido'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient(isDarkMode),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppColors.buttonShadow(isDarkMode),
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () async {
+            await Navigator.pushNamed(context, '/upload');
+            _loadDocuments();
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Nuevo Contenido', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
       ),
     );
   }
@@ -233,22 +242,32 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: isDarkMode ? AppColors.surfaceDark : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withOpacity(0.2),
+          width: 2,
+        ),
+        boxShadow: AppColors.cardShadow(isDarkMode, color: color),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  color.withOpacity(0.2),
+                  color.withOpacity(0.1),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
           const SizedBox(height: 8),
           Text(
             value,

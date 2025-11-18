@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
+import '../utils/app_colors.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -111,21 +112,7 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF1a1a2e),
-                    const Color(0xFF16213e),
-                    const Color(0xFF0f1419),
-                  ]
-                : [
-                    Colors.white,
-                    Colors.indigo.shade50,
-                    Colors.purple.shade50,
-                  ],
-          ),
+          gradient: AppColors.backgroundGradient(isDarkMode),
         ),
         child: SafeArea(
           child: Center(
@@ -144,48 +131,45 @@ class _LoginScreenState extends State<LoginScreen>
                         children: [
                         // Logo con círculo de fondo
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: isDarkMode
-                                  ? [
-                                      const Color(0xFF4a5c8f),
-                                      const Color(0xFF7b4397),
-                                    ]
-                                  : [
-                                      Colors.indigo.shade600,
-                                      Colors.purple.shade400,
-                                    ],
-                            ),
+                            gradient: AppColors.primaryGradient(isDarkMode),
                             boxShadow: [
                               BoxShadow(
-                                color: isDarkMode
-                                    ? const Color(0xFF4a5c8f).withOpacity(0.4)
-                                    : Colors.indigo.withOpacity(0.3),
-                                blurRadius: 20,
+                                color: AppColors.primaryCyan.withOpacity(0.5),
+                                blurRadius: 30,
                                 spreadRadius: 5,
+                              ),
+                              BoxShadow(
+                                color: AppColors.primaryPurple.withOpacity(0.3),
+                                blurRadius: 20,
+                                spreadRadius: -5,
+                                offset: const Offset(10, 10),
                               ),
                             ],
                           ),
                           child: const Icon(
                             Icons.auto_stories_rounded,
-                            size: 60,
+                            size: 64,
                             color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 32),
 
                         // Título
-                        Text(
-                          '¡Bienvenido!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: isDarkMode
-                                ? Colors.white
-                                : Colors.indigo.shade900,
+                        ShaderMask(
+                          shaderCallback: (bounds) => AppColors.primaryGradient(isDarkMode)
+                              .createShader(bounds),
+                          child: Text(
+                            '¡Bienvenido!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -242,8 +226,8 @@ class _LoginScreenState extends State<LoginScreen>
                               prefixIcon: Icon(
                                 Icons.email_outlined,
                                 color: isDarkMode
-                                    ? const Color(0xFF7b8ab8)
-                                    : Colors.indigo.shade400,
+                                    ? AppColors.primaryCyanDark
+                                    : AppColors.primaryCyan,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -312,8 +296,8 @@ class _LoginScreenState extends State<LoginScreen>
                               prefixIcon: Icon(
                                 Icons.lock_outline,
                                 color: isDarkMode
-                                    ? const Color(0xFF7b8ab8)
-                                    : Colors.indigo.shade400,
+                                    ? AppColors.primaryCyanDark
+                                    : AppColors.primaryCyan,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -367,13 +351,16 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               );
                             },
-                            child: Text(
-                              '¿Olvidaste tu contraseña?',
-                              style: TextStyle(
-                                color: isDarkMode
-                                    ? const Color(0xFF8fa3d4)
-                                    : Colors.indigo.shade600,
-                                fontWeight: FontWeight.w600,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) =>
+                                  AppColors.primaryGradient(isDarkMode)
+                                      .createShader(bounds),
+                              child: const Text(
+                                '¿Olvidaste tu contraseña?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ),
@@ -384,27 +371,9 @@ class _LoginScreenState extends State<LoginScreen>
                         Container(
                           height: 56,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDarkMode
-                                  ? [
-                                      const Color(0xFF4a5c8f),
-                                      const Color(0xFF7b4397),
-                                    ]
-                                  : [
-                                      Colors.indigo.shade600,
-                                      Colors.purple.shade400,
-                                    ],
-                            ),
+                            gradient: AppColors.primaryGradient(isDarkMode),
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: isDarkMode
-                                    ? const Color(0xFF4a5c8f).withOpacity(0.5)
-                                    : Colors.indigo.withOpacity(0.4),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
+                            boxShadow: AppColors.buttonShadow(isDarkMode),
                           ),
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
@@ -563,14 +532,17 @@ class _LoginScreenState extends State<LoginScreen>
                               onTap: () {
                                 Navigator.pushNamed(context, '/register');
                               },
-                              child: Text(
-                                'Regístrate',
-                                style: TextStyle(
-                                  color: isDarkMode
-                                      ? const Color(0xFF8fa3d4)
-                                      : Colors.indigo.shade600,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                              child: ShaderMask(
+                                shaderCallback: (bounds) =>
+                                    AppColors.primaryGradient(isDarkMode)
+                                        .createShader(bounds),
+                                child: const Text(
+                                  'Regístrate',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                               ),
                             ),

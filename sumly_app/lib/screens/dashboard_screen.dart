@@ -5,6 +5,7 @@ import '../services/document_service.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
+import '../utils/app_colors.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -132,21 +133,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           slivers: [
             // App Bar con gradiente
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: 220,
               floating: false,
               pinned: true,
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primaryContainer,
-                      ],
-                    ),
+                    gradient: AppColors.primaryGradient(isDarkMode),
                   ),
                   child: SafeArea(
                     child: Padding(
@@ -158,17 +152,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Text(
                             '${_getGreeting()},',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               color: Colors.white70,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
                             _user?.name ?? 'Usuario',
                             style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 36,
+                              fontWeight: FontWeight.w900,
                               color: Colors.white,
+                              letterSpacing: -1,
                             ),
                           ),
                         ],
@@ -327,13 +323,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, '/upload');
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient(isDarkMode),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppColors.buttonShadow(isDarkMode),
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.pushNamed(context, '/upload');
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
       ),
     );
   }
@@ -358,17 +362,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: isDarkMode ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 2,
+          ),
+          boxShadow: AppColors.cardShadow(isDarkMode, color: color),
         ),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,12 +378,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withOpacity(0.2),
+                      color.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: 24),
               ),
               const Spacer(),
             ],
@@ -423,27 +430,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Color color,
     VoidCallback onTap,
   ) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.3), width: 2),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.15),
+                color.withOpacity(0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withOpacity(0.4), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 32),
+              Icon(icon, color: color, size: 36),
               const SizedBox(height: 12),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
                   color: color,
                 ),
                 textAlign: TextAlign.center,

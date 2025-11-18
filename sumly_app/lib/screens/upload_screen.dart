@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/document_service.dart';
+import '../utils/app_colors.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});

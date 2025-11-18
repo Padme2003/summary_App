@@ -7,6 +7,7 @@ import 'home_screen.dart';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
 import '../models/models.dart';
+import '../utils/app_colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -290,22 +291,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSliverAppBar() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return SliverAppBar(
-      expandedHeight: 280,
+      expandedHeight: 300,
       floating: false,
       pinned: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Colors.transparent,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.primaryContainer,
-              ],
-            ),
+            gradient: AppColors.primaryGradient(isDarkMode),
           ),
           child: SafeArea(
             child: Column(
@@ -419,27 +415,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: isDarkMode ? AppColors.surfaceDark : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 2,
+          ),
+          boxShadow: AppColors.cardShadow(isDarkMode, color: color),
         ),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                gradient: LinearGradient(
+                  colors: [
+                    color.withOpacity(0.2),
+                    color.withOpacity(0.1),
+                  ],
+                ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 12),
             Text(
