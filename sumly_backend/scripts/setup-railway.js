@@ -36,16 +36,19 @@ if (googleCredsEnv) {
     // Intentar parsear para validar que sea JSON válido
     const credsJson = JSON.parse(googleCredsEnv);
     fs.writeFileSync(googleCredsPath, JSON.stringify(credsJson, null, 2));
-    console.log('✓ Credenciales de Google TTS configuradas');
+    console.log('✓ Credenciales de Google TTS configuradas desde variable de entorno');
   } catch (error) {
     console.warn('⚠️  GOOGLE_TTS_CREDENTIALS no es JSON válido');
     console.warn('⚠️  El servicio de Text-to-Speech NO estará disponible');
   }
+} else if (fs.existsSync(googleCredsPath)) {
+  // Si el archivo ya existe, no lo sobrescribas
+  console.log('✓ Usando credenciales de Google TTS existentes');
 } else {
+  // Solo crear archivo "disabled" si no existe ninguno
   console.warn('⚠️  GOOGLE_TTS_CREDENTIALS no configurada');
-  console.warn('⚠️  El servicio de Text-to-Speech NO estará disponible');
+  console.warn('⚠️  Creando archivo de credenciales deshabilitadas');
 
-  // Crear un archivo vacío para evitar errores de "archivo no encontrado"
   fs.writeFileSync(googleCredsPath, JSON.stringify({
     "type": "service_account",
     "project_id": "disabled",
