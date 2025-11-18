@@ -704,30 +704,41 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
 
   Widget _buildSecondaryControls() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildControlButton(
-            icon: Icons.speed,
-            label: '${_playbackSpeed}x',
-            onTap: _showSpeedDialog,
+          Flexible(
+            child: _buildControlButton(
+              icon: Icons.speed,
+              label: '${_playbackSpeed}x',
+              onTap: _showSpeedDialog,
+            ),
           ),
-          _buildControlButton(
-            icon: Icons.nights_stay,
-            label: 'Sleep',
-            onTap: _showSleepTimerDialog,
+          const SizedBox(width: 8),
+          Flexible(
+            child: _buildControlButton(
+              icon: Icons.nights_stay,
+              label: 'Sleep',
+              onTap: _showSleepTimerDialog,
+            ),
           ),
-          _buildControlButton(
-            icon: Icons.bookmark_outline,
-            label: 'Marcar',
-            onTap: () {},
+          const SizedBox(width: 8),
+          Flexible(
+            child: _buildControlButton(
+              icon: Icons.bookmark_outline,
+              label: 'Marcar',
+              onTap: () {},
+            ),
           ),
-          _buildControlButton(
-            icon: Icons.list,
-            label: 'Capítulos',
-            onTap: () => setState(() => _showChapters = !_showChapters),
-            isActive: _showChapters,
+          const SizedBox(width: 8),
+          Flexible(
+            child: _buildControlButton(
+              icon: Icons.list,
+              label: 'Capítulos',
+              onTap: () => setState(() => _showChapters = !_showChapters),
+              isActive: _showChapters,
+            ),
           ),
         ],
       ),

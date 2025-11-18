@@ -480,93 +480,96 @@ class _LibraryScreenState extends State<LibraryScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Document title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                document.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black87,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 8),
+              const SizedBox(height: 16),
 
-            // Options
-            ListTile(
-              leading: const Icon(Icons.summarize, color: Colors.blue),
-              title: const Text('Generar Resumen'),
-              onTap: () {
-                Navigator.pop(context);
-                _generateSummary(document);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.headphones, color: Colors.purple),
-              title: const Text('Generar Audiolibro'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(
-                  context,
-                  '/processing',
-                  arguments: {
-                    'mode': 'audiobook',
-                    'documentId': document.id,
-                  },
-                );
-              },
-            ),
-            if (document.fileType == 'pdf')
+              // Document title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  document.title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Options
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: const Text('Ver PDF'),
+                leading: const Icon(Icons.summarize, color: Colors.blue),
+                title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
                 onTap: () {
                   Navigator.pop(context);
-                  _viewPDF(document);
+                  _generateSummary(document);
                 },
               ),
-            ListTile(
-              leading: const Icon(Icons.share, color: Colors.green),
-              title: const Text('Compartir'),
-              onTap: () {
-                Navigator.pop(context);
-                _shareDocument(document);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text(
-                'Eliminar',
-                style: TextStyle(color: Colors.red),
+              ListTile(
+                leading: const Icon(Icons.headphones, color: Colors.purple),
+                title: Text('Generar Audiolibro', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/processing',
+                    arguments: {
+                      'mode': 'audiobook',
+                      'documentId': document.id,
+                    },
+                  );
+                },
               ),
-              onTap: () {
-                Navigator.pop(context);
-                _deleteDocument(document);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
+              if (document.fileType == 'pdf')
+                ListTile(
+                  leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                  title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _viewPDF(document);
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.share, color: Colors.green),
+                title: Text('Compartir', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _shareDocument(document);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteDocument(document);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );

@@ -212,13 +212,26 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.summarize, color: Colors.blue),
-              title: const Text('Generar Resumen'),
+              title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(
@@ -234,7 +247,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             if (document.fileType == 'pdf')
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: const Text('Ver PDF'),
+                title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
                 onTap: () {
                   Navigator.pop(context);
                   // View PDF logic here
@@ -242,13 +255,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.favorite_border, color: Colors.red),
-              title: const Text('Quitar de favoritos'),
+              title: Text('Quitar de favoritos', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               onTap: () async {
                 Navigator.pop(context);
                 await _documentService.toggleFavorite(document.id);
                 _loadFavorites();
               },
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

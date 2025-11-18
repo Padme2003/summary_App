@@ -595,7 +595,7 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  _selectedMode == 0 ? 'Generar Resumen' : 'Abrir Audiolibro',
+                  _selectedMode == 0 ? 'Generar Resumen' : 'Crear Audiolibro',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

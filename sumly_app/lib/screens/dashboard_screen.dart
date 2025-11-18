@@ -449,6 +449,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDocumentCard(DocumentModel document) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     Color getStatusColor() {
       switch (document.status) {
         case 'processed':
@@ -490,11 +492,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -513,12 +515,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
+                    color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: Colors.blue[700],
+                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
                     size: 20,
                   ),
                 ),
@@ -529,9 +531,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text(
                         document.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: isDarkMode ? Colors.white : Colors.black87,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -562,7 +565,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             _formatDate(document.createdAt),
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.grey[500],
+                              color: isDarkMode ? Colors.grey[600] : Colors.grey[500],
                             ),
                           ),
                         ],
@@ -570,7 +573,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+                Icon(Icons.chevron_right, color: isDarkMode ? Colors.grey[600] : Colors.grey[400], size: 20),
               ],
             ),
           ),
@@ -580,14 +583,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -595,20 +600,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Column(
         children: [
-          Icon(Icons.auto_stories_outlined, size: 64, color: Colors.grey[300]),
+          Icon(Icons.auto_stories_outlined, size: 64, color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             'No tienes documentos aún',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Comienza subiendo tu primer documento',
-            style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+            style: TextStyle(fontSize: 13, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -631,89 +636,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                document.title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black87,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 8),
-            ListTile(
-              leading: const Icon(Icons.summarize, color: Colors.blue),
-              title: const Text('Generar Resumen'),
-              subtitle: const Text('Crear resumen con IA'),
-              onTap: () {
-                Navigator.pop(context);
-                _generateSummary(document);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.headphones, color: Colors.purple),
-              title: const Text('Generar Audiolibro'),
-              subtitle: const Text('Convertir a audio con TTS'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(
-                  context,
-                  '/processing',
-                  arguments: {
-                    'mode': 'audiobook',
-                    'documentId': document.id,
-                  },
-                );
-              },
-            ),
-            if (document.fileType == 'pdf')
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  document.title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black87,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 8),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: const Text('Ver PDF'),
-                subtitle: const Text('Abrir documento original'),
+                leading: const Icon(Icons.summarize, color: Colors.blue),
+                title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                subtitle: Text('Crear resumen con IA', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
                 onTap: () {
                   Navigator.pop(context);
-                  _viewPDF(document);
+                  _generateSummary(document);
                 },
               ),
-            ListTile(
-              leading: const Icon(Icons.share, color: Colors.green),
-              title: const Text('Compartir'),
-              subtitle: const Text('Compartir documento'),
-              onTap: () {
-                Navigator.pop(context);
-                _shareDocument(document);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text('Eliminar'),
-              subtitle: const Text('Borrar documento'),
-              onTap: () {
-                Navigator.pop(context);
-                _deleteDocument(document);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
+              ListTile(
+                leading: const Icon(Icons.headphones, color: Colors.purple),
+                title: Text('Generar Audiolibro', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                subtitle: Text('Convertir a audio con TTS', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(
+                    context,
+                    '/processing',
+                    arguments: {
+                      'mode': 'audiobook',
+                      'documentId': document.id,
+                    },
+                  );
+                },
+              ),
+              if (document.fileType == 'pdf')
+                ListTile(
+                  leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                  title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                  subtitle: Text('Abrir documento original', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _viewPDF(document);
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.share, color: Colors.green),
+                title: Text('Compartir', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                subtitle: Text('Compartir documento', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                onTap: () {
+                  Navigator.pop(context);
+                  _shareDocument(document);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                subtitle: Text('Borrar documento', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteDocument(document);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
