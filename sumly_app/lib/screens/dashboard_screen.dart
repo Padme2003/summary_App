@@ -232,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Expanded(
                           child: _buildStatCard(
                             'Resúmenes',
-                            '${_user?.stats.totalSummaries ?? 0}',
+                            '${_user?.stats['totalSummaries'] ?? 0}',
                             'generados',
                             Icons.auto_stories,
                             Colors.purple,
