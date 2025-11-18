@@ -739,10 +739,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
         // Navegar a la pantalla de resumen
+        final summary = result['summary'];
+        final summaryId = summary is Map ? summary['_id'] : summary.id;
         Navigator.pushNamed(
           context,
           '/summary',
-          arguments: {'id': result['summary']['_id']},
+          arguments: {'id': summaryId},
         );
       }
     } else {

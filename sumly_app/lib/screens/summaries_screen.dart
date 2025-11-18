@@ -167,7 +167,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[500] : Colors.grey[600],
           ),
         ),
       ],
@@ -276,7 +276,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Icon(Icons.calendar_today, size: 14, color: Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(summary.createdAt),
@@ -287,7 +287,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: Colors.grey[400]),
+                    Icon(Icons.headphones, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
                     const SizedBox(width: 4),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',

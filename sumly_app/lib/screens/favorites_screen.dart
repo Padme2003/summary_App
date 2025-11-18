@@ -95,11 +95,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         children: [
           // Documents Section
           if (_favoriteDocuments.isNotEmpty) ...[
-            const Text(
+            Text(
               'Documentos',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
               ),
             ),
             const SizedBox(height: 12),
@@ -109,11 +110,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
           // Summaries Section
           if (_favoriteSummaries.isNotEmpty) ...[
-            const Text(
+            Text(
               'Resúmenes',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
               ),
             ),
             const SizedBox(height: 12),
@@ -155,9 +157,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Expanded(
                     child: Text(
                       document.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -173,17 +176,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(document.createdAt),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -191,7 +194,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
+                        color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
                       ),
                     ),
                   ),
@@ -205,8 +208,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   void _showDocumentOptions(DocumentModel document) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -279,9 +284,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Expanded(
                     child: Text(
                       summary.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: isDarkMode ? Colors.white : Colors.black87,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -299,7 +305,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 summary.content,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -307,19 +313,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(summary.createdAt),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: Colors.grey[400]),
+                    Icon(Icons.headphones, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
                     const SizedBox(width: 4),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
                     ),
                   ],
                 ],
@@ -332,6 +338,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -339,13 +347,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.red[50],
+              color: isDarkMode ? Colors.red.withOpacity(0.2) : Colors.red[50],
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.favorite_outline,
               size: 80,
-              color: Colors.red[300],
+              color: isDarkMode ? Colors.red[400] : Colors.red[300],
             ),
           ),
           const SizedBox(height: 24),
@@ -354,7 +362,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
             ),
           ),
           const SizedBox(height: 8),
@@ -363,7 +371,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: Text(
               'Los resúmenes que marques como favoritos aparecerán aquí',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
             ),
           ),
         ],
