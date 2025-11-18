@@ -3,6 +3,7 @@ import 'package:share_plus/share_plus.dart';
 import '../services/document_service.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
+import '../config/api_config.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -564,10 +565,32 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  void _viewPDF(DocumentModel document) {
-    // TODO: El backend debe devolver la URL del PDF
-    // Por ahora, intentar obtenerla de metadata
-    final pdfUrl = document.metadata?['fileUrl'] as String?;
+  void _viewPDF(DocumentModel document) async {
+    // Get filePath from document
+    final filePath = document.filePath;
+
+    if (filePath == null || filePath.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('El archivo PDF no está disponible'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Build the PDF URL from the backend
+    // Remove /api from baseUrl and add the file path
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+
+    // filePath comes from backend as 'uploads/...' so we need to add a leading slash
+    final pdfUrl = filePath.startsWith('http')
+        ? filePath
+        : filePath.startsWith('/')
+            ? '$baseUrl$filePath'
+            : '$baseUrl/$filePath';
 
     Navigator.pushNamed(
       context,

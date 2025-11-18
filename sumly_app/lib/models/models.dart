@@ -44,6 +44,7 @@ class DocumentModel {
   final String fileType;
   final int? fileSize;
   final String? content;
+  final String? filePath;
   final Map<String, dynamic>? metadata;
   final String status;
   final bool isFavorite;
@@ -56,6 +57,7 @@ class DocumentModel {
     required this.fileType,
     this.fileSize,
     this.content,
+    this.filePath,
     this.metadata,
     required this.status,
     required this.isFavorite,
@@ -70,6 +72,7 @@ class DocumentModel {
       fileType: json['fileType'] ?? '',
       fileSize: json['fileSize'],
       content: json['content'],
+      filePath: json['filePath'],
       metadata: json['metadata'],
       status: json['status'] ?? 'uploaded',
       isFavorite: json['isFavorite'] ?? false,
