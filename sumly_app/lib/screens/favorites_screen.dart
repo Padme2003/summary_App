@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/summary_service.dart';
+import '../services/document_service.dart';
 import '../models/models.dart';
 import 'summary_screen.dart';
 
@@ -13,7 +14,10 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
   final SummaryService _summaryService = SummaryService();
-  List<Summary> _favorites = [];
+  final DocumentService _documentService = DocumentService();
+
+  List<Summary> _favoriteSummaries = [];
+  List<DocumentModel> _favoriteDocuments = [];
   bool _isLoading = true;
 
   @override
@@ -23,26 +27,27 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Future<void> _loadFavorites() async {
+    setState(() => _isLoading = true);
+
     try {
-      final result = await _summaryService.getFavorites();
+      // Load both summaries and documents
+      final summariesResult = await _summaryService.getFavorites();
+      final documentsResult = await _documentService.getDocuments();
 
       if (mounted) {
-        if (result['success'] == true) {
-          setState(() {
-            _favorites = result['summaries'] ?? [];
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        setState(() {
+          _favoriteSummaries = summariesResult['summaries'] ?? [];
+
+          // Filter only favorite documents
+          final allDocs = documentsResult['documents'] as List<DocumentModel>? ?? [];
+          _favoriteDocuments = allDocs.where((doc) => doc.isFavorite).toList();
+
+          _isLoading = false;
+        });
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -50,6 +55,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final totalFavorites = _favoriteDocuments.length + _favoriteSummaries.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,16 +75,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               Icons.refresh,
               color: isDarkMode ? Colors.white : Colors.black87,
             ),
-            onPressed: () {
-              setState(() => _isLoading = true);
-              _loadFavorites();
-            },
+            onPressed: _loadFavorites,
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _favorites.isEmpty
+          : totalFavorites == 0
               ? _buildEmptyState()
               : _buildFavoritesList(),
     );
@@ -87,13 +90,162 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget _buildFavoritesList() {
     return RefreshIndicator(
       onRefresh: _loadFavorites,
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.all(16),
-        itemCount: _favorites.length,
-        itemBuilder: (context, index) {
-          final summary = _favorites[index];
-          return _buildSummaryCard(summary);
+        children: [
+          // Documents Section
+          if (_favoriteDocuments.isNotEmpty) ...[
+            const Text(
+              'Documentos',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ..._favoriteDocuments.map((doc) => _buildDocumentCard(doc)),
+            const SizedBox(height: 24),
+          ],
+
+          // Summaries Section
+          if (_favoriteSummaries.isNotEmpty) ...[
+            const Text(
+              'Resúmenes',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ..._favoriteSummaries.map((summary) => _buildSummaryCard(summary)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentCard(DocumentModel document) {
+    final dateFormat = DateFormat('d MMM yyyy', 'es');
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          // Navigate to document or show options
+          _showDocumentOptions(document);
         },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.picture_as_pdf,
+                    color: Colors.red,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      document.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 14, color: Colors.grey[400]),
+                  const SizedBox(width: 4),
+                  Text(
+                    dateFormat.format(document.createdAt),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      document.fileType.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDocumentOptions(DocumentModel document) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.summarize, color: Colors.blue),
+              title: const Text('Generar Resumen'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(
+                  context,
+                  '/processing',
+                  arguments: {
+                    'mode': 'summary',
+                    'documentId': document.id,
+                  },
+                );
+              },
+            ),
+            if (document.fileType == 'pdf')
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                title: const Text('Ver PDF'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // View PDF logic here
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.favorite_border, color: Colors.red),
+              title: const Text('Quitar de favoritos'),
+              onTap: () async {
+                Navigator.pop(context);
+                await _documentService.toggleFavorite(document.id);
+                _loadFavorites();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
