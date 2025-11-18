@@ -1,9 +1,9 @@
 services:
   - type: web
     name: sumly-backend
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
+    env: docker
+    dockerfilePath: ./sumly_backend/Dockerfile
+    dockerContext: ./sumly_backend
     envVars:
       - key: NODE_ENV
         value: production
