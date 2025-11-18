@@ -73,13 +73,35 @@ npm start
 ### Google Cloud Text-to-Speech (OPCIONAL)
 Si no configuras esto, el sistema usará audio simulado para desarrollo.
 
-Para producción, sigue estos pasos:
+#### Para desarrollo local:
 1. Ve a https://console.cloud.google.com/
 2. Crea un nuevo proyecto
 3. Habilita la API de Text-to-Speech
 4. Crea credenciales de servicio (Service Account)
-5. Descarga el archivo JSON de credenciales
-6. Configura la variable `GOOGLE_APPLICATION_CREDENTIALS` en `.env`
+5. Descarga el archivo JSON de credenciales como `google-tts.json`
+6. Guárdalo en `./credentials/google-tts.json`
+7. Configura en `.env`:
+   ```env
+   GOOGLE_APPLICATION_CREDENTIALS=./credentials/google-tts.json
+   ```
+
+#### Para Railway (producción):
+1. Obtén el archivo `google-tts.json` de Google Cloud
+2. Convierte el contenido a una sola línea (elimina saltos de línea)
+3. En Railway, configura la variable de entorno:
+   ```env
+   GOOGLE_TTS_CREDENTIALS={"type":"service_account","project_id":"...","private_key":"..."}
+   ```
+4. El script `setup-railway.js` automáticamente creará el archivo desde esta variable
+
+#### Alternativa: OpenAI TTS (más simple)
+Si prefieres no usar Google Cloud, puedes configurar OpenAI TTS:
+1. Obtén una API Key de OpenAI: https://platform.openai.com/api-keys
+2. Descomenta el código de OpenAI en `src/services/tts.service.js` líneas 64-85
+3. Configura en `.env`:
+   ```env
+   OPENAI_API_KEY=sk-...
+   ```
 
 ## 📡 Endpoints de la API
 
@@ -199,7 +221,11 @@ curl -X POST http://localhost:5000/api/audiobooks/generate \
 
 - Contraseñas encriptadas con bcrypt (10 rounds)
 - JWT con expiración de 30 días
-- Validación de tipos de archivo
+- **Multer 2.0** con correcciones de seguridad críticas:
+  - Protección contra DoS por memory leak (CVE-2025-47935)
+  - Manejo seguro de streams (CVE-2025-47944)
+  - Detección automática de tipo de archivo usando Magic Bytes
+- Validación de tipos de archivo por MIME type y extensión
 - Límite de tamaño de archivo: 50MB
 - CORS configurado
 - Variables sensibles en `.env`

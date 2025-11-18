@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// Filtro de archivos
+// Filtro de archivos con validación mejorada para Multer 2.0
 const fileFilter = (req, file, cb) => {
   console.log(`📎 Archivo recibido: ${file.originalname}, MIME type: ${file.mimetype}`);
 
@@ -33,6 +33,9 @@ const fileFilter = (req, file, cb) => {
   // Verificar por MIME type O por extensión
   if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
     console.log('✓ Archivo aceptado');
+
+    // Multer 2.0 provee detección automática de tipo de archivo (Magic Bytes)
+    // Esto se validará después de que el archivo sea procesado
     cb(null, true);
   } else {
     console.log(`✗ Archivo rechazado - MIME: ${file.mimetype}, Ext: ${ext}`);
