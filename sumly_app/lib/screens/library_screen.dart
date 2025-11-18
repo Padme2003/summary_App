@@ -553,43 +553,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Future<void> _generateSummary(DocumentModel document) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+    // Navegar a pantalla de procesamiento para mostrar progreso
+    Navigator.pushNamed(
+      context,
+      '/processing',
+      arguments: {
+        'mode': 'summary',
+        'documentId': document.id,
+      },
     );
-
-    final result = await _summaryService.generateSummary(document.id);
-
-    if (mounted) {
-      Navigator.pop(context);
-
-      if (result['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Resumen generado exitosamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
-        Navigator.pushNamed(
-          context,
-          '/summary',
-          arguments: {'id': result['summary']['_id']},
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              result['message'] ?? 'Error al generar resumen',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
   }
 
   void _viewPDF(DocumentModel document) {

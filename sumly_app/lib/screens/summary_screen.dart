@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import '../widgets/animated_widgets.dart';
@@ -693,6 +694,90 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     );
   }
 
+  void _copyToClipboard() async {
+    if (_summary == null) return;
+
+    final textToCopy = '''
+${_summary!.title}
+
+${_summary!.content}
+
+${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p) => '• $p').join('\n')}' : ''}
+''';
+
+    await Clipboard.setData(ClipboardData(text: textToCopy));
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Texto copiado al portapapeles'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteSummary() async {
+    if (_summary == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar resumen?'),
+        content: const Text(
+          '¿Estás seguro de que deseas eliminar este resumen?\n\n'
+          'Esta acción no se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      // Show loading
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      final result = await _summaryService.deleteSummary(_summary!.id);
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+
+        if (result['success'] == true) {
+          Navigator.pop(context); // Go back to previous screen
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Resumen eliminado exitosamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Error al eliminar'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   void _showOptionsMenu() {
     showModalBottomSheet(
       context: context,
@@ -704,27 +789,36 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Editar resumen'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
               leading: const Icon(Icons.copy),
               title: const Text('Copiar texto'),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                _copyToClipboard();
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.picture_as_pdf),
-              title: const Text('Exportar como PDF'),
-              onTap: () => Navigator.pop(context),
+              leading: const Icon(Icons.download),
+              title: const Text('Descargar audio'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Función de descarga próximamente'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text(
-                'Eliminar',
+                'Eliminar resumen',
                 style: TextStyle(color: Colors.red),
               ),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(context);
+                _deleteSummary();
+              },
             ),
           ],
         ),
