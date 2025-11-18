@@ -183,7 +183,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
             );
           }
           break;
-        } else if (status == 'failed') {
+        } else if (status == 'error' || status == 'failed') {
           _showError('La generación falló. Por favor, intenta nuevamente.');
           break;
         }

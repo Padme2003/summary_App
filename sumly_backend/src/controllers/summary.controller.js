@@ -74,7 +74,7 @@ exports.generateSummary = async (req, res) => {
 // Función para generar resumen con IA (asíncrona)
 async function generateSummaryWithAI(document, summary, user) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
     const prompt = `
 Eres un experto en crear resúmenes claros y concisos. Analiza el siguiente texto y crea un resumen estructurado.
@@ -190,11 +190,11 @@ FORMATO DE RESPUESTA (JSON):
       errorMessage = error.message;
     }
 
-    summary.status = 'failed';
+    summary.status = 'error';
     summary.content = `No se pudo generar el resumen: ${errorMessage}`;
     await summary.save();
 
-    console.log(`❌ Resumen marcado como failed: ${summary._id}`);
+    console.log(`❌ Resumen marcado como error: ${summary._id}`);
   }
 }
 
