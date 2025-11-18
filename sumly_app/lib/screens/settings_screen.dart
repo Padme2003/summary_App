@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -180,6 +181,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
 
           _buildSection(
+            title: 'Soporte',
+            icon: Icons.help_outline,
+            children: [
+              _buildActionTile(
+                title: 'Ayuda por WhatsApp',
+                subtitle: 'Contacta con soporte',
+                icon: Icons.chat,
+                onTap: () => _openWhatsApp(),
+              ),
+              _buildActionTile(
+                title: 'Reportar problema',
+                subtitle: 'Envíanos tus comentarios',
+                icon: Icons.bug_report_outlined,
+                onTap: () => _openWhatsApp(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          _buildSection(
             title: 'Acerca de',
             icon: Icons.info_outline,
             children: [
@@ -270,6 +291,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
@@ -284,10 +307,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 24,
         ),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDarkMode ? Colors.white : Colors.black87,
+        ),
+      ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 13,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
       ),
       trailing: Switch(value: value, onChanged: onChanged),
     );
@@ -403,12 +435,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 24,
         ),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDarkMode ? Colors.white : Colors.black87,
+        ),
+      ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 13,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+      ),
       onTap: onTap,
     );
   }
@@ -507,6 +551,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openWhatsApp() async {
+    // Número de WhatsApp de soporte - Cambiar por el número real
+    const phoneNumber = '593999999999'; // Ecuador formato: 593 + código + número
+    const message = '¡Hola! Necesito ayuda con la app SUMLY';
+
+    final url = Uri.parse(
+      'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(message)}',
+    );
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo abrir WhatsApp'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showComingSoonSnackBar(String feature) {
