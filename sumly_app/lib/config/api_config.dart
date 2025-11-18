@@ -13,9 +13,11 @@ class ApiConfig {
   // 2. Copia la URL (ej: https://abc123.ngrok-free.app)
   // 3. Úsala aquí: https://abc123.ngrok-free.app/api
 
-  static const String baseUrl = 'http://192.168.18.54:5000/api';  // Cambiar según necesites
-  // Ejemplo con ngrok:
-  // static const String baseUrl = 'https://abc123.ngrok-free.app/api';
+  // PRODUCCIÓN - RAILWAY (Backend en la nube 24/7):
+  static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
+
+  // DESARROLLO LOCAL (cuando necesites probar en local):
+  // static const String baseUrl = 'http://192.168.18.54:5000/api';
 
   // Auth Endpoints
   static const String login = '$baseUrl/auth/login';
