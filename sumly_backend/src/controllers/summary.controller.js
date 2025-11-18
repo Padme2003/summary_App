@@ -116,10 +116,27 @@ FORMATO DE RESPUESTA (JSON):
     // Limpiar la respuesta (remover markdown si existe)
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
+    console.log('🤖 Respuesta de Gemini (primeros 500 caracteres):', text.substring(0, 500));
+
     let summaryData;
     try {
       summaryData = JSON.parse(text);
+
+      // Validar estructura
+      if (!summaryData.summary || typeof summaryData.summary !== 'string') {
+        console.error('❌ Estructura de resumen inválida');
+        throw new Error('Invalid summary structure');
+      }
+
+      console.log('✅ JSON parseado correctamente');
+      console.log('   - Resumen:', summaryData.summary.length, 'caracteres');
+      console.log('   - Puntos clave:', summaryData.keyPoints?.length || 0);
+      console.log('   - Secciones:', summaryData.sections?.length || 0);
+
     } catch (parseError) {
+      console.error('❌ Error parseando JSON:', parseError.message);
+      console.log('Respuesta completa:', text);
+
       // Si no es JSON válido, usar el texto directamente
       summaryData = {
         summary: text,
