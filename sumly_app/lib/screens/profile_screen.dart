@@ -128,7 +128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
         // Update profile with new avatar
-        final result = await _authService.updateProfile({'avatar': base64Image});
+        final result = await _authService.updateProfile(avatar: base64Image);
 
         if (mounted) {
           if (result['success'] == true) {
@@ -166,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _removeProfilePhoto() async {
     try {
-      final result = await _authService.updateProfile({'avatar': ''});
+      final result = await _authService.updateProfile(avatar: '');
 
       if (mounted) {
         if (result['success'] == true) {
