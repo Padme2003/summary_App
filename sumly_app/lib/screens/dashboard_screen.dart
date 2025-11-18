@@ -5,6 +5,7 @@ import '../services/document_service.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
+import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -299,7 +300,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         if (totalDocs > 3)
                           TextButton(
                             onPressed: () {
-                              // Cambiar al tab de biblioteca
+                              // Cambiar al tab de biblioteca (índice 1)
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomeScreen(initialTab: 1),
+                                ),
+                              );
                             },
                             child: const Text('Ver todos'),
                           ),
