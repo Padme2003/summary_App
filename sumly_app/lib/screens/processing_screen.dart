@@ -68,24 +68,30 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       // MODO AUDIOLIBRO: Ir directo a TTS Nativo (sin usar backend/cuotas)
       if (widget.mode == 'audiobook') {
         // Simular proceso de preparación
-        setState(() {
-          _currentStep = 'Preparando audiolibro con voz nativa...';
-          _progress = 0.3;
-        });
+        if (mounted) {
+          setState(() {
+            _currentStep = 'Preparando audiolibro con voz nativa...';
+            _progress = 0.3;
+          });
+        }
 
         await Future.delayed(const Duration(milliseconds: 800));
 
-        setState(() {
-          _currentStep = 'Optimizando para reproducción...';
-          _progress = 0.7;
-        });
+        if (mounted) {
+          setState(() {
+            _currentStep = 'Optimizando para reproducción...';
+            _progress = 0.7;
+          });
+        }
 
         await Future.delayed(const Duration(milliseconds: 800));
 
-        setState(() {
-          _currentStep = '¡Listo! Preparando reproductor...';
-          _progress = 1.0;
-        });
+        if (mounted) {
+          setState(() {
+            _currentStep = '¡Listo! Preparando reproductor...';
+            _progress = 1.0;
+          });
+        }
 
         await Future.delayed(const Duration(milliseconds: 500));
 
@@ -104,10 +110,12 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       }
 
       // MODO RESUMEN: Usar backend como siempre
-      setState(() {
-        _currentStep = _summarySteps[0];
-        _progress = 0.2;
-      });
+      if (mounted) {
+        setState(() {
+          _currentStep = _summarySteps[0];
+          _progress = 0.2;
+        });
+      }
 
       final result = await _summaryService.generateSummary(widget.documentId);
 
@@ -139,7 +147,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       pollAttempts++;
 
       // Actualizar paso visual
-      if (currentStepIndex < steps.length - 1) {
+      if (currentStepIndex < steps.length - 1 && mounted) {
         setState(() {
           _currentStep = steps[currentStepIndex];
           _progress = 0.2 + (0.6 * currentStepIndex / (steps.length - 2));
@@ -168,10 +176,12 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
         if (status == 'completed') {
           // ¡Completado!
-          setState(() {
-            _currentStep = steps.last;
-            _progress = 1.0;
-          });
+          if (mounted) {
+            setState(() {
+              _currentStep = steps.last;
+              _progress = 1.0;
+            });
+          }
 
           await Future.delayed(const Duration(milliseconds: 500));
 
@@ -348,16 +358,18 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   }
 
   void _showError(String message) {
-    setState(() {
-      _hasError = true;
-      _errorMessage = message;
-    });
+    if (mounted) {
+      setState(() {
+        _hasError = true;
+        _errorMessage = message;
+      });
 
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    });
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+    }
   }
 
   @override
