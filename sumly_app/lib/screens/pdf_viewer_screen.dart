@@ -155,7 +155,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
                     blurRadius: 4,
                     offset: const Offset(0, -2),
                   ),
@@ -165,7 +165,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.first_page),
+                    icon: Icon(
+                      Icons.first_page,
+                      color: _currentPage > 1
+                          ? (isDarkMode ? Colors.white : Colors.black87)
+                          : (isDarkMode ? Colors.grey[700] : Colors.grey[400]),
+                    ),
                     onPressed: _currentPage > 1
                         ? () {
                             _pdfViewerController.jumpToPage(1);
@@ -173,7 +178,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                         : null,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.chevron_left),
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: _currentPage > 1
+                          ? (isDarkMode ? Colors.white : Colors.black87)
+                          : (isDarkMode ? Colors.grey[700] : Colors.grey[400]),
+                    ),
                     onPressed: _currentPage > 1
                         ? () {
                             _pdfViewerController.previousPage();
@@ -182,13 +192,19 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                   ),
                   Text(
                     '$_currentPage / $_totalPages',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
+                      color: isDarkMode ? Colors.white : Colors.black87,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.chevron_right),
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color: _currentPage < _totalPages
+                          ? (isDarkMode ? Colors.white : Colors.black87)
+                          : (isDarkMode ? Colors.grey[700] : Colors.grey[400]),
+                    ),
                     onPressed: _currentPage < _totalPages
                         ? () {
                             _pdfViewerController.nextPage();
@@ -196,7 +212,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                         : null,
                   ),
                   IconButton(
-                    icon: const Icon(Icons.last_page),
+                    icon: Icon(
+                      Icons.last_page,
+                      color: _currentPage < _totalPages
+                          ? (isDarkMode ? Colors.white : Colors.black87)
+                          : (isDarkMode ? Colors.grey[700] : Colors.grey[400]),
+                    ),
                     onPressed: _currentPage < _totalPages
                         ? () {
                             _pdfViewerController.jumpToPage(_totalPages);

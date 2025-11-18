@@ -335,6 +335,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required int divisions,
     required ValueChanged<double> onChanged,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         ListTile(
@@ -356,7 +358,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           title: Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
           ),
           subtitle: Text(
             subtitle,
@@ -389,6 +394,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
@@ -403,12 +410,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 24,
         ),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDarkMode ? Colors.white : Colors.black87,
+        ),
+      ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+        style: TextStyle(
+          fontSize: 13,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
       ),
-      trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+      ),
       onTap: onTap,
     );
   }
@@ -482,7 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('Español'),
+              title: Text('Español', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               value: 'es-ES',
               groupValue: _voiceLanguage,
               onChanged: (value) {
@@ -492,7 +511,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('English'),
+              title: Text('English', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               value: 'en-US',
               groupValue: _voiceLanguage,
               onChanged: (value) {
@@ -502,7 +521,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Français'),
+              title: Text('Français', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               value: 'fr-FR',
               groupValue: _voiceLanguage,
               onChanged: (value) {
@@ -512,7 +531,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Deutsch'),
+              title: Text('Deutsch', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
               value: 'de-DE',
               groupValue: _voiceLanguage,
               onChanged: (value) {

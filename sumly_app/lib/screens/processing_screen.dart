@@ -441,9 +441,13 @@ class _ProcessingScreenState extends State<ProcessingScreen>
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: isSummary
-                  ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
-                  : [Colors.white, Colors.purple.shade50, Colors.pink.shade50],
+              colors: isDarkMode
+                  ? (isSummary
+                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E), const Color(0xFF0F3460)]
+                      : [const Color(0xFF1A1A2E), const Color(0xFF2D1B3D), const Color(0xFF4A1942)])
+                  : (isSummary
+                      ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
+                      : [Colors.white, Colors.purple.shade50, Colors.pink.shade50]),
             ),
           ),
           child: SafeArea(
