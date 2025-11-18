@@ -1483,7 +1483,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
 
     return Row(
       children: [
-        Icon(icon, color: color[400], size: 24),
+        Icon(icon, color: color, size: 24),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

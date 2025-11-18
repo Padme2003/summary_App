@@ -80,10 +80,18 @@ class SumlyApp extends StatelessWidget {
         '/privacy': (context) => const PrivacyScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/reset-password': (context) => const ResetPasswordScreen(),
       },
       // Rutas con argumentos
       onGenerateRoute: (settings) {
+        if (settings.name == '/reset-password') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (context) => ResetPasswordScreen(
+              email: args?['email'] ?? '',
+              devCode: args?['devCode'],
+            ),
+          );
+        }
         if (settings.name == '/processing') {
           final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
