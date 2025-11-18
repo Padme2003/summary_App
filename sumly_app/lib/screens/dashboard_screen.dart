@@ -203,6 +203,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'documentos',
                             Icons.description,
                             Colors.blue,
+                            '/library',
+                            null,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -213,6 +215,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'completados',
                             Icons.check_circle,
                             Colors.green,
+                            '/library',
+                            {'filter': 'processed'},
                           ),
                         ),
                       ],
@@ -227,6 +231,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'por procesar',
                             Icons.pending,
                             Colors.orange,
+                            '/library',
+                            {'filter': 'pending'},
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -237,6 +243,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'generados',
                             Icons.auto_stories,
                             Colors.purple,
+                            '/summaries',
+                            null,
                           ),
                         ),
                       ],
@@ -329,11 +337,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String subtitle,
     IconData icon,
     Color color,
+    String route,
+    Map<String, dynamic>? arguments,
   ) {
     return GestureDetector(
       onTap: () {
-        // Navigate to Library screen for all cards
-        Navigator.pushNamed(context, '/library');
+        Navigator.pushNamed(
+          context,
+          route,
+          arguments: arguments,
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(16),

@@ -7,6 +7,8 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/summary_screen.dart';
+import 'screens/summaries_screen.dart';
+import 'screens/library_screen.dart';
 import 'screens/upload_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/audiobook_player_screen.dart';
@@ -87,6 +89,19 @@ class SumlyApp extends StatelessWidget {
             builder: (context) => SummaryScreen(
               summaryId: args?['id'],
             ),
+          );
+        }
+        if (settings.name == '/summaries') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (context) => SummariesScreen(
+              filter: args?['filter'],
+            ),
+          );
+        }
+        if (settings.name == '/library') {
+          return MaterialPageRoute(
+            builder: (context) => const LibraryScreen(),
           );
         }
         if (settings.name == '/pdf-viewer') {
