@@ -108,6 +108,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Widget _buildBody() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -117,13 +119,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+            Icon(Icons.error_outline, size: 64, color: isDarkMode ? Colors.red[400] : Colors.red[300]),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDarkMode ? Colors.grey[300] : Colors.black87,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -143,20 +148,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.auto_stories_outlined,
-                size: 100, color: Colors.grey[300]),
+                size: 100, color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
             const SizedBox(height: 24),
             Text(
               'No tienes contenido aún',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Comienza cargando tu primer documento',
-              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
             ),
           ],
         ),
@@ -203,7 +208,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
             Text(
               '${_documents.length} total',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -244,11 +252,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
           ),
         ],
       ),
@@ -324,12 +336,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
+                    color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: Colors.blue[700],
+                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
                     size: 28,
                   ),
                 ),
@@ -342,9 +354,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     children: [
                       Text(
                         document.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -375,7 +388,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             fileType,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey[600],
+                              color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -386,7 +399,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         _formatDate(document.createdAt),
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey[500],
+                          color: isDarkMode ? Colors.grey[600] : Colors.grey[500],
                         ),
                       ),
                     ],
@@ -397,14 +410,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 IconButton(
                   icon: Icon(
                     document.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: document.isFavorite ? Colors.red : Colors.grey,
+                    color: document.isFavorite
+                        ? Colors.red
+                        : (isDarkMode ? Colors.grey[600] : Colors.grey),
                   ),
                   onPressed: () => _toggleFavorite(document),
                 ),
 
                 // Menú de opciones
                 IconButton(
-                  icon: const Icon(Icons.more_vert),
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                  ),
                   onPressed: () => _showOptionsMenu(document),
                 ),
               ],
@@ -472,7 +490,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -483,9 +501,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 document.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
