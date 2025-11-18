@@ -33,10 +33,18 @@ exports.generateSummary = async (req, res) => {
 
     // Validar que hay suficiente contenido
     const wordCount = document.content.split(/\s+/).filter(w => w.length > 0).length;
-    if (wordCount < 500) {
+    if (wordCount < 100) {
       return res.status(400).json({
         success: false,
-        message: `El documento es muy corto (${wordCount} palabras). Necesita al menos 500 palabras para generar un resumen útil.`,
+        message: `El documento es muy corto (${wordCount} palabras). Necesita al menos 100 palabras para generar un resumen útil.`,
+      });
+    }
+
+    // Gemini free tier permite hasta ~25,000 palabras (30k tokens input)
+    if (wordCount > 25000) {
+      return res.status(400).json({
+        success: false,
+        message: `El documento es muy largo (${wordCount} palabras). El máximo permitido es 25,000 palabras.`,
       });
     }
 
