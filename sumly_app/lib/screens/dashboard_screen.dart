@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/document_service.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
+import '../config/api_config.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -741,12 +742,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _viewPDF(DocumentModel document) async {
-    // TODO: Implementar visor de PDF
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Visor de PDF en desarrollo'),
-        duration: Duration(seconds: 2),
-      ),
+    // Get filePath from document
+    final filePath = document.filePath;
+
+    if (filePath == null || filePath.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('El archivo PDF no está disponible'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    // Build the PDF URL from the backend
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+    final pdfUrl = filePath.startsWith('http')
+        ? filePath
+        : filePath.startsWith('/')
+            ? '$baseUrl$filePath'
+            : '$baseUrl/$filePath';
+
+    Navigator.pushNamed(
+      context,
+      '/pdf-viewer',
+      arguments: {
+        'documentTitle': document.title,
+        'pdfUrl': pdfUrl,
+      },
     );
   }
 
