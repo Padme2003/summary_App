@@ -74,7 +74,7 @@ exports.generateSummary = async (req, res) => {
 // Función para generar resumen con IA (asíncrona)
 async function generateSummaryWithAI(document, summary, user) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
 Eres un experto en crear resúmenes claros y concisos. Analiza el siguiente texto y crea un resumen estructurado.
