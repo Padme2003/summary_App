@@ -340,6 +340,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String route,
     Map<String, dynamic>? arguments,
   ) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -351,11 +353,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -380,9 +382,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 4),
@@ -390,7 +393,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[600],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -398,7 +401,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             subtitle,
             style: TextStyle(
               fontSize: 10,
-              color: Colors.grey[500],
+              color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
             ),
           ),
         ],
