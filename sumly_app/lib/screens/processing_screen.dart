@@ -46,6 +46,9 @@ class _ProcessingScreenState extends State<ProcessingScreen>
     '¡Listo! Preparando reproductor...',
   ];
 
+  // Getter for dark mode - FIXED
+  bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
+
   @override
   void initState() {
     super.initState();
