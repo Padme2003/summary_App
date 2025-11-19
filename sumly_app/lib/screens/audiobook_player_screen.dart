@@ -41,13 +41,6 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
   // Duración total (en segundos)
   int _totalDuration = 300; // 5 minutos por defecto
 
-  // Capítulos de ejemplo (para modo demo)
-  final List<Map<String, dynamic>> _chapters = [
-    {'num': 1, 'title': 'Introducción', 'duration': '5:30'},
-    {'num': 2, 'title': 'Desarrollo', 'duration': '8:45'},
-    {'num': 3, 'title': 'Conclusión', 'duration': '4:20'},
-  ];
-
   bool _hasLoadedData = false;
 
   @override
@@ -155,6 +148,44 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
         _quota = result['quota'];
       });
     }
+  }
+
+  // Helper para obtener lista de capítulos
+  List<Map<String, dynamic>> _getChapters() {
+    if (_useTtsNative || _audiobook == null) {
+      return []; // TTS nativo no tiene capítulos
+    }
+
+    // Convertir capítulos del audiobook a formato Map para compatibilidad
+    return _audiobook!.chapters.map((chapter) {
+      return {
+        'title': chapter.title,
+        'duration': chapter.duration, // en segundos
+        'audioUrl': chapter.audioUrl,
+        'order': chapter.order,
+      };
+    }).toList();
+  }
+
+  // Helper para obtener título del capítulo actual
+  String _getChapterTitle() {
+    final chapters = _getChapters();
+    if (chapters.isEmpty) {
+      return _useTtsNative ? 'Lectura continua' : 'Sin capítulos';
+    }
+
+    if (_currentChapter > 0 && _currentChapter <= chapters.length) {
+      return chapters[_currentChapter - 1]['title'] ?? 'Sin título';
+    }
+
+    return 'Capítulo $_currentChapter';
+  }
+
+  // Helper para formatear duración en segundos a MM:SS
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
+    return '${minutes.toString().padLeft(1, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -531,7 +562,7 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _chapters[_currentChapter - 1]['title'],
+                        _getChapterTitle(),
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey[300],
@@ -810,95 +841,98 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
               ],
             ),
           ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _chapters.length,
-            itemBuilder: (context, index) {
-              final chapter = _chapters[index];
-              final isActive = _currentChapter == chapter['num'];
+          if (_getChapters().isNotEmpty)
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _getChapters().length,
+              itemBuilder: (context, index) {
+                final chapters = _getChapters();
+                final chapter = chapters[index];
+                final chapterNum = index + 1;
+                final isActive = _currentChapter == chapterNum;
 
-              return AnimatedScaleButton(
-                onPressed: () =>
-                    setState(() => _currentChapter = chapter['num']),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? Colors.purple[600]?.withOpacity(0.3)
-                        : Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: isActive
-                        ? Border.all(color: Colors.purple[400]!, width: 2)
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${chapter['num']}',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isActive
-                                  ? Colors.purple[600]
-                                  : Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              chapter['title'],
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white.withOpacity(0.95),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              chapter['duration'],
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (isActive)
+                return AnimatedScaleButton(
+                  onPressed: () =>
+                      setState(() => _currentChapter = chapterNum),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? Colors.purple[600]?.withOpacity(0.3)
+                          : Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: isActive
+                          ? Border.all(color: Colors.purple[400]!, width: 2)
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.purple[600],
-                            borderRadius: BorderRadius.circular(8),
+                            color: isActive
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.1),
+                            shape: BoxShape.circle,
                           ),
-                          child: const Text(
-                            'Reproduciendo',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.white,
+                          child: Center(
+                            child: Text(
+                              '$chapterNum',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isActive
+                                    ? Colors.purple[600]
+                                    : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                chapter['title'] ?? 'Sin título',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withOpacity(0.95),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _formatDuration(chapter['duration'] ?? 0),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isActive)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.purple[600],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Reproduciendo',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
