@@ -16,11 +16,15 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
 
-  final List<Widget> _pages = const [
-    DashboardScreen(),
-    LibraryScreen(),
-    FavoritesScreen(),
-    ProfileScreen(),
+  void _changeTab(int index) {
+    setState(() => _selectedIndex = index);
+  }
+
+  List<Widget> get _pages => [
+    DashboardScreen(onTabChange: _changeTab),
+    const LibraryScreen(),
+    const FavoritesScreen(),
+    const ProfileScreen(),
   ];
 
   @override

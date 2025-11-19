@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../services/summary_service.dart';
 import '../services/document_service.dart';
 import '../models/models.dart';
+import '../config/api_config.dart';
 import 'summary_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -250,7 +251,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
                 onTap: () {
                   Navigator.pop(context);
-                  // View PDF logic here
+                  _openPdfViewer(document);
                 },
               ),
             ListTile(
@@ -348,6 +349,26 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _openPdfViewer(DocumentModel document) {
+    final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+    final filePath = document.filePath ?? '';
+
+    final pdfUrl = filePath.startsWith('http')
+        ? filePath
+        : filePath.startsWith('/')
+            ? '$baseUrl$filePath'
+            : '$baseUrl/$filePath';
+
+    Navigator.pushNamed(
+      context,
+      '/pdf-viewer',
+      arguments: {
+        'documentTitle': document.title,
+        'pdfUrl': pdfUrl,
+      },
     );
   }
 

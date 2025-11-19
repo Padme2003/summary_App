@@ -28,7 +28,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    // En desarrollo, mostrar el código en un snackbar
+    // DESARROLLO: Muestra el código en un snackbar (solo si devCode no es null)
+    // Comentado por seguridad en producción
+    /*
     if (widget.devCode != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -40,6 +42,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         );
       });
     }
+    */
   }
 
   @override

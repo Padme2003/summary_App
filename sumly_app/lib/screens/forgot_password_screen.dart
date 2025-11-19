@@ -50,7 +50,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           MaterialPageRoute(
             builder: (context) => ResetPasswordScreen(
               email: _emailController.text.trim(),
-              devCode: result['code'], // Solo para desarrollo
+              // DESARROLLO: Descomenta la siguiente línea para ver el código en pantalla
+              // devCode: result['code'],
             ),
           ),
         );

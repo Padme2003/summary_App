@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../widgets/animated_widgets.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
@@ -28,6 +29,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   double _playbackSpeed = 1.0;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+  double _textSize = 16.0; // Tamaño de texto por defecto
 
   @override
   void initState() {
@@ -437,7 +439,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
             Text(
               summaryContent,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: _textSize,
                 height: 1.6,
                 color: isDarkMode ? Colors.white : Colors.black87,
               ),
@@ -659,9 +661,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   ),
                 ),
                 AnimatedScaleButton(
-                  onPressed: () {
-                    // TODO: Descargar resumen
-                  },
+                  onPressed: _downloadAudio,
                   child: Container(
                     decoration: BoxDecoration(
                       color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
@@ -672,7 +672,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                         Icons.download,
                         color: isDarkMode ? Colors.white : Colors.black87,
                       ),
-                      onPressed: () {},
+                      onPressed: _downloadAudio,
                     ),
                   ),
                 ),
@@ -729,6 +729,12 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
   void _showTextSizeDialog() {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final sizes = {
+      'Pequeño': 14.0,
+      'Normal': 16.0,
+      'Grande': 18.0,
+      'Muy grande': 20.0,
+    };
 
     showDialog(
       context: context,
@@ -742,23 +748,76 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: ['Pequeño', 'Normal', 'Grande', 'Muy grande'].map((size) {
+          children: sizes.entries.map((entry) {
+            final isSelected = _textSize == entry.value;
             return ListTile(
               title: Text(
-                size,
+                entry.key,
                 style: TextStyle(
                   color: isDarkMode ? Colors.white : Colors.black87,
+                  fontSize: entry.value,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
+              trailing: isSelected
+                ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                : null,
               onTap: () {
+                setState(() {
+                  _textSize = entry.value;
+                });
                 Navigator.pop(context);
-                // TODO: Cambiar tamaño de texto
               },
             );
           }).toList(),
         ),
       ),
     );
+  }
+
+  Future<void> _downloadAudio() async {
+    if (_summary?.audioUrl == null || _summary!.audioUrl!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Audio no disponible para descargar'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final audioUrl = _summary!.audioUrl!.startsWith('http')
+          ? _summary!.audioUrl!
+          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${_summary!.audioUrl}';
+
+      final uri = Uri.parse(audioUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Abriendo descarga de audio...'),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al descargar audio: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   void _copyToClipboard() async {

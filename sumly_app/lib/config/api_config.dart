@@ -14,10 +14,12 @@ class ApiConfig {
   // 3. Úsala aquí: https://abc123.ngrok-free.app/api
 
   // PRODUCCIÓN - RAILWAY (Backend en la nube 24/7):
-  // static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
+  // Usa esto para producción - funciona con datos móviles y cualquier red
+  static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
 
   // DESARROLLO LOCAL (cuando necesites probar en local):
-  static const String baseUrl = 'http://192.168.18.54:5000/api';
+  // Descomenta esta línea y comenta la de arriba para desarrollo local
+  // static const String baseUrl = 'http://192.168.18.54:5000/api';
 
   // Auth Endpoints
   static const String login = '$baseUrl/auth/login';

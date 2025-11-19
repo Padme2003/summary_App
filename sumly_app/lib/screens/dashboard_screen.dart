@@ -9,7 +9,9 @@ import '../utils/app_colors.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final Function(int)? onTabChange;
+
+  const DashboardScreen({super.key, this.onTabChange});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -297,12 +299,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           TextButton(
                             onPressed: () {
                               // Cambiar al tab de biblioteca (índice 1)
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomeScreen(initialTab: 1),
-                                ),
-                              );
+                              widget.onTabChange?.call(1);
                             },
                             child: const Text('Ver todos'),
                           ),
