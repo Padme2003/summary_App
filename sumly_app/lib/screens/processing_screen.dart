@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import '../services/summary_service.dart';
+import '../services/audiobook_service.dart';
 
 class ProcessingScreen extends StatefulWidget {
   final String mode; // 'summary' o 'audiobook'
+  final String documentId;
 
-  const ProcessingScreen({super.key, required this.mode});
+  const ProcessingScreen({
+    super.key,
+    required this.mode,
+    required this.documentId,
+  });
 
   @override
   State<ProcessingScreen> createState() => _ProcessingScreenState();
@@ -14,26 +21,33 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   double _progress = 0.0;
-  String _currentStep = 'Extrayendo texto...';
+  String _currentStep = 'Iniciando procesamiento...';
 
-  final List<Map<String, String>> _summarySteps = [
-    {'text': 'Extrayendo texto del documento...', 'duration': '2'},
-    {'text': 'Analizando contenido con IA...', 'duration': '3'},
-    {'text': 'Generando resumen inteligente...', 'duration': '2'},
-    {'text': 'Creando audio del resumen...', 'duration': '1'},
-    {'text': '¡Listo! Preparando visualización...', 'duration': '1'},
+  final SummaryService _summaryService = SummaryService();
+  final AudiobookService _audiobookService = AudiobookService();
+
+  String? _generatedId;
+  bool _hasError = false;
+  String _errorMessage = '';
+
+  final List<String> _summarySteps = [
+    'Extrayendo texto del documento...',
+    'Analizando contenido con IA...',
+    'Generando resumen inteligente...',
+    'Creando audio del resumen...',
+    '¡Listo! Preparando visualización...',
   ];
 
-  final List<Map<String, String>> _audiobookSteps = [
-    {'text': 'Extrayendo texto del documento...', 'duration': '2'},
-    {'text': 'Detectando estructura de capítulos...', 'duration': '2'},
-    {
-      'text': 'Generando audio completo (esto puede tomar un momento)...',
-      'duration': '5',
-    },
-    {'text': 'Optimizando calidad de audio...', 'duration': '2'},
-    {'text': '¡Listo! Preparando reproductor...', 'duration': '1'},
+  final List<String> _audiobookSteps = [
+    'Extrayendo texto del documento...',
+    'Detectando estructura de capítulos...',
+    'Generando audio completo...',
+    'Optimizando calidad de audio...',
+    '¡Listo! Preparando reproductor...',
   ];
+
+  // Getter for dark mode - FIXED
+  bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
 
   @override
   void initState() {
@@ -53,24 +67,352 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   }
 
   void _startProcessing() async {
-    final steps = widget.mode == 'summary' ? _summarySteps : _audiobookSteps;
+    try {
+      // MODO AUDIOLIBRO: Ir directo a TTS Nativo (sin usar backend/cuotas)
+      if (widget.mode == 'audiobook') {
+        // Simular proceso de preparación
+        if (mounted) {
+          setState(() {
+            _currentStep = 'Preparando audiolibro con voz nativa...';
+            _progress = 0.3;
+          });
+        }
 
-    for (int i = 0; i < steps.length; i++) {
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        if (mounted) {
+          setState(() {
+            _currentStep = 'Optimizando para reproducción...';
+            _progress = 0.7;
+          });
+        }
+
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        if (mounted) {
+          setState(() {
+            _currentStep = '¡Listo! Preparando reproductor...';
+            _progress = 1.0;
+          });
+        }
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          // Navegar al reproductor con modo TTS nativo
+          Navigator.pushReplacementNamed(
+            context,
+            '/audiobook',
+            arguments: {
+              'documentId': widget.documentId,
+              'useTtsNative': true,
+            },
+          );
+        }
+        return;
+      }
+
+      // MODO RESUMEN: Usar backend como siempre
+      if (mounted) {
+        setState(() {
+          _currentStep = _summarySteps[0];
+          _progress = 0.2;
+        });
+      }
+
+      final result = await _summaryService.generateSummary(widget.documentId);
+
+      if (result['success'] != true) {
+        _showError(result['message'] ?? 'Error al iniciar generación');
+        return;
+      }
+
+      // Obtener el ID generado
+      _generatedId = result['summary'].id;
+
+      // Paso 2: Polling - verificar estado cada 3 segundos
+      await _pollForCompletion();
+    } catch (e) {
+      _showError('Error de conexión: $e');
+    }
+  }
+
+  Future<void> _pollForCompletion() async {
+    final steps = widget.mode == 'summary' ? _summarySteps : _audiobookSteps;
+    int currentStepIndex = 1;
+    int pollAttempts = 0;
+    const maxAttempts = 60; // 3 minutos máximo (60 * 3 segundos)
+
+    while (pollAttempts < maxAttempts) {
       if (!mounted) break;
 
-      setState(() {
-        _currentStep = steps[i]['text']!;
-        _progress = (i + 1) / steps.length;
-      });
+      await Future.delayed(const Duration(seconds: 3));
+      pollAttempts++;
 
-      await Future.delayed(Duration(seconds: int.parse(steps[i]['duration']!)));
+      // Actualizar paso visual
+      if (currentStepIndex < steps.length - 1 && mounted) {
+        setState(() {
+          _currentStep = steps[currentStepIndex];
+          _progress = 0.2 + (0.6 * currentStepIndex / (steps.length - 2));
+        });
+        currentStepIndex++;
+      }
+
+      // Verificar estado en el backend
+      Map<String, dynamic> statusResult;
+
+      try {
+        if (widget.mode == 'summary') {
+          statusResult = await _summaryService.getSummary(_generatedId!);
+        } else {
+          statusResult = await _audiobookService.getAudiobook(_generatedId!);
+        }
+
+        if (statusResult['success'] != true) {
+          continue; // Reintentar
+        }
+
+        final item = widget.mode == 'summary'
+            ? statusResult['summary']
+            : statusResult['audiobook'];
+        final status = item.status;
+
+        if (status == 'completed') {
+          // ¡Completado!
+          if (mounted) {
+            setState(() {
+              _currentStep = steps.last;
+              _progress = 1.0;
+            });
+          }
+
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          if (mounted) {
+            Navigator.pushReplacementNamed(
+              context,
+              widget.mode == 'summary' ? '/summary' : '/audiobook',
+              arguments: {'id': _generatedId},
+            );
+          }
+          break;
+        } else if (status == 'error' || status == 'failed') {
+          _showError('La generación falló. Por favor, intenta nuevamente.');
+          break;
+        }
+      } catch (e) {
+        // Continuar intentando en caso de error de red temporal
+        continue;
+      }
     }
 
+    if (pollAttempts >= maxAttempts && mounted) {
+      _showError(
+          'La generación está tomando más tiempo del esperado. Por favor, verifica tu biblioteca más tarde.');
+    }
+  }
+
+  void _showQuotaExceededDialog(Map<String, dynamic> result) {
+    final quota = result['quota'];
+    final resetDate = quota?['resetDate'] != null
+        ? DateTime.parse(quota['resetDate'])
+        : null;
+    final daysUntilReset =
+        resetDate?.difference(DateTime.now()).inDays ?? 0;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.orange.withOpacity(0.2) : Colors.orange[100],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.warning_amber,
+                color: isDarkMode ? Colors.orange[400] : Colors.orange[700],
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Cuota mensual alcanzada',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              result['message'] ?? 'Has alcanzado tu límite de audiolibros este mes',
+              style: TextStyle(
+                fontSize: 15,
+                color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.purple.withOpacity(0.2) : Colors.purple[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isDarkMode ? Colors.purple.withOpacity(0.3) : Colors.purple[200]!,
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: isDarkMode ? Colors.purple[400] : Colors.purple[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Cuota mensual',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.purple[300] : Colors.purple[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Usados:',
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        '${quota?['used'] ?? 0} / ${quota?['limit'] ?? 10}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Se renueva en:',
+                        style: TextStyle(
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        '$daysUntilReset días',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Puedes usar la voz nativa del dispositivo (ilimitado y gratis)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar diálogo
+              Navigator.pop(context); // Volver a pantalla anterior
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context); // Cerrar diálogo
+              // Navegar al reproductor con modo TTS nativo
+              Navigator.pushReplacementNamed(
+                context,
+                '/audiobook',
+                arguments: {
+                  'documentId': widget.documentId,
+                  'useTtsNative': true,
+                },
+              );
+            },
+            icon: const Icon(Icons.volume_up),
+            label: const Text('Usar voz nativa'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple[600],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showError(String message) {
     if (mounted) {
-      Navigator.pushReplacementNamed(
-        context,
-        widget.mode == 'summary' ? '/summary' : '/audiobook',
-      );
+      setState(() {
+        _hasError = true;
+        _errorMessage = message;
+      });
+
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
     }
   }
 
@@ -83,10 +425,97 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   @override
   Widget build(BuildContext context) {
     final isSummary = widget.mode == 'summary';
-    final primaryColor = isSummary ? Colors.blue : Colors.purple;
+    final primaryColor = isSummary ? Colors.blue[600]! : Colors.purple[600]!;
 
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        final shouldPop = await _showExitConfirmation(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDarkMode
+                  ? (isSummary
+                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E), const Color(0xFF0F3460)]
+                      : [const Color(0xFF1A1A2E), const Color(0xFF2D1B3D), const Color(0xFF4A1942)])
+                  : (isSummary
+                      ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
+                      : [Colors.white, Colors.purple.shade50, Colors.pink.shade50]),
+            ),
+          ),
+          child: SafeArea(
+            child: _buildProcessingContent(context, isSummary, primaryColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showExitConfirmation(BuildContext context) async {
+    if (_progress >= 1.0 || _hasError) {
+      return true; // Si ya terminó o hubo error, permitir salir sin confirmación
+    }
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '¿Cancelar procesamiento?',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          widget.mode == 'summary'
+              ? 'Si sales ahora, se cancelará la generación del resumen y deberás iniciarlo nuevamente.'
+              : 'Si sales ahora, se cancelará la generación del audiolibro y deberás iniciarlo nuevamente.',
+          style: TextStyle(
+            fontSize: 15,
+            color: isDarkMode ? Colors.grey[300] : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Continuar esperando'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Cancelar y salir'),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
+  Widget _buildProcessingContent(
+    BuildContext context,
+    bool isSummary,
+    Color primaryColor,
+  ) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -131,10 +560,10 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                 isSummary
                     ? 'Generando Resumen Inteligente'
                     : 'Creando Audiolibro Completo',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -147,7 +576,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                   Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -219,7 +648,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                         _currentStep,
                         style: TextStyle(
                           fontSize: 15,
-                          color: Colors.grey[800],
+                          color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
@@ -231,21 +660,59 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
               const Spacer(),
 
-              // Mensaje de espera
-              Text(
-                'Esto puede tomar unos momentos...',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                isSummary
-                    ? 'Estamos usando IA para crear un resumen de calidad'
-                    : 'Estamos convirtiendo todo el libro a audio',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-                textAlign: TextAlign.center,
-              ),
+              // Mensaje de error o espera
+              if (_hasError)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? Colors.red[900]!.withOpacity(0.3) : Colors.red[50],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDarkMode ? Colors.red[700]! : Colors.red[300]!,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: isDarkMode ? Colors.red[400] : Colors.red[700],
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _errorMessage,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: isDarkMode ? Colors.red[200] : Colors.red[900],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                Text(
+                  'Esto puede tomar unos momentos...',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  isSummary
+                      ? 'Estamos usando IA para crear un resumen de calidad'
+                      : 'Estamos convirtiendo todo el libro a audio',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
           ),
         ),
