@@ -181,10 +181,15 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
     return 'Capítulo $_currentChapter';
   }
 
-  // Helper para formatear duración en segundos a MM:SS
+  // Helper para formatear duración en segundos a HH:MM:SS o MM:SS
   String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
     final secs = seconds % 60;
+
+    if (hours > 0) {
+      return '${hours}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
     return '${minutes.toString().padLeft(1, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
@@ -715,7 +720,8 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
           const SizedBox(width: 20),
           AnimatedScaleButton(
             onPressed: () {
-              if (_currentChapter < _chapters.length) {
+              final chapters = _getChapters();
+              if (_currentChapter < chapters.length) {
                 setState(() => _currentChapter++);
               }
             },
@@ -831,7 +837,7 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
                 const Icon(Icons.list, color: Colors.white, size: 24),
                 const SizedBox(width: 12),
                 Text(
-                  'Capítulos (${_chapters.length})',
+                  'Capítulos (${_getChapters().length})',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -947,17 +953,6 @@ class _AudiobookPlayerScreenState extends State<AudiobookPlayerScreen> {
         ],
       ),
     );
-  }
-
-  String _formatDuration(int seconds) {
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-    final secs = seconds % 60;
-
-    if (hours > 0) {
-      return '${hours}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-    }
-    return '${minutes}:${secs.toString().padLeft(2, '0')}';
   }
 
   void _showSpeedDialog() {
