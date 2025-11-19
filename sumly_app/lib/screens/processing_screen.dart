@@ -517,6 +517,8 @@ class _ProcessingScreenState extends State<ProcessingScreen>
     bool isSummary,
     Color primaryColor,
   ) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -563,10 +565,10 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                 isSummary
                     ? 'Generando Resumen Inteligente'
                     : 'Creando Audiolibro Completo',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: isDarkMode ? Colors.white : Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -579,7 +581,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                   Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
@@ -651,7 +653,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                         _currentStep,
                         style: TextStyle(
                           fontSize: 15,
-                          color: Colors.grey[800],
+                          color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
@@ -669,20 +671,26 @@ class _ProcessingScreenState extends State<ProcessingScreen>
                   padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.red[50],
+                    color: isDarkMode ? Colors.red[900]!.withOpacity(0.3) : Colors.red[50],
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red[300]!, width: 1),
+                    border: Border.all(
+                      color: isDarkMode ? Colors.red[700]! : Colors.red[300]!,
+                      width: 1,
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red[700]),
+                      Icon(
+                        Icons.error_outline,
+                        color: isDarkMode ? Colors.red[400] : Colors.red[700],
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           _errorMessage,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.red[900],
+                            color: isDarkMode ? Colors.red[200] : Colors.red[900],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -693,14 +701,20 @@ class _ProcessingScreenState extends State<ProcessingScreen>
               else ...[
                 Text(
                   'Esto puede tomar unos momentos...',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   isSummary
                       ? 'Estamos usando IA para crear un resumen de calidad'
                       : 'Estamos convirtiendo todo el libro a audio',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
