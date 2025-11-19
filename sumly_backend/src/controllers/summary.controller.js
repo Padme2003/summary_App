@@ -113,8 +113,14 @@ FORMATO DE RESPUESTA (JSON):
     const response = await result.response;
     let text = response.text();
 
-    // Limpiar la respuesta (remover markdown si existe)
-    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Limpiar la respuesta (remover markdown y cualquier formato de código)
+    text = text
+      .replace(/```json\n?/g, '')  // Remover ```json
+      .replace(/```javascript\n?/g, '')  // Remover ```javascript
+      .replace(/```\n?/g, '')  // Remover ``` restantes
+      .replace(/^[\s\n]+/, '')  // Remover espacios y saltos de línea al inicio
+      .replace(/[\s\n]+$/, '')  // Remover espacios y saltos de línea al final
+      .trim();
 
     console.log('🤖 Respuesta de Gemini (primeros 500 caracteres):', text.substring(0, 500));
 
@@ -168,6 +174,7 @@ FORMATO DE RESPUESTA (JSON):
 
     // Generar audio del resumen
     try {
+      console.log('🎵 Iniciando generación de audio del resumen...');
       const audioFilename = `summary_${summary._id}`;
       const audioResult = await generateAudioFile(
         summaryData.summary,
@@ -182,10 +189,18 @@ FORMATO DE RESPUESTA (JSON):
       summary.audioUrl = audioResult.audioUrl;
       summary.audioDuration = audioResult.duration;
 
-      console.log(`✅ Audio del resumen generado: ${audioResult.audioUrl}`);
+      console.log(`✅ Audio del resumen generado exitosamente`);
+      console.log(`   - URL: ${audioResult.audioUrl}`);
+      console.log(`   - Duración: ${audioResult.duration}s`);
+      console.log(`   - Tamaño: ${(audioResult.fileSize / 1024).toFixed(2)} KB`);
     } catch (audioError) {
-      console.error('Error al generar audio del resumen:', audioError);
+      console.error('❌ Error al generar audio del resumen:');
+      console.error('   - Mensaje:', audioError.message);
+      console.error('   - Stack:', audioError.stack);
+      console.error('   - Detalles:', audioError);
       // Continuar sin audio si hay error
+      summary.metadata = summary.metadata || {};
+      summary.metadata.audioGenerationError = audioError.message;
     }
 
     await summary.save();
