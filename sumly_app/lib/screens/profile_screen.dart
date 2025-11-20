@@ -497,27 +497,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
           // PRÓXIMAMENTE: Logros dinámicos desde backend
           // Los logros estarán disponibles cuando el backend implemente el sistema de achievements
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.emoji_events, color: Colors.grey[600], size: 24),
-                const SizedBox(width: 12),
-                Text(
-                  'Sistema de logros próximamente',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.emoji_events, color: Colors.grey[600], size: 24),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      'Sistema de logros próximamente',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           /*
