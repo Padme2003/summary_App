@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/animated_widgets.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
@@ -35,8 +36,42 @@ class _SummaryScreenState extends State<SummaryScreen> {
   @override
   void initState() {
     super.initState();
+    _loadTextSize();
     _loadSummary();
     _setupAudioPlayer();
+  }
+
+  Future<void> _loadTextSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedSize = prefs.getDouble('text_size') ?? 19.0;
+    if (mounted) {
+      setState(() {
+        _textSize = savedSize;
+      });
+    }
+  }
+
+  Future<void> _saveTextSize(double size) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('text_size', size);
+  }
+
+  void _increaseTextSize() {
+    if (_textSize < 24.0) {
+      setState(() {
+        _textSize += 1.0;
+      });
+      _saveTextSize(_textSize);
+    }
+  }
+
+  void _decreaseTextSize() {
+    if (_textSize > 14.0) {
+      setState(() {
+        _textSize -= 1.0;
+      });
+      _saveTextSize(_textSize);
+    }
   }
 
   @override
@@ -240,12 +275,12 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 40, color: AppColors.error), // Optimizado
-              const SizedBox(height: 16),
+              Icon(Icons.error_outline, size: 28, color: AppColors.error),
+              const SizedBox(height: 12),
               Text(
                 _errorMessage!,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
                 textAlign: TextAlign.center,
@@ -309,6 +344,8 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           AnimatedCard(delay: 200, child: _buildAudioControls()),
         ],
       ),
+      floatingActionButton: _buildTextSizeControls(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -320,13 +357,13 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         : 'Sin audio';
 
     return Container(
-      padding: const EdgeInsets.all(20), // Optimizado
+      padding: const EdgeInsets.all(14),
       child: Column(
         children: [
           // Card de icono de libro
           Container(
-            width: 120,
-            height: 120, // Optimizado (era 180)
+            width: 80,
+            height: 80,
             decoration: BoxDecoration(
               gradient: isDark
                 ? LinearGradient(
@@ -345,28 +382,28 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                       AppColors.lightAccent2,
                     ],
                   ),
-              borderRadius: BorderRadius.circular(20), // MÁS REDONDEADO
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
-                  blurRadius: 24, // SOMBRA MÁS GRANDE
-                  offset: const Offset(0, 12),
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
             child: Icon(
               Icons.auto_stories_rounded,
-              size: 40, // Optimizado
+              size: 28,
               color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // Título
           Text(
             _summary?.title ?? 'Resumen',
             style: TextStyle(
-              fontSize: 20, // Optimizado
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               letterSpacing: -0.5,
@@ -457,20 +494,20 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     final keyPoints = _summary?.keyPoints ?? [];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20), // Optimizado
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
-            blurRadius: 16, // SOMBRA MÁS GRANDE
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -478,42 +515,16 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Text(
-                  'Resumen',
-                  style: TextStyle(
-                    fontSize: 18, // Optimizado
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
-                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.text_fields_rounded,
-                      size: 22,
-                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                    ),
-                    onPressed: () {
-                      _showTextSizeDialog();
-                    },
-                  ),
-                ),
-              ],
+            Text(
+              'Resumen',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                letterSpacing: -0.5,
+              ),
             ),
-            const SizedBox(height: 24), // MÁS ESPACIO
+            const SizedBox(height: 16),
 
             // Contenido con MEJOR TIPOGRAFÍA
             Text(
@@ -689,7 +700,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Text(
                   _formatDuration(_position),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   ),
@@ -697,9 +708,9 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Expanded(
                   child: SliderTheme(
                     data: SliderThemeData(
-                      trackHeight: 4,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                      trackHeight: 3,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
                     ),
                     child: Slider(
                       value: _duration.inSeconds > 0
@@ -719,14 +730,14 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Text(
                   _formatDuration(_duration),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -743,20 +754,20 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                           (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
                         width: 1.5,
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
+                      horizontal: 14,
+                      vertical: 10,
                     ),
                     child: Text(
                       '${_playbackSpeed}x',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                       ),
@@ -769,7 +780,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   onPressed: () => _seekRelative(-10),
                   child: Icon(
                     Icons.replay_10_rounded,
-                    size: 36,
+                    size: 28,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
@@ -785,8 +796,8 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                       onPressed: _togglePlayPause,
                       scaleValue: 0.9,
                       child: Container(
-                        width: 76,
-                        height: 76,
+                        width: 60,
+                        height: 60,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -799,15 +810,15 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-                              blurRadius: 20,
-                              offset: const Offset(0, 6),
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
                         child: Icon(
                           isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          size: 40,
+                          size: 28,
                           color: isDark ? AppColors.black : AppColors.white,
                         ),
                       ),
@@ -820,7 +831,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   onPressed: () => _seekRelative(10),
                   child: Icon(
                     Icons.forward_10_rounded,
-                    size: 36,
+                    size: 28,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
@@ -836,17 +847,17 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                           (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
                         width: 1.5,
                       ),
                     ),
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(10),
                     child: Icon(
                       Icons.download_rounded,
                       color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                      size: 22,
+                      size: 18,
                     ),
                   ),
                 ),
@@ -1150,6 +1161,128 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
               },
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextSizeControls() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 100), // Posicionado sobre los controles de audio
+      child: Material(
+        elevation: 6,
+        borderRadius: BorderRadius.circular(30),
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Botón -
+              AnimatedScaleButton(
+                onPressed: _decreaseTextSize,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _textSize <= 14.0
+                          ? Colors.grey.withOpacity(0.3)
+                          : (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.remove_rounded,
+                    size: 20,
+                    color: _textSize <= 14.0
+                        ? Colors.grey
+                        : (isDark ? AppColors.darkAccent : AppColors.lightAccent),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Indicador de tamaño
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.text_fields_rounded,
+                      size: 18,
+                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${_textSize.toInt()}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Botón +
+              AnimatedScaleButton(
+                onPressed: _increaseTextSize,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _textSize >= 24.0
+                          ? Colors.grey.withOpacity(0.3)
+                          : (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.add_rounded,
+                    size: 20,
+                    color: _textSize >= 24.0
+                        ? Colors.grey
+                        : (isDark ? AppColors.darkAccent : AppColors.lightAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

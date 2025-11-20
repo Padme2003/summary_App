@@ -32,9 +32,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _defaultSpeed = 1.0;
   String _voiceLanguage = 'es-ES';
   bool _wifiOnly = false;
-  String _summaryLength = 'medium';
-  String _audioLanguage = 'es-ES';
-  double _readingSpeed = 1.0;
   String _fontSize = 'medium';
 
   @override
@@ -77,9 +74,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _defaultSpeed = prefs.getDouble('defaultSpeed') ?? 1.0;
       _voiceLanguage = prefs.getString('voiceLanguage') ?? 'es-ES';
       _wifiOnly = prefs.getBool('wifiOnly') ?? false;
-      _summaryLength = prefs.getString('summaryLength') ?? 'medium';
-      _audioLanguage = prefs.getString('audioLanguage') ?? 'es-ES';
-      _readingSpeed = prefs.getDouble('readingSpeed') ?? 1.0;
       _fontSize = prefs.getString('fontSize') ?? 'medium';
     });
   }
@@ -91,9 +85,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setDouble('defaultSpeed', _defaultSpeed);
     await prefs.setString('voiceLanguage', _voiceLanguage);
     await prefs.setBool('wifiOnly', _wifiOnly);
-    await prefs.setString('summaryLength', _summaryLength);
-    await prefs.setString('audioLanguage', _audioLanguage);
-    await prefs.setDouble('readingSpeed', _readingSpeed);
     await prefs.setString('fontSize', _fontSize);
   }
 
@@ -119,12 +110,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSliverAppBar(isDark),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildProfileCard(isDark),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 32),
                   
                   // CUENTA
                   _buildSection(
@@ -159,47 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 48),
-                  
-                  // PREFERENCIAS DE RESUMEN
-                  _buildSection(
-                    title: 'PREFERENCIAS DE RESUMEN',
-                    icon: Icons.tune_rounded,
-                    isDark: isDark,
-                    children: [
-                      _buildSelectTile(
-                        title: 'Longitud del resumen',
-                        subtitle: _getSummaryLengthName(_summaryLength),
-                        icon: Icons.format_size_rounded,
-                        onTap: () => _showSummaryLengthDialog(),
-                        isDark: isDark,
-                      ),
-                      _buildDivider(isDark),
-                      _buildSelectTile(
-                        title: 'Idioma de audio',
-                        subtitle: _getLanguageName(_audioLanguage),
-                        icon: Icons.language_rounded,
-                        onTap: () => _showLanguageDialog(),
-                        isDark: isDark,
-                      ),
-                      _buildDivider(isDark),
-                      _buildSliderTile(
-                        title: 'Velocidad de lectura',
-                        subtitle: '${_readingSpeed}x',
-                        icon: Icons.speed_rounded,
-                        value: _readingSpeed,
-                        min: 0.5,
-                        max: 2.0,
-                        divisions: 6,
-                        onChanged: (value) {
-                          setState(() => _readingSpeed = value);
-                          _saveSettings();
-                        },
-                        isDark: isDark,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-                  
+
                   // APARIENCIA
                   _buildSection(
                     title: 'APARIENCIA',
@@ -264,18 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 48),
-                  
-                  // SUSCRIPCIÓN
-                  _buildSection(
-                    title: 'SUSCRIPCIÓN',
-                    icon: Icons.workspace_premium_rounded,
-                    isDark: isDark,
-                    children: [
-                      _buildSubscriptionCard(isDark),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-                  
+
                   // AYUDA Y SOPORTE
                   _buildSection(
                     title: 'AYUDA Y SOPORTE',
@@ -335,7 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildSliverAppBar(bool isDark) {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 90,
       floating: false,
       pinned: true,
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
@@ -344,18 +284,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Configuración',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
-        titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+        titlePadding: const EdgeInsets.only(left: 16, bottom: 12),
       ),
     );
   }
 
   Widget _buildProfileCard(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -365,12 +305,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -381,17 +321,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Stack(
               children: [
                 Container(
-                  width: 64,
-                  height: 64,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isDark ? AppColors.black : AppColors.white,
-                      width: 3,
+                      width: 2,
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 32,
+                    radius: 26,
                     backgroundColor: isDark ? AppColors.black : AppColors.white,
                     backgroundImage: _user?.avatar != null && _user!.avatar!.isNotEmpty
                         ? (_user!.avatar!.startsWith('data:')
@@ -402,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ? Text(
                             (_user?.name ?? 'U').substring(0, 1).toUpperCase(),
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                             ),
@@ -414,18 +354,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   bottom: 0,
                   right: 0,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: isDark ? AppColors.black : AppColors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        width: 2,
+                        width: 1.5,
                       ),
                     ),
                     child: Icon(
                       Icons.camera_alt_rounded,
-                      size: 16,
+                      size: 12,
                       color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                     ),
                   ),
@@ -433,7 +373,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,7 +381,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   _user?.name ?? 'Usuario',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.black : AppColors.white,
                   ),
@@ -488,11 +428,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 16),
+          padding: const EdgeInsets.only(left: 2, bottom: 12),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -500,29 +440,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Icon(
                   icon,
-                  size: 18,
+                  size: 14,
                   color: isDark ? AppColors.black : AppColors.white,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  letterSpacing: 1.2,
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
@@ -559,9 +499,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool isDark,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -569,18 +509,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
             ],
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
           color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-          size: 24,
+          size: 20,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontSize: 15,
+          fontSize: 13,
           fontWeight: FontWeight.w600,
           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
@@ -588,12 +528,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 12,
           color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
       trailing: Transform.scale(
-        scale: 1.1,
+        scale: 1.0,
         child: Switch(
           value: value,
           onChanged: onChanged,
@@ -775,114 +715,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSubscriptionCard(bool isDark) {
-    final plan = _user?.role == 'pro' ? 'Pro' : 'Free';
-    final docsThisMonth = _documents.where((doc) {
-      final now = DateTime.now();
-      return doc.createdAt.year == now.year && doc.createdAt.month == now.month;
-    }).length;
-
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Plan Actual',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    plan,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              if (plan == 'Free')
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    'Upgrade',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.black : AppColors.white,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          if (plan == 'Free') ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.1),
-                    (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.05),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Has usado $docsThisMonth de 10 documentos este mes',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton(bool isDark) {
+Widget _buildLogoutButton(bool isDark) {
     return Container(
       width: double.infinity,
       height: 64,
@@ -925,24 +758,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  String _getLanguageName(String code) {
-    final languages = {
-      'es-ES': 'Español',
-      'en-US': 'English',
-      'fr-FR': 'Français',
-      'de-DE': 'Deutsch',
-    };
-    return languages[code] ?? 'Español';
-  }
-
-  String _getSummaryLengthName(String length) {
-    final lengths = {
-      'short': 'Corto (1-2 páginas)',
-      'medium': 'Medio (3-5 páginas)',
-      'long': 'Largo (6-10 páginas)',
-    };
-    return lengths[length] ?? 'Medio';
-  }
 
   String _getFontSizeName(String size) {
     final sizes = {
@@ -1325,73 +1140,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showSummaryLengthDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        title: Text(
-          'Longitud del resumen',
-          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ['short', 'medium', 'long'].map((length) {
-            return RadioListTile<String>(
-              title: Text(
-                _getSummaryLengthName(length),
-                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-              ),
-              activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-              value: length,
-              groupValue: _summaryLength,
-              onChanged: (value) {
-                setState(() => _summaryLength = value!);
-                _saveSettings();
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  void _showLanguageDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        title: Text(
-          'Seleccionar idioma',
-          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ['es-ES', 'en-US', 'fr-FR', 'de-DE'].map((lang) {
-            return RadioListTile<String>(
-              title: Text(
-                _getLanguageName(lang),
-                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-              ),
-              activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-              value: lang,
-              groupValue: _audioLanguage,
-              onChanged: (value) {
-                setState(() => _audioLanguage = value!);
-                _saveSettings();
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
 
   void _showFontSizeDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;

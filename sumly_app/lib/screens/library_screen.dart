@@ -174,7 +174,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Text(
                             '${_getGreeting()},',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 14,
                               color: isDark ? AppColors.black.withOpacity(0.7) : AppColors.white.withOpacity(0.9),
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
@@ -184,7 +184,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Text(
                             _user?.name ?? 'Usuario',
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.black : AppColors.white,
                               letterSpacing: -0.5,
@@ -202,7 +202,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   icon: Icon(
                     _isSearching ? Icons.close : Icons.search_rounded,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                    size: 26,
+                    size: 22,
                   ),
                   onPressed: () {
                     setState(() {
@@ -278,19 +278,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
     if (_errorMessage != null) {
       return SizedBox(
-        height: 400,
+        height: 300,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              Icon(Icons.error_outline, size: 44, color: AppColors.error),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
                   textAlign: TextAlign.center,
@@ -347,7 +347,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
           // Estadísticas - 3 cards horizontales
           _buildStatCard(
-            'Total Documentos',
+            'Documentos',
             '${_documents.length}',
             'en tu biblioteca',
             Icons.description_rounded,
@@ -357,7 +357,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           const SizedBox(height: 16),
           _buildStatCard(
             'Procesados',
-            '${_documents.where((d) => d.status == 'processed' || d.status == 'completed').length}',
+            '${_documents.where((doc) => doc.status == 'completed' && (_documentSummaries[doc.id]?.isNotEmpty ?? false)).length}',
             'listos para leer',
             Icons.check_circle_rounded,
             [AppColors.success, AppColors.success.withOpacity(0.7)],
@@ -398,14 +398,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
               Text(
                 'Mis Documentos',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -413,7 +413,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
                     width: 1.5,
@@ -422,7 +422,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 child: Text(
                   '${_filteredDocuments.length} total',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   ),
@@ -453,44 +453,44 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: gradientColors[0].withOpacity(0.4),
-          width: 2,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
             color: gradientColors[0].withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: gradientColors,
               ),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
                   color: gradientColors[0].withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 32),
+            child: Icon(icon, color: Colors.white, size: 24),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,18 +498,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                     height: 1.1,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
@@ -518,7 +518,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   ),
                 ),
@@ -672,8 +672,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   children: [
                     // Icono con gradiente
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -683,15 +683,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         getFileIcon(),
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        size: 32,
+                        size: 24,
                       ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 14),
 
                     // Información
                     Expanded(
@@ -701,7 +701,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Text(
                             document.title,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             ),
@@ -709,16 +709,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 10),
-                          Row(
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
                                   color: getStatusColor().withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
                                     color: getStatusColor().withOpacity(0.4),
                                     width: 1,
@@ -727,15 +729,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 child: Text(
                                   getStatusText(),
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                     color: getStatusColor(),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary).withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(6),
@@ -743,16 +744,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 child: Text(
                                   fileType,
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 9,
                                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ),
-                              if (summaries.isNotEmpty) ...[
-                                const SizedBox(width: 10),
+                              if (summaries.isNotEmpty)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
@@ -765,13 +765,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                   child: Text(
                                     '${summaries.length} ${summaries.length == 1 ? 'resumen' : 'resúmenes'}',
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: 9,
                                       color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -785,6 +784,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         ],
                       ),
                     ),
+
+                    const SizedBox(width: 8),
 
                     // Botones de acción
                     Row(
@@ -960,10 +961,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
@@ -973,14 +974,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
           children: [
             Icon(
               Icons.auto_stories_outlined,
-              size: 72,
+              size: 48,
               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'No hay documentos',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
                 color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               ),

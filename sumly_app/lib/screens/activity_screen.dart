@@ -114,9 +114,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'Mi Actividad',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
-            letterSpacing: -0.5,
+            letterSpacing: -0.3,
           ),
         ),
         actions: [
@@ -124,7 +124,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             icon: Icon(
               Icons.refresh_rounded,
               color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-              size: 26,
+              size: 22,
             ),
             onPressed: _loadActivity,
           ),
@@ -148,14 +148,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 40, color: AppColors.error),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 28, color: AppColors.error),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
                 textAlign: TextAlign.center,
@@ -201,12 +201,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Resumen de Actividad',
+          'Actividad',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            letterSpacing: -0.5,
+            letterSpacing: -0.3,
           ),
         ),
         const SizedBox(height: 24),
@@ -250,44 +250,44 @@ class _ActivityScreenState extends State<ActivityScreen> {
     bool isDark,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: gradientColors[0].withOpacity(0.4),
-          width: 2,
+          color: gradientColors[0].withOpacity(0.3),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: gradientColors[0].withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: gradientColors[0].withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: gradientColors,
               ),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: gradientColors[0].withOpacity(0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: gradientColors[0].withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 32),
+            child: Icon(icon, color: Colors.white, size: 24),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,9 +295,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: -0.5,
+                    letterSpacing: -0.3,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                     height: 1.1,
                   ),
@@ -337,36 +337,36 @@ class _ActivityScreenState extends State<ActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actividad Mensual',
+          'Mensual',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            letterSpacing: -0.5,
+            letterSpacing: -0.3,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+                color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             children: [
               SizedBox(
-                height: 200,
+                height: 120,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -470,10 +470,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     if (recentActivity.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
           ),
@@ -483,14 +483,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
             children: [
               Icon(
                 Icons.timeline_rounded,
-                size: 40,
+                size: 28,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Text(
-                'No hay actividad reciente',
+                'Sin actividad',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                 ),
               ),
@@ -504,28 +504,28 @@ class _ActivityScreenState extends State<ActivityScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Actividad Reciente',
+          'Reciente',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            letterSpacing: -0.5,
+            letterSpacing: -0.3,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
+                color: Colors.black.withOpacity(isDark ? 0.15 : 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -534,7 +534,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: recentActivity.length,
             separatorBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Divider(
                 height: 1,
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
@@ -545,12 +545,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
               final isDocument = activity['type'] == 'document';
 
               return Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
                     Container(
-                      width: 4,
-                      height: 44,
+                      width: 3,
+                      height: 32,
+                      margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -560,28 +561,27 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(1.5),
                       ),
                     ),
-                    const SizedBox(width: 16),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                            (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                            (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                            (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         activity['icon'] as IconData,
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        size: 20,
+                        size: 16,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,30 +589,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           Text(
                             activity['title'] as String,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            isDocument ? 'Documento subido' : 'Resumen generado',
+                            isDocument ? 'Doc' : 'Resumen',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 10,
                               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Text(
                       _formatDate(activity['date'] as DateTime),
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                       ),
                     ),

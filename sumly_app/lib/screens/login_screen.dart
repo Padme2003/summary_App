@@ -121,8 +121,8 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         // Logo con gradiente
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 70,
+                          height: 70,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -130,22 +130,22 @@ class _LoginScreenState extends State<LoginScreen>
                                 isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(32),
+                            borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
-                                blurRadius: 28,
-                                spreadRadius: 2,
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                blurRadius: 16,
+                                spreadRadius: 1,
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.auto_stories_rounded,
-                            size: 60,
+                            size: 40,
                             color: isDark ? AppColors.black : AppColors.white,
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 28),
 
                         // Título
                         ShaderMask(
@@ -156,22 +156,22 @@ class _LoginScreenState extends State<LoginScreen>
                             ],
                           ).createShader(bounds),
                           child: const Text(
-                            '¡Bienvenido!',
+                            'Bienvenido',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
-                              letterSpacing: -0.5,
+                              letterSpacing: -0.3,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Text(
-                          'Inicia sesión en tu biblioteca',
+                          'Inicia sesión',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 14,
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           ),
                         ),
@@ -361,10 +361,10 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             child: _isLoading
                                 ? SizedBox(
-                                    height: 24,
-                                    width: 24,
+                                    height: 20,
+                                    width: 20,
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
+                                      strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         isDark ? AppColors.black : AppColors.white,
                                       ),
@@ -373,7 +373,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 : Text(
                                     'Iniciar Sesión',
                                     style: TextStyle(
-                                      fontSize: 19,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       color: isDark ? AppColors.black : AppColors.white,
                                     ),
