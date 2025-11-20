@@ -240,7 +240,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              Icon(Icons.error_outline, size: 40, color: AppColors.error), // Optimizado
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
@@ -320,13 +320,13 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         : 'Sin audio';
 
     return Container(
-      padding: const EdgeInsets.all(32), // MÁS PADDING
+      padding: const EdgeInsets.all(20), // Optimizado
       child: Column(
         children: [
-          // Card de icono de libro MÁS GRANDE Y ELEGANTE
+          // Card de icono de libro
           Container(
-            width: 140,
-            height: 180,
+            width: 120,
+            height: 120, // Optimizado (era 180)
             decoration: BoxDecoration(
               gradient: isDark
                 ? LinearGradient(
@@ -356,17 +356,17 @@ Generado con Sumly - Resúmenes Inteligentes con IA
             ),
             child: Icon(
               Icons.auto_stories_rounded,
-              size: 60, // ICONO MÁS GRANDE
+              size: 40, // Optimizado
               color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
           const SizedBox(height: 24),
 
-          // Título MÁS GRANDE
+          // Título
           Text(
             _summary?.title ?? 'Resumen',
             style: TextStyle(
-              fontSize: 28, // MÁS GRANDE
+              fontSize: 20, // Optimizado
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               letterSpacing: -0.5,
@@ -458,7 +458,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(32), // MÁS PADDING
+      padding: const EdgeInsets.all(20), // Optimizado
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
@@ -483,7 +483,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Text(
                   'Resumen',
                   style: TextStyle(
-                    fontSize: 22, // MÁS GRANDE
+                    fontSize: 18, // Optimizado
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                     letterSpacing: -0.5,
@@ -554,7 +554,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                     Text(
                       'Puntos Clave',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 17, // Optimizado
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         letterSpacing: -0.5,
@@ -620,7 +620,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
 
     if (!hasAudio) {
       return Container(
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.all(20), // Optimizado
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -662,7 +662,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     }
 
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20), // Optimizado
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),

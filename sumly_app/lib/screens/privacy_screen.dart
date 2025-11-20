@@ -24,7 +24,7 @@ class PrivacyScreen extends StatelessWidget {
           'Política de Privacidad',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -126,7 +126,7 @@ class PrivacyScreen extends StatelessWidget {
               isDark: isDark,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             Container(
               padding: const EdgeInsets.all(16),

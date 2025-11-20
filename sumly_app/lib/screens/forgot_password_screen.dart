@@ -99,17 +99,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   child: Icon(
                     Icons.lock_reset,
-                    size: 64,
+                    size: 40,
                     color: isDark ? AppColors.black : AppColors.white,
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 22),
 
                 Text(
                   '¿Olvidaste tu contraseña?',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -127,7 +127,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 22),
 
                 // Email Field
                 TextFormField(

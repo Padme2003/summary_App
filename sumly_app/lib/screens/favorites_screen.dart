@@ -66,7 +66,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           'Favoritos',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 32,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.5,
           ),
@@ -104,7 +104,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Text(
               'Documentos',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -112,14 +112,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             const SizedBox(height: 20),
             ..._favoriteDocuments.map((doc) => _buildDocumentCard(doc, isDark)),
-            const SizedBox(height: 48),
+            const SizedBox(height: 22),
           ],
 
           if (_favoriteSummaries.isNotEmpty) ...[
             Text(
               'Resúmenes',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -153,14 +153,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           _showDocumentOptions(document, isDark);
         },
         child: Padding(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -168,7 +168,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
                           color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
@@ -180,7 +180,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     child: Icon(
                       Icons.picture_as_pdf,
                       color: isDark ? AppColors.black : AppColors.white,
-                      size: 28,
+                      size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -325,14 +325,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ).then((_) => _loadFavorites());
         },
         child: Padding(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -340,7 +340,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
                           color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
@@ -352,7 +352,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     child: Icon(
                       Icons.auto_awesome,
                       color: isDark ? AppColors.black : AppColors.white,
-                      size: 28,
+                      size: 24,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -439,7 +439,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -458,15 +458,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             child: Icon(
               Icons.favorite_outline,
-              size: 96,
+              size: 40,
               color: AppColors.error,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
           Text(
             'Sin favoritos aún',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -474,7 +474,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
           const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               'Los resúmenes que marques como favoritos aparecerán aquí',
               textAlign: TextAlign.center,

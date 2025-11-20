@@ -110,17 +110,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   child: Icon(
                     Icons.vpn_key,
-                    size: 64,
+                    size: 40,
                     color: isDark ? AppColors.black : AppColors.white,
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 Text(
                   'Nueva contraseña',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -137,7 +137,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Password Field
                 TextFormField(
@@ -230,7 +230,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 // Submit Button
                 Container(
                   width: double.infinity,
-                  height: 64,
+                  height: 56,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [

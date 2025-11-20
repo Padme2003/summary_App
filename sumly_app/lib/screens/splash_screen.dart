@@ -73,27 +73,27 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               children: [
                 // Logo/Icono
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     gradient: AppColors.goldGradient,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.gold.withOpacity(0.3),
-                        blurRadius: 30,
-                        spreadRadius: 5,
+                        blurRadius: 20,
+                        spreadRadius: 3,
                       ),
                     ],
                   ),
                   child: Icon(
                     Icons.auto_stories_rounded,
-                    size: 60,
+                    size: 40,
                     color: isDark ? AppColors.black : AppColors.white,
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
 
                 // Título
                 ShaderMask(
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   child: const Text(
                     'Sumly',
                     style: TextStyle(
-                      fontSize: 48,
+                      fontSize: 36,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 2,
@@ -121,7 +121,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   ),
                 ),
 
-                const SizedBox(height: 60),
+                const SizedBox(height: 24),
 
                 // Loading indicator
                 SizedBox(

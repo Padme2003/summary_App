@@ -128,7 +128,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 children: [
                   Icon(
                     Icons.error_outline,
-                    size: 64,
+                    size: 40,
                     color: AppColors.error,
                   ),
                   const SizedBox(height: 16),

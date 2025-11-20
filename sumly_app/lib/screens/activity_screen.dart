@@ -114,7 +114,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           'Mi Actividad',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 32,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.5,
           ),
@@ -148,7 +148,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: AppColors.error),
+            Icon(Icons.error_outline, size: 40, color: AppColors.error),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -178,11 +178,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
         padding: const EdgeInsets.all(24),
         children: [
           _buildStatsSummary(isDark),
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
           _buildMonthlyChart(isDark),
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
           _buildRecentActivity(isDark),
-          const SizedBox(height: 80),
+          const SizedBox(height: 60),
         ],
       ),
     );
@@ -203,7 +203,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         Text(
           'Resumen de Actividad',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             letterSpacing: -0.5,
@@ -250,7 +250,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     bool isDark,
   ) {
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24),
@@ -295,7 +295,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -339,7 +339,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         Text(
           'Actividad Mensual',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             letterSpacing: -0.5,
@@ -347,7 +347,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ),
         const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : AppColors.lightCard,
             borderRadius: BorderRadius.circular(24),
@@ -470,7 +470,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     if (recentActivity.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(24),
@@ -483,7 +483,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             children: [
               Icon(
                 Icons.timeline_rounded,
-                size: 64,
+                size: 40,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               const SizedBox(height: 16),
@@ -506,7 +506,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         Text(
           'Actividad Reciente',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             letterSpacing: -0.5,

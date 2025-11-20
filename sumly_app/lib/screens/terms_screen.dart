@@ -24,7 +24,7 @@ class TermsScreen extends StatelessWidget {
           'Términos y Condiciones',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -122,7 +122,7 @@ class TermsScreen extends StatelessWidget {
               isDark: isDark,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             Center(
               child: Text(

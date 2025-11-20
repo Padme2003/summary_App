@@ -142,7 +142,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: AppColors.error),
+              Icon(Icons.error_outline, size: 40, color: AppColors.error),
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
@@ -179,7 +179,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           'Detalles del Documento',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -204,7 +204,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         onRefresh: _loadDocumentWithSummaries,
         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           children: [
             _buildDocumentHeader(isDark),
             const SizedBox(height: 32),
@@ -252,7 +252,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
 
   Widget _buildDocumentHeader(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24),
@@ -271,8 +271,8 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
       child: Column(
         children: [
           Container(
-            width: 100,
-            height: 100,
+            width: 75,
+            height: 75,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -301,7 +301,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           Text(
             _document?.title ?? 'Documento',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               letterSpacing: -0.5,
@@ -385,7 +385,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         Text(
           'Estadísticas',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             letterSpacing: -0.5,
@@ -481,7 +481,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
           Text(
             value,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
@@ -511,7 +511,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
             Text(
               'Resúmenes de este documento',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 letterSpacing: -0.5,
@@ -543,7 +543,7 @@ class _DocumentDetailScreenState extends State<DocumentDetailScreen> {
         const SizedBox(height: 24),
         if (_summaries.isEmpty)
           Container(
-            padding: const EdgeInsets.all(40),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
               borderRadius: BorderRadius.circular(24),
