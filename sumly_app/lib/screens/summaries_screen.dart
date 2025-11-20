@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/summary_service.dart';
 import '../models/models.dart';
+import '../utils/app_colors.dart';
+import 'summary_screen.dart';
 
 class SummariesScreen extends StatefulWidget {
-  final String? filter; // 'all', 'completed', 'generating', 'error'
-
-  const SummariesScreen({super.key, this.filter});
+  const SummariesScreen({super.key});
 
   @override
   State<SummariesScreen> createState() => _SummariesScreenState();
@@ -14,8 +14,10 @@ class SummariesScreen extends StatefulWidget {
 
 class _SummariesScreenState extends State<SummariesScreen> {
   final SummaryService _summaryService = SummaryService();
+
   List<Summary> _summaries = [];
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -24,64 +26,58 @@ class _SummariesScreenState extends State<SummariesScreen> {
   }
 
   Future<void> _loadSummaries() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     try {
-      final result = await _summaryService.getSummaries();
+      final result = await _summaryService.getAllSummaries();
 
       if (mounted) {
-        setState(() {
-          _summaries = result['summaries'] ?? [];
-
-          // Apply filter if specified
-          if (widget.filter != null && widget.filter != 'all') {
-            _summaries = _summaries.where((s) => s.status == widget.filter).toList();
-          }
-
-          _isLoading = false;
-        });
+        if (result['success'] == true) {
+          setState(() {
+            _summaries = result['summaries'] ?? [];
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _errorMessage = result['message'] ?? 'Error al cargar resúmenes';
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _errorMessage = 'Error de conexión: $e';
+          _isLoading = false;
+        });
       }
-    }
-  }
-
-  String _getTitle() {
-    switch (widget.filter) {
-      case 'completed':
-        return 'Resúmenes Completados';
-      case 'generating':
-        return 'Generando...';
-      case 'error':
-        return 'Resúmenes con Error';
-      default:
-        return 'Mis Resúmenes';
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.grey[50],
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _getTitle(),
+          'Mis Resúmenes',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
-            fontSize: 20,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -89,137 +85,134 @@ class _SummariesScreenState extends State<SummariesScreen> {
           IconButton(
             icon: Icon(
               Icons.refresh,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: _loadSummaries,
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _summaries.isEmpty
-              ? _buildEmptyState()
-              : _buildSummariesList(),
+      body: _buildBody(isDark),
     );
   }
 
-  Widget _buildSummariesList() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildBody(bool isDark) {
+    if (_isLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: isDark ? AppColors.gold : AppColors.brown,
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: AppColors.error),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage!,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadSummaries,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_summaries.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.summarize,
+                size: 80,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No hay resúmenes aún',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Text(
+                'Sube un documento y genera tu primer resumen',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return RefreshIndicator(
       onRefresh: _loadSummaries,
-      child: ListView(
+      color: isDark ? AppColors.gold : AppColors.brown,
+      child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        children: [
-          // Stats
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStat('Total', _summaries.length, Colors.blue),
-                _buildStat(
-                  'Completados',
-                  _summaries.where((s) => s.status == 'completed').length,
-                  Colors.green,
-                ),
-                _buildStat(
-                  'Generando',
-                  _summaries.where((s) => s.status == 'generating').length,
-                  Colors.orange,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // List
-          ..._summaries.map((summary) => _buildSummaryCard(summary)),
-        ],
+        itemCount: _summaries.length,
+        itemBuilder: (context, index) => _buildSummaryCard(_summaries[index], isDark),
       ),
     );
   }
 
-  Widget _buildStat(String label, int value, Color color) {
-    return Column(
-      children: [
-        Text(
-          '$value',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[500] : Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSummaryCard(Summary summary) {
-    final dateFormat = DateFormat('d MMM yyyy • HH:mm', 'es');
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    Color getStatusColor() {
-      switch (summary.status) {
-        case 'completed':
-          return Colors.green;
-        case 'generating':
-          return Colors.orange;
-        case 'error':
-          return Colors.red;
-        default:
-          return Colors.grey;
-      }
-    }
-
-    String getStatusText() {
-      switch (summary.status) {
-        case 'completed':
-          return 'Completado';
-        case 'generating':
-          return 'Generando...';
-        case 'error':
-          return 'Error';
-        default:
-          return 'Desconocido';
-      }
-    }
+  Widget _buildSummaryCard(Summary summary, bool isDark) {
+    final dateFormat = DateFormat('d MMM yyyy', 'es');
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: summary.status == 'completed'
-            ? () {
-                Navigator.pushNamed(
-                  context,
-                  '/summary',
-                  arguments: {'id': summary.id},
-                ).then((_) => _loadSummaries());
-              }
-            : null,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SummaryScreen(summaryId: summary.id),
+            ),
+          ).then((_) => _loadSummaries());
+        },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -227,32 +220,46 @@ class _SummariesScreenState extends State<SummariesScreen> {
             children: [
               Row(
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       summary.title,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDarkMode ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (summary.isFavorite)
-                    const Icon(
+                    Icon(
                       Icons.favorite,
-                      color: Colors.red,
-                      size: 20,
+                      color: AppColors.error,
+                      size: 18,
                     ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 summary.content,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  height: 1.5,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -260,43 +267,40 @@ class _SummariesScreenState extends State<SummariesScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: getStatusColor().withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      getStatusText(),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: getStatusColor(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(summary.createdAt),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
+                    Icon(Icons.headphones, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                     const SizedBox(width: 4),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+                      style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(summary.status, isDark).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _getStatusColor(summary.status, isDark).withOpacity(0.3),
                       ),
                     ),
-                  ],
+                    child: Text(
+                      _getStatusText(summary.status),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: _getStatusColor(summary.status, isDark),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -306,41 +310,34 @@ class _SummariesScreenState extends State<SummariesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  Color _getStatusColor(String status, bool isDark) {
+    switch (status) {
+      case 'completed':
+        return AppColors.success;
+      case 'pending':
+      case 'processing':
+        return isDark ? AppColors.gold : AppColors.brown;
+      case 'failed':
+      case 'error':
+        return AppColors.error;
+      default:
+        return isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary;
+    }
+  }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.auto_stories_outlined,
-            size: 100,
-            color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'No hay resúmenes aún',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Text(
-              'Genera tu primer resumen desde un documento',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDarkMode ? Colors.grey[600] : Colors.grey[500],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'completed':
+        return 'Completado';
+      case 'pending':
+        return 'Pendiente';
+      case 'processing':
+        return 'Procesando';
+      case 'failed':
+      case 'error':
+        return 'Error';
+      default:
+        return status;
+    }
   }
 }

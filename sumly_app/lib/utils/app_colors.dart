@@ -94,4 +94,27 @@ class AppColors {
   static Color withOpacity(Color color, double opacity) {
     return color.withOpacity(opacity);
   }
+
+  // ========================================
+  // HELPER METHODS
+  // ========================================
+
+  /// Gradient premium principal (dorado para dark, café para light)
+  static LinearGradient primaryGradient(bool isDark) {
+    return isDark ? goldGradient : brownGradient;
+  }
+
+  /// Shadow sutil para cards
+  static List<BoxShadow> cardShadow(bool isDark, {Color? color}) {
+    return [
+      BoxShadow(
+        color: (color ?? Colors.black).withOpacity(isDark ? 0.2 : 0.05),
+        blurRadius: 10,
+        offset: const Offset(0, 2),
+      ),
+    ];
+  }
+
+  /// Surface color para dark mode
+  static Color get surfaceDark => darkSurface;
 }

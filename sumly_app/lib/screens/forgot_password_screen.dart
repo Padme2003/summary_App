@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'reset_password_screen.dart';
+import '../utils/app_colors.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -12,7 +12,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _authService = AuthService();
+  final AuthService _authService = AuthService();
+
   bool _isLoading = false;
 
   @override
@@ -21,55 +22,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _handleForgotPassword() async {
+  Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    try {
-      final result = await _authService.forgotPassword(
-        email: _emailController.text.trim(),
-      );
+    final result = await _authService.forgotPassword(_emailController.text);
 
-      if (!mounted) return;
-
+    if (mounted) {
       setState(() => _isLoading = false);
 
-      if (result['success']) {
-        // Mostrar mensaje
+      if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? 'Código enviado a tu email'),
-            backgroundColor: Colors.green,
+            content: Text(result['message'] ?? 'Revisa tu correo para restablecer tu contraseña'),
+            backgroundColor: AppColors.success,
           ),
         );
-
-        // Navegar a la pantalla de reset
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ResetPasswordScreen(
-              email: _emailController.text.trim(),
-              // DESARROLLO: Descomenta la siguiente línea para ver el código en pantalla
-              // devCode: result['code'],
-            ),
-          ),
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message'] ?? 'Error al enviar código'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            content: Text(result['message'] ?? 'Error al enviar correo'),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -78,228 +53,167 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF1A1A2E),
-                    const Color(0xFF16213E),
-                    const Color(0xFF0F3460),
-                  ]
-                : [
-                    Colors.indigo.shade400,
-                    Colors.purple.shade300,
-                    Colors.pink.shade200,
-                  ],
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 0,
-                floating: true,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 20),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
 
-                        // Icon
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.lock_reset,
-                              size: 60,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Title
-                        const Text(
-                          '¿Olvidaste tu\ncontraseña?',
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            height: 1.2,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black26,
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Subtitle
-                        Text(
-                          'No te preocupes. Ingresa tu email y te enviaremos un código para resetear tu contraseña.',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white.withOpacity(0.9),
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-
-                        // Email Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              labelStyle: TextStyle(
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                              ),
-                              prefixIcon: Icon(
-                                Icons.email_outlined,
-                                color: isDarkMode ? Colors.purple[300] : Colors.indigo.shade400,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor ingresa tu email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Ingresa un email válido';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Send Button
-                        Container(
-                          height: 56,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDarkMode
-                                  ? [
-                                      const Color(0xFF6B46C1),
-                                      const Color(0xFF553C9A),
-                                    ]
-                                  : [
-                                      Colors.white,
-                                      Colors.white.withOpacity(0.9),
-                                    ],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(isDarkMode ? 0.4 : 0.2),
-                                blurRadius: 15,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleForgotPassword,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        isDarkMode ? Colors.white : Colors.indigo.shade600,
-                                      ),
-                                    ),
-                                  )
-                                : Text(
-                                    'Enviar Código',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: isDarkMode ? Colors.white : Colors.indigo.shade600,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Back to login
-                        Center(
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(
-                              'Volver al inicio de sesión',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.lock_reset,
+                    size: 48,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 24),
+
+                Text(
+                  '¿Olvidaste tu contraseña?',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  'Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                    height: 1.5,
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Email Field
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                  decoration: InputDecoration(
+                    labelText: 'Correo electrónico',
+                    labelStyle: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    prefixIcon: Icon(Icons.email_outlined, color: isDark ? AppColors.gold : AppColors.brown),
+                    filled: true,
+                    fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: isDark ? AppColors.gold : AppColors.brown, width: 2),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ingresa tu correo electrónico';
+                    }
+                    if (!value.contains('@')) {
+                      return 'Ingresa un correo válido';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Enviar instrucciones',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Info Box
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.info.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.info.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: AppColors.info, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Revisa tu bandeja de spam si no recibes el correo en unos minutos.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

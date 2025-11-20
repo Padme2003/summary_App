@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
 
 class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Política de Privacidad',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -36,7 +38,7 @@ class PrivacyScreen extends StatelessWidget {
               'Última actualización: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -47,7 +49,7 @@ class PrivacyScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.6,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 24),
@@ -129,17 +131,17 @@ class PrivacyScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
+                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isDarkMode ? Colors.blue.withOpacity(0.3) : Colors.blue[200]!,
+                  color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.security,
-                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                    color: isDark ? AppColors.gold : AppColors.brown,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -147,7 +149,7 @@ class PrivacyScreen extends StatelessWidget {
                       'Su privacidad es importante para nosotros. Trabajamos continuamente para mejorar la seguridad y protección de sus datos.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
                   ),
@@ -162,7 +164,7 @@ class PrivacyScreen extends StatelessWidget {
                 '© ${DateTime.now().year} Sumly. Todos los derechos reservados.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[500],
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -190,7 +192,7 @@ class PrivacyScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -199,7 +201,7 @@ class PrivacyScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
         ],

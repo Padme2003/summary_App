@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
 
 class TermsScreen extends StatelessWidget {
   const TermsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Términos y Condiciones',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -36,7 +38,7 @@ class TermsScreen extends StatelessWidget {
               'Última actualización: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
               style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey[600],
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -127,7 +129,7 @@ class TermsScreen extends StatelessWidget {
                 '© ${DateTime.now().year} Sumly. Todos los derechos reservados.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[500],
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -155,7 +157,7 @@ class TermsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -164,7 +166,7 @@ class TermsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               height: 1.6,
-              color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
         ],

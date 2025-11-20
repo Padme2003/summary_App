@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import '../services/summary_service.dart';
-import '../services/audiobook_service.dart';
+import '../utils/app_colors.dart';
 
 class ProcessingScreen extends StatefulWidget {
-  final String mode; // 'summary' o 'audiobook'
   final String documentId;
 
   const ProcessingScreen({
     super.key,
-    required this.mode,
     required this.documentId,
   });
 
@@ -24,7 +22,6 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   String _currentStep = 'Iniciando procesamiento...';
 
   final SummaryService _summaryService = SummaryService();
-  final AudiobookService _audiobookService = AudiobookService();
 
   String? _generatedId;
   bool _hasError = false;
@@ -37,17 +34,6 @@ class _ProcessingScreenState extends State<ProcessingScreen>
     'Creando audio del resumen...',
     '¡Listo! Preparando visualización...',
   ];
-
-  final List<String> _audiobookSteps = [
-    'Extrayendo texto del documento...',
-    'Detectando estructura de capítulos...',
-    'Generando audio completo...',
-    'Optimizando calidad de audio...',
-    '¡Listo! Preparando reproductor...',
-  ];
-
-  // Getter for dark mode - FIXED
-  bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
 
   @override
   void initState() {
@@ -68,7 +54,6 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
   void _startProcessing() async {
     try {
-      // Solo modo resumen - audiobook eliminado
       if (mounted) {
         setState(() {
           _currentStep = _summarySteps[0];
@@ -94,7 +79,6 @@ class _ProcessingScreenState extends State<ProcessingScreen>
   }
 
   Future<void> _pollForCompletion() async {
-    final steps = widget.mode == 'summary' ? _summarySteps : _audiobookSteps;
     int currentStepIndex = 1;
     int pollAttempts = 0;
     const maxAttempts = 60; // 3 minutos máximo (60 * 3 segundos)
@@ -106,38 +90,30 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       pollAttempts++;
 
       // Actualizar paso visual
-      if (currentStepIndex < steps.length - 1 && mounted) {
+      if (currentStepIndex < _summarySteps.length - 1 && mounted) {
         setState(() {
-          _currentStep = steps[currentStepIndex];
-          _progress = 0.2 + (0.6 * currentStepIndex / (steps.length - 2));
+          _currentStep = _summarySteps[currentStepIndex];
+          _progress = 0.2 + (0.6 * currentStepIndex / (_summarySteps.length - 2));
         });
         currentStepIndex++;
       }
 
       // Verificar estado en el backend
-      Map<String, dynamic> statusResult;
-
       try {
-        if (widget.mode == 'summary') {
-          statusResult = await _summaryService.getSummary(_generatedId!);
-        } else {
-          statusResult = await _audiobookService.getAudiobook(_generatedId!);
-        }
+        final statusResult = await _summaryService.getSummary(_generatedId!);
 
         if (statusResult['success'] != true) {
           continue; // Reintentar
         }
 
-        final item = widget.mode == 'summary'
-            ? statusResult['summary']
-            : statusResult['audiobook'];
-        final status = item.status;
+        final summary = statusResult['summary'];
+        final status = summary.status;
 
         if (status == 'completed') {
           // ¡Completado!
           if (mounted) {
             setState(() {
-              _currentStep = steps.last;
+              _currentStep = _summarySteps.last;
               _progress = 1.0;
             });
           }
@@ -147,7 +123,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           if (mounted) {
             Navigator.pushReplacementNamed(
               context,
-              widget.mode == 'summary' ? '/summary' : '/audiobook',
+              '/summary',
               arguments: {'id': _generatedId},
             );
           }
@@ -166,196 +142,6 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       _showError(
           'La generación está tomando más tiempo del esperado. Por favor, verifica tu biblioteca más tarde.');
     }
-  }
-
-  void _showQuotaExceededDialog(Map<String, dynamic> result) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final quota = result['quota'];
-    final resetDate = quota?['resetDate'] != null
-        ? DateTime.parse(quota['resetDate'])
-        : null;
-    final daysUntilReset =
-        resetDate?.difference(DateTime.now()).inDays ?? 0;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.orange.withOpacity(0.2) : Colors.orange[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_amber,
-                color: isDarkMode ? Colors.orange[400] : Colors.orange[700],
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Cuota mensual alcanzada',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              result['message'] ?? 'Has alcanzado tu límite de audiolibros este mes',
-              style: TextStyle(
-                fontSize: 15,
-                color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.purple.withOpacity(0.2) : Colors.purple[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isDarkMode ? Colors.purple.withOpacity(0.3) : Colors.purple[200]!,
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: isDarkMode ? Colors.purple[400] : Colors.purple[700],
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Cuota mensual',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.purple[300] : Colors.purple[700],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Usados:',
-                        style: TextStyle(
-                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                        ),
-                      ),
-                      Text(
-                        '${quota?['used'] ?? 0} / ${quota?['limit'] ?? 10}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Se renueva en:',
-                        style: TextStyle(
-                          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                        ),
-                      ),
-                      Text(
-                        '$daysUntilReset días',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Puedes usar la voz nativa del dispositivo (ilimitado y gratis)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDarkMode ? Colors.blue[200] : Colors.blue[900],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
-              Navigator.pop(context); // Volver a pantalla anterior
-            },
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context); // Cerrar diálogo
-              // Navegar al reproductor con modo TTS nativo
-              Navigator.pushReplacementNamed(
-                context,
-                '/audiobook',
-                arguments: {
-                  'documentId': widget.documentId,
-                  'useTtsNative': true,
-                },
-              );
-            },
-            icon: const Icon(Icons.volume_up),
-            label: const Text('Usar voz nativa'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.purple[600],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showError(String message) {
@@ -381,8 +167,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isSummary = widget.mode == 'summary';
-    final primaryColor = isSummary ? Colors.blue[600]! : Colors.purple[600]!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -395,23 +180,9 @@ class _ProcessingScreenState extends State<ProcessingScreen>
         }
       },
       child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDarkMode
-                  ? (isSummary
-                      ? [const Color(0xFF1A1A2E), const Color(0xFF16213E), const Color(0xFF0F3460)]
-                      : [const Color(0xFF1A1A2E), const Color(0xFF2D1B3D), const Color(0xFF4A1942)])
-                  : (isSummary
-                      ? [Colors.white, Colors.blue.shade50, Colors.indigo.shade50]
-                      : [Colors.white, Colors.purple.shade50, Colors.pink.shade50]),
-            ),
-          ),
-          child: SafeArea(
-            child: _buildProcessingContent(context, isSummary, primaryColor),
-          ),
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        body: SafeArea(
+          child: _buildProcessingContent(context, isDark),
         ),
       ),
     );
@@ -422,43 +193,45 @@ class _ProcessingScreenState extends State<ProcessingScreen>
       return true; // Si ya terminó o hubo error, permitir salir sin confirmación
     }
 
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber, color: Colors.orange),
+            Icon(Icons.warning_amber, color: AppColors.warning),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 '¿Cancelar procesamiento?',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
               ),
             ),
           ],
         ),
         content: Text(
-          widget.mode == 'summary'
-              ? 'Si sales ahora, se cancelará la generación del resumen y deberás iniciarlo nuevamente.'
-              : 'Si sales ahora, se cancelará la generación del audiolibro y deberás iniciarlo nuevamente.',
+          'Si sales ahora, se cancelará la generación del resumen y deberás iniciarlo nuevamente.',
           style: TextStyle(
             fontSize: 15,
-            color: isDarkMode ? Colors.grey[300] : Colors.black87,
+            color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Continuar esperando'),
+            child: Text(
+              'Continuar esperando',
+              style: TextStyle(color: isDark ? AppColors.gold : AppColors.brown),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Cancelar y salir'),
           ),
         ],
@@ -468,215 +241,194 @@ class _ProcessingScreenState extends State<ProcessingScreen>
     return result ?? false;
   }
 
-  Widget _buildProcessingContent(
-    BuildContext context,
-    bool isSummary,
-    Color primaryColor,
-  ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  Widget _buildProcessingContent(BuildContext context, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-
-              // Icono animado
-              ScaleTransition(
-                scale: _scaleAnimation,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isSummary
-                          ? [Colors.blue[400]!, Colors.blue[700]!]
-                          : [Colors.purple[400]!, Colors.purple[700]!],
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: primaryColor.withOpacity(0.3),
-                        blurRadius: 40,
-                        offset: const Offset(0, 20),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    isSummary ? Icons.auto_awesome : Icons.headphones,
-                    size: 70,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Título
-              Text(
-                isSummary
-                    ? 'Generando Resumen Inteligente'
-                    : 'Creando Audiolibro Completo',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 32),
-
-              // Barra de progreso
-              Stack(
-                children: [
-                  Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    height: 8,
-                    width: MediaQuery.of(context).size.width * _progress - 64,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isSummary
-                            ? [Colors.blue[400]!, Colors.blue[600]!]
-                            : [Colors.purple[400]!, Colors.purple[600]!],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: primaryColor.withOpacity(0.5),
-                          blurRadius: 10,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
+          // Icono animado
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
                   ),
                 ],
               ),
+              child: const Icon(
+                Icons.auto_awesome,
+                size: 70,
+                color: Colors.white,
+              ),
+            ),
+          ),
 
-              const SizedBox(height: 16),
+          const SizedBox(height: 40),
 
-              // Porcentaje
-              Text(
-                '${(_progress * 100).toInt()}%',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: primaryColor,
+          // Título
+          Text(
+            'Generando Resumen Inteligente',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 32),
+
+          // Barra de progreso
+          Stack(
+            children: [
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.darkCard : AppColors.lightBorder,
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
-              const SizedBox(height: 24),
-
-              // Paso actual
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                height: 8,
+                width: MediaQuery.of(context).size.width * _progress - 64,
                 decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: primaryColor.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: Text(
-                        _currentStep,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                  gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.5),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
               ),
-
-              const Spacer(),
-
-              // Mensaje de error o espera
-              if (_hasError)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: isDarkMode ? Colors.red[900]!.withOpacity(0.3) : Colors.red[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDarkMode ? Colors.red[700]! : Colors.red[300]!,
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.error_outline,
-                        color: isDarkMode ? Colors.red[400] : Colors.red[700],
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _errorMessage,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: isDarkMode ? Colors.red[200] : Colors.red[900],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else ...[
-                Text(
-                  'Esto puede tomar unos momentos...',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  isSummary
-                      ? 'Estamos usando IA para crear un resumen de calidad'
-                      : 'Estamos convirtiendo todo el libro a audio',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
             ],
           ),
-        ),
+
+          const SizedBox(height: 16),
+
+          // Porcentaje
+          Text(
+            '${(_progress * 100).toInt()}%',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.gold : AppColors.brown,
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Paso actual
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 16,
+            ),
+            decoration: BoxDecoration(
+              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isDark ? AppColors.gold : AppColors.brown,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Flexible(
+                  child: Text(
+                    _currentStep,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const Spacer(),
+
+          // Mensaje de error o espera
+          if (_hasError)
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.error.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.error.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: AppColors.error,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _errorMessage,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            Text(
+              'Esto puede tomar unos momentos...',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Estamos usando IA para crear un resumen de calidad',
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
       ),
     );
   }

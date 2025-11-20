@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/theme_provider.dart';
+import '../utils/app_colors.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -48,30 +49,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        body: Center(
+          child: CircularProgressIndicator(color: isDark ? AppColors.gold : AppColors.brown),
+        ),
       );
     }
 
-
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Configuración',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -83,6 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Apariencia',
             icon: Icons.palette_outlined,
+            isDark: isDark,
             children: [
               Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) {
@@ -94,6 +99,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (value) {
                       themeProvider.toggleTheme();
                     },
+                    isDark: isDark,
                   );
                 },
               ),
@@ -104,6 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Audio',
             icon: Icons.volume_up_outlined,
+            isDark: isDark,
             children: [
               _buildSwitchTile(
                 title: 'Reproducción automática',
@@ -114,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _autoPlay = value);
                   _saveSettings();
                 },
+                isDark: isDark,
               ),
               _buildSliderTile(
                 title: 'Velocidad predeterminada',
@@ -127,12 +135,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _defaultSpeed = value);
                   _saveSettings();
                 },
+                isDark: isDark,
               ),
               _buildSelectTile(
                 title: 'Idioma de voz',
                 subtitle: _getLanguageName(_voiceLanguage),
                 icon: Icons.language,
                 onTap: () => _showLanguageDialog(),
+                isDark: isDark,
               ),
             ],
           ),
@@ -141,6 +151,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Notificaciones',
             icon: Icons.notifications_outlined,
+            isDark: isDark,
             children: [
               _buildSwitchTile(
                 title: 'Notificaciones push',
@@ -151,6 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _notifications = value);
                   _saveSettings();
                 },
+                isDark: isDark,
               ),
             ],
           ),
@@ -159,6 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Datos y almacenamiento',
             icon: Icons.storage_outlined,
+            isDark: isDark,
             children: [
               _buildSwitchTile(
                 title: 'Solo WiFi',
@@ -169,12 +182,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _wifiOnly = value);
                   _saveSettings();
                 },
+                isDark: isDark,
               ),
               _buildActionTile(
                 title: 'Limpiar caché',
                 subtitle: 'Liberar espacio de almacenamiento',
                 icon: Icons.cleaning_services_outlined,
                 onTap: () => _showClearCacheDialog(),
+                isDark: isDark,
               ),
             ],
           ),
@@ -183,18 +198,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Soporte',
             icon: Icons.help_outline,
+            isDark: isDark,
             children: [
               _buildActionTile(
                 title: 'Ayuda por WhatsApp',
                 subtitle: 'Contacta con soporte',
                 icon: Icons.chat,
                 onTap: () => _openWhatsApp(),
+                isDark: isDark,
               ),
               _buildActionTile(
                 title: 'Reportar problema',
                 subtitle: 'Envíanos tus comentarios',
                 icon: Icons.bug_report_outlined,
                 onTap: () => _openWhatsApp(),
+                isDark: isDark,
               ),
             ],
           ),
@@ -203,12 +221,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSection(
             title: 'Acerca de',
             icon: Icons.info_outline,
+            isDark: isDark,
             children: [
               _buildActionTile(
                 title: 'Versión',
                 subtitle: '1.0.0',
                 icon: Icons.app_settings_alt,
                 onTap: () {},
+                isDark: isDark,
               ),
               _buildActionTile(
                 title: 'Términos y condiciones',
@@ -217,6 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/terms');
                 },
+                isDark: isDark,
               ),
               _buildActionTile(
                 title: 'Política de privacidad',
@@ -225,6 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/privacy');
                 },
+                isDark: isDark,
               ),
             ],
           ),
@@ -238,9 +260,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required IconData icon,
     required List<Widget> children,
+    required bool isDark,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -251,7 +272,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Icon(
                 icon,
                 size: 20,
-                color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               const SizedBox(width: 8),
               Text(
@@ -259,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -268,15 +289,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+            color: isDark ? AppColors.darkCard : AppColors.lightCard,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            ),
+            boxShadow: AppColors.cardShadow(isDark),
           ),
           child: Column(children: children),
         ),
@@ -290,20 +308,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required bool value,
     required ValueChanged<bool> onChanged,
+    required bool isDark,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark ? AppColors.gold : AppColors.brown;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          color: accentColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: Theme.of(context).colorScheme.primary,
+          color: accentColor,
           size: 24,
         ),
       ),
@@ -311,17 +330,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: isDarkMode ? Colors.white : Colors.black87,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
           fontSize: 13,
-          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
-      trailing: Switch(value: value, onChanged: onChanged),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeColor: accentColor,
+      ),
     );
   }
 
@@ -334,8 +357,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required double max,
     required int divisions,
     required ValueChanged<double> onChanged,
+    required bool isDark,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark ? AppColors.gold : AppColors.brown;
 
     return Column(
       children: [
@@ -347,12 +371,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: accentColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
-              color: Theme.of(context).colorScheme.primary,
+              color: accentColor,
               size: 24,
             ),
           ),
@@ -360,14 +384,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           subtitle: Text(
             subtitle,
             style: TextStyle(
               fontSize: 13,
-              color: Theme.of(context).colorScheme.primary,
+              color: accentColor,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -381,6 +405,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             divisions: divisions,
             label: '${value}x',
             onChanged: onChanged,
+            activeColor: accentColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -393,20 +418,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final accentColor = isDark ? AppColors.gold : AppColors.brown;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          color: accentColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: Theme.of(context).colorScheme.primary,
+          color: accentColor,
           size: 24,
         ),
       ),
@@ -414,19 +440,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: isDarkMode ? Colors.white : Colors.black87,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
           fontSize: 13,
-          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+        color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
       ),
       onTap: onTap,
     );
@@ -437,20 +463,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+          color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary).withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
-          color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
           size: 24,
         ),
       ),
@@ -458,19 +483,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: isDarkMode ? Colors.white : Colors.black87,
+          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
           fontSize: 13,
-          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+        color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
       ),
       onTap: onTap,
     );
@@ -487,23 +512,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showLanguageDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Seleccionar idioma',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: Text('Español', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              title: Text('Español', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               value: 'es-ES',
               groupValue: _voiceLanguage,
+              activeColor: isDark ? AppColors.gold : AppColors.brown,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
                 _saveSettings();
@@ -511,9 +538,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: Text('English', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              title: Text('English', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               value: 'en-US',
               groupValue: _voiceLanguage,
+              activeColor: isDark ? AppColors.gold : AppColors.brown,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
                 _saveSettings();
@@ -521,9 +549,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: Text('Français', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              title: Text('Français', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               value: 'fr-FR',
               groupValue: _voiceLanguage,
+              activeColor: isDark ? AppColors.gold : AppColors.brown,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
                 _saveSettings();
@@ -531,9 +560,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: Text('Deutsch', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              title: Text('Deutsch', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               value: 'de-DE',
               groupValue: _voiceLanguage,
+              activeColor: isDark ? AppColors.gold : AppColors.brown,
               onChanged: (value) {
                 setState(() => _voiceLanguage = value!);
                 _saveSettings();
@@ -547,37 +577,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showClearCacheDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Limpiar caché',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         content: Text(
           '¿Estás seguro de que deseas limpiar el caché?\n\n'
           'Esto liberará espacio pero puede hacer que la app sea más lenta temporalmente.',
-          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Caché limpiado exitosamente'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                  content: const Text('Caché limpiado exitosamente'),
+                  backgroundColor: AppColors.success,
                 ),
               );
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Limpiar'),
           ),
         ],
@@ -586,8 +617,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _openWhatsApp() async {
-    // Número de WhatsApp de soporte - Cambiar por el número real
-    const phoneNumber = '593999999999'; // Ecuador formato: 593 + código + número
+    const phoneNumber = '593984173150';
     const message = '¡Hola! Necesito ayuda con la app SUMLY';
 
     final url = Uri.parse(
@@ -603,9 +633,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No se pudo abrir WhatsApp'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('No se pudo abrir WhatsApp'),
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -615,19 +645,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
     }
-  }
-
-  void _showComingSoonSnackBar(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$feature próximamente disponible'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 }

@@ -4,6 +4,7 @@ import '../services/summary_service.dart';
 import '../services/document_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
+import '../utils/app_colors.dart';
 import 'summary_screen.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -31,7 +32,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Load both summaries and documents
       final summariesResult = await _summaryService.getFavorites();
       final documentsResult = await _documentService.getDocuments();
 
@@ -39,7 +39,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         setState(() {
           _favoriteSummaries = summariesResult['summaries'] ?? [];
 
-          // Filter only favorite documents
           final allDocs = documentsResult['documents'] as List<DocumentModel>? ?? [];
           _favoriteDocuments = allDocs.where((doc) => doc.isFavorite).toList();
 
@@ -55,17 +54,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final totalFavorites = _favoriteDocuments.length + _favoriteSummaries.length;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Text(
           'Favoritos',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -74,73 +74,79 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           IconButton(
             icon: Icon(
               Icons.refresh,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: _loadFavorites,
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+            )
           : totalFavorites == 0
-              ? _buildEmptyState()
-              : _buildFavoritesList(),
+              ? _buildEmptyState(isDark)
+              : _buildFavoritesList(isDark),
     );
   }
 
-  Widget _buildFavoritesList() {
+  Widget _buildFavoritesList(bool isDark) {
     return RefreshIndicator(
       onRefresh: _loadFavorites,
+      color: isDark ? AppColors.gold : AppColors.brown,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Documents Section
           if (_favoriteDocuments.isNotEmpty) ...[
             Text(
               'Documentos',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 12),
-            ..._favoriteDocuments.map((doc) => _buildDocumentCard(doc)),
+            ..._favoriteDocuments.map((doc) => _buildDocumentCard(doc, isDark)),
             const SizedBox(height: 24),
           ],
 
-          // Summaries Section
           if (_favoriteSummaries.isNotEmpty) ...[
             Text(
               'Resúmenes',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 12),
-            ..._favoriteSummaries.map((summary) => _buildSummaryCard(summary)),
+            ..._favoriteSummaries.map((summary) => _buildSummaryCard(summary, isDark)),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildDocumentCard(DocumentModel document) {
+  Widget _buildDocumentCard(DocumentModel document, bool isDark) {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // Navigate to document or show options
-          _showDocumentOptions(document);
+          _showDocumentOptions(document, isDark);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -151,7 +157,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 children: [
                   Icon(
                     Icons.picture_as_pdf,
-                    color: Colors.red,
+                    color: AppColors.error,
                     size: 24,
                   ),
                   const SizedBox(width: 12),
@@ -161,15 +167,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDarkMode ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.favorite,
-                    color: Colors.red,
+                    color: AppColors.error,
                     size: 20,
                   ),
                 ],
@@ -177,17 +183,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(document.createdAt),
-                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue.withOpacity(0.1),
+                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -195,7 +201,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                        color: isDark ? AppColors.gold : AppColors.brown,
                       ),
                     ),
                   ),
@@ -208,11 +214,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  void _showDocumentOptions(DocumentModel document) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  void _showDocumentOptions(DocumentModel document, bool isDark) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -225,21 +230,20 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.summarize, color: Colors.blue),
-              title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              leading: Icon(Icons.summarize, color: isDark ? AppColors.gold : AppColors.brown),
+              title: Text('Generar Resumen', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.pushNamed(
                   context,
                   '/processing',
                   arguments: {
-                    'mode': 'summary',
                     'documentId': document.id,
                   },
                 );
@@ -247,16 +251,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             if (document.fileType == 'pdf')
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                leading: Icon(Icons.picture_as_pdf, color: AppColors.error),
+                title: Text('Ver PDF', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
                 onTap: () {
                   Navigator.pop(context);
                   _openPdfViewer(document);
                 },
               ),
             ListTile(
-              leading: const Icon(Icons.favorite_border, color: Colors.red),
-              title: Text('Quitar de favoritos', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+              leading: Icon(Icons.favorite_border, color: AppColors.error),
+              title: Text('Quitar de favoritos', style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)),
               onTap: () async {
                 Navigator.pop(context);
                 await _documentService.toggleFavorite(document.id);
@@ -270,15 +274,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildSummaryCard(Summary summary) {
+  Widget _buildSummaryCard(Summary summary, bool isDark) {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
@@ -287,7 +295,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             MaterialPageRoute(
               builder: (context) => SummaryScreen(summaryId: summary.id),
             ),
-          ).then((_) => _loadFavorites()); // Reload when returning
+          ).then((_) => _loadFavorites());
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -302,15 +310,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isDarkMode ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.favorite,
-                    color: Colors.red,
+                    color: AppColors.error,
                     size: 20,
                   ),
                 ],
@@ -320,7 +328,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 summary.content,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
@@ -328,19 +336,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
+                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   const SizedBox(width: 4),
                   Text(
                     dateFormat.format(summary.createdAt),
-                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[400]),
+                    Icon(Icons.headphones, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                     const SizedBox(width: 4),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',
-                      style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
+                      style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                     ),
                   ],
                 ],
@@ -372,9 +380,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildEmptyState(bool isDark) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -382,13 +388,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.red.withOpacity(0.2) : Colors.red[50],
+              color: AppColors.error.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.favorite_outline,
               size: 80,
-              color: isDarkMode ? Colors.red[400] : Colors.red[300],
+              color: AppColors.error,
             ),
           ),
           const SizedBox(height: 24),
@@ -397,7 +403,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -406,7 +412,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             child: Text(
               'Los resúmenes que marques como favoritos aparecerán aquí',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
             ),
           ),
         ],

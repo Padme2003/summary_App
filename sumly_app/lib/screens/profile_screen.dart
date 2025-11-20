@@ -69,11 +69,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changeProfilePhoto() async {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -84,18 +84,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 20),
             ListTile(
               leading: Icon(
                 Icons.camera_alt,
-                color: isDarkMode ? Colors.white70 : Colors.black87,
+                color: isDark ? AppColors.gold : AppColors.brown,
               ),
               title: Text(
                 'Tomar foto',
-                style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -105,11 +105,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ListTile(
               leading: Icon(
                 Icons.photo_library,
-                color: isDarkMode ? Colors.white70 : Colors.black87,
+                color: isDark ? AppColors.gold : AppColors.brown,
               ),
               title: Text(
                 'Elegir de galería',
-                style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -118,8 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             if (_user?.avatar != null && _user!.avatar!.isNotEmpty)
               ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Eliminar foto', style: TextStyle(color: Colors.red)),
+                leading: Icon(Icons.delete, color: AppColors.error),
+                title: Text('Eliminar foto', style: TextStyle(color: AppColors.error)),
                 onTap: () {
                   Navigator.pop(context);
                   _removeProfilePhoto();
@@ -157,8 +157,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             });
 
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Foto de perfil actualizada'),
+              SnackBar(
+                content: const Text('Foto de perfil actualizada'),
+                backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -166,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(result['message'] ?? 'Error al actualizar foto'),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.error,
               ),
             );
           }
@@ -177,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -195,8 +196,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Foto de perfil eliminada'),
+            SnackBar(
+              content: const Text('Foto de perfil eliminada'),
+              backgroundColor: AppColors.success,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -207,59 +209,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
     }
   }
 
-  String _formatMemberSince(DateTime? date) {
-    if (date == null) return 'Nuevo miembro';
-    final months = [
-      'Ene',
-      'Feb',
-      'Mar',
-      'Abr',
-      'May',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dic'
-    ];
-    return 'Miembro desde ${months[date.month - 1]} ${date.year}';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? AppColors.gold : AppColors.brown,
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+              Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _loadUserData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Reintentar'),
               ),
             ],
@@ -269,18 +267,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: CustomScrollView(
         slivers: [
-          _buildSliverAppBar(),
+          _buildSliverAppBar(isDark),
           SliverToBoxAdapter(
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                _buildStatsSection(),
+                _buildStatsSection(isDark),
                 const SizedBox(height: 16),
-                _buildAchievementsSection(),
+                _buildAchievementsSection(isDark),
                 const SizedBox(height: 16),
-                _buildOptionsSection(),
+                _buildOptionsSection(isDark),
                 const SizedBox(height: 80),
               ],
             ),
@@ -290,9 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSliverAppBar() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildSliverAppBar(bool isDark) {
     return SliverAppBar(
       expandedHeight: 300,
       floating: false,
@@ -301,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient(isDarkMode),
+            gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
           ),
           child: SafeArea(
             child: Column(
@@ -330,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: isDark ? AppColors.gold : AppColors.brown,
                                 ),
                               )
                             : null,
@@ -350,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Icon(
                             Icons.camera_alt,
                             size: 20,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: isDark ? AppColors.gold : AppColors.brown,
                           ),
                         ),
                       ),
@@ -379,7 +376,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(bool isDark) {
     final totalDocs = _documents.length;
     final processedDocs = _documents.where((d) => d.status == 'processed').length;
 
@@ -391,14 +388,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'Documentos',
             '$totalDocs',
             Icons.library_books,
-            Colors.blue,
+            isDark ? AppColors.gold : AppColors.brown,
+            isDark,
           ),
           const SizedBox(width: 12),
           _buildStatCard(
             'Procesados',
             '$processedDocs',
             Icons.check_circle,
-            Colors.green,
+            AppColors.success,
+            isDark,
           ),
         ],
       ),
@@ -410,20 +409,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String value,
     IconData icon,
     Color color,
+    bool isDark,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 2,
+            color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: 1,
           ),
-          boxShadow: AppColors.cardShadow(isDarkMode, color: color),
+          boxShadow: AppColors.cardShadow(isDark),
         ),
         child: Column(
           children: [
@@ -446,7 +444,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 4),
@@ -454,7 +452,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -464,58 +462,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAchievementsSection() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildAchievementsSection(bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+        boxShadow: AppColors.cardShadow(isDark),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events, color: Colors.amber[700], size: 24),
+              Icon(Icons.emoji_events, color: isDark ? AppColors.goldLight : AppColors.brownLight, size: 24),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Logros',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          // PRÓXIMAMENTE: Logros dinámicos desde backend
-          // Los logros estarán disponibles cuando el backend implemente el sistema de achievements
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
+                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                border: Border.all(
+                  color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.emoji_events, color: Colors.grey[600], size: 24),
+                  Icon(Icons.emoji_events, color: isDark ? AppColors.gold : AppColors.brown, size: 24),
                   const SizedBox(width: 12),
                   Flexible(
                     child: Text(
                       'Sistema de logros próximamente',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                         fontSize: 14,
                         fontStyle: FontStyle.italic,
                       ),
@@ -526,91 +523,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          /*
-          // Descomenta esto cuando el backend tenga un endpoint de logros
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildAchievementBadge(
-                Icons.menu_book,
-                'Lector',
-                Colors.blue,
-                true,
-              ),
-              _buildAchievementBadge(
-                Icons.local_fire_department,
-                'En Racha',
-                Colors.red,
-                true,
-              ),
-              _buildAchievementBadge(
-                Icons.star,
-                'Estrella',
-                Colors.amber,
-                false,
-              ),
-              _buildAchievementBadge(
-                Icons.workspace_premium,
-                'Premium',
-                Colors.purple,
-                false,
-              ),
-            ],
-          ),
-          */
         ],
       ),
     );
   }
 
-  Widget _buildAchievementBadge(
-    IconData icon,
-    String label,
-    Color color,
-    bool unlocked,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: unlocked ? color.withOpacity(0.1) : Colors.grey[100],
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: unlocked ? color : Colors.grey[400],
-            size: 28,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: unlocked ? Colors.grey[800] : Colors.grey[400],
-            fontWeight: unlocked ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOptionsSection() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildOptionsSection(bool isDark) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
+        boxShadow: AppColors.cardShadow(isDark),
       ),
       child: Column(
         children: [
@@ -619,15 +546,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Editar Perfil',
             subtitle: 'Cambia tu nombre, foto y más',
             onTap: _showEditProfileDialog,
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.lock_outline,
             title: 'Cambiar Contraseña',
             subtitle: 'Actualiza tu contraseña',
             onTap: _showChangePasswordDialog,
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.favorite,
             title: 'Favoritos',
@@ -640,15 +569,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.bar_chart,
             title: 'Estadísticas',
             subtitle: 'Ver tu progreso detallado',
             onTap: _showStatsDialog,
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.settings,
             title: 'Configuración',
@@ -656,21 +587,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () {
               Navigator.pushNamed(context, '/settings');
             },
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.help_outline,
             title: 'Ayuda y Soporte',
             subtitle: '¿Necesitas ayuda?',
             onTap: _showHelpDialog,
+            isDark: isDark,
           ),
-          _buildDivider(),
+          _buildDivider(isDark),
           _buildOptionTile(
             icon: Icons.logout,
             title: 'Cerrar Sesión',
             subtitle: 'Salir de tu cuenta',
-            iconColor: Colors.red,
+            iconColor: AppColors.error,
             onTap: _showLogoutDialog,
+            isDark: isDark,
           ),
         ],
       ),
@@ -684,7 +618,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Color? iconColor,
     Widget? trailing,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
+    final accentColor = isDark ? AppColors.gold : AppColors.brown;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -696,13 +632,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: (iconColor ?? Theme.of(context).colorScheme.primary)
-                      .withOpacity(0.1),
+                  color: (iconColor ?? accentColor).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
-                  color: iconColor ?? Theme.of(context).colorScheme.primary,
+                  color: iconColor ?? accentColor,
                   size: 24,
                 ),
               ),
@@ -713,20 +648,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              trailing ?? Icon(Icons.chevron_right, color: Colors.grey[400]),
+              trailing ?? Icon(Icons.chevron_right, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
             ],
           ),
         ),
@@ -734,15 +673,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildDivider() {
+  Widget _buildDivider(bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(height: 1, color: Colors.grey[200]),
+      child: Divider(
+        height: 1,
+        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+      ),
     );
   }
 
   void _showEditProfileDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final nameController = TextEditingController(text: _user?.name ?? '');
     File? selectedImage;
     String? selectedImageBase64;
@@ -752,16 +694,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+            backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             title: Text(
               'Editar Perfil',
-              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+              style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
             ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Avatar preview
                   GestureDetector(
                     onTap: () async {
                       final ImagePicker picker = ImagePicker();
@@ -786,7 +728,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[200],
+                          backgroundColor: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                           backgroundImage: selectedImage != null
                               ? FileImage(selectedImage!)
                               : (_user?.avatar != null && _user!.avatar!.isNotEmpty
@@ -795,7 +737,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : NetworkImage(_user!.avatar!) as ImageProvider)
                                   : null),
                           child: selectedImage == null && (_user?.avatar == null || _user!.avatar!.isEmpty)
-                              ? Icon(Icons.person, size: 50, color: isDarkMode ? Colors.grey[600] : Colors.grey[400])
+                              ? Icon(Icons.person, size: 50, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)
                               : null,
                         ),
                         Positioned(
@@ -804,7 +746,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
+                              color: isDark ? AppColors.gold : AppColors.brown,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -820,18 +762,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 8),
                   Text(
                     'Toca para cambiar foto',
-                    style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const SizedBox(height: 20),
                   TextField(
                     controller: nameController,
-                    style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+                    style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
                     decoration: InputDecoration(
                       labelText: 'Nombre',
-                      labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
-                      border: const OutlineInputBorder(),
+                      labelStyle: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: isDark ? AppColors.gold : AppColors.brown, width: 2),
                       ),
                     ),
                   ),
@@ -841,9 +788,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: Text('Cancelar', style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () async {
                   if (nameController.text.trim().isEmpty) {
                     return;
@@ -851,23 +798,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   Navigator.pop(context);
 
-                  // Mostrar loading
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (context) => const Center(
-                      child: CircularProgressIndicator(),
+                    builder: (context) => Center(
+                      child: CircularProgressIndicator(color: isDark ? AppColors.gold : AppColors.brown),
                     ),
                   );
 
-                  // Actualizar perfil
                   final result = await _authService.updateProfile(
                     name: nameController.text.trim(),
                     avatar: selectedImageBase64,
                   );
 
                   if (mounted) {
-                    Navigator.pop(context); // Cerrar loading
+                    Navigator.pop(context);
 
                     if (result['success'] == true) {
                       setState(() {
@@ -875,21 +820,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       });
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Perfil actualizado'),
-                          backgroundColor: Colors.green,
+                        SnackBar(
+                          content: const Text('Perfil actualizado'),
+                          backgroundColor: AppColors.success,
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(result['message'] ?? 'Error al actualizar'),
-                          backgroundColor: Colors.red,
+                          backgroundColor: AppColors.error,
                         ),
                       );
                     }
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Guardar'),
               ),
             ],
@@ -900,7 +849,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showChangePasswordDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
@@ -912,101 +861,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             'Cambiar Contraseña',
-            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+            style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
           ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: currentPasswordController,
-                  obscureText: obscureCurrent,
-                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña actual',
-                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureCurrent ? Icons.visibility : Icons.visibility_off,
-                        color: isDarkMode ? Colors.grey[400] : null,
-                      ),
-                      onPressed: () {
-                        setState(() => obscureCurrent = !obscureCurrent);
-                      },
-                    ),
-                  ),
-                ),
+                _buildPasswordField('Contraseña actual', currentPasswordController, obscureCurrent, () {
+                  setState(() => obscureCurrent = !obscureCurrent);
+                }, isDark),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: newPasswordController,
-                  obscureText: obscureNew,
-                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-                  decoration: InputDecoration(
-                    labelText: 'Nueva contraseña',
-                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureNew ? Icons.visibility : Icons.visibility_off,
-                        color: isDarkMode ? Colors.grey[400] : null,
-                      ),
-                      onPressed: () {
-                        setState(() => obscureNew = !obscureNew);
-                      },
-                    ),
-                  ),
-                ),
+                _buildPasswordField('Nueva contraseña', newPasswordController, obscureNew, () {
+                  setState(() => obscureNew = !obscureNew);
+                }, isDark),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: confirmPasswordController,
-                  obscureText: obscureConfirm,
-                  style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar nueva contraseña',
-                    labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : null),
-                    border: const OutlineInputBorder(),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureConfirm ? Icons.visibility : Icons.visibility_off,
-                        color: isDarkMode ? Colors.grey[400] : null,
-                      ),
-                      onPressed: () {
-                        setState(() => obscureConfirm = !obscureConfirm);
-                      },
-                    ),
-                  ),
-                ),
+                _buildPasswordField('Confirmar nueva contraseña', confirmPasswordController, obscureConfirm, () {
+                  setState(() => obscureConfirm = !obscureConfirm);
+                }, isDark),
               ],
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
+              child: Text('Cancelar', style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)),
             ),
             ElevatedButton(
               onPressed: () async {
-                // Validaciones
                 if (currentPasswordController.text.isEmpty ||
                     newPasswordController.text.isEmpty ||
                     confirmPasswordController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Todos los campos son requeridos'),
-                      backgroundColor: Colors.orange,
+                    SnackBar(
+                      content: const Text('Todos los campos son requeridos'),
+                      backgroundColor: AppColors.warning,
                     ),
                   );
                   return;
@@ -1014,9 +906,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 if (newPasswordController.text.length < 6) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('La nueva contraseña debe tener al menos 6 caracteres'),
-                      backgroundColor: Colors.orange,
+                    SnackBar(
+                      content: const Text('La nueva contraseña debe tener al menos 6 caracteres'),
+                      backgroundColor: AppColors.warning,
                     ),
                   );
                   return;
@@ -1024,43 +916,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 if (newPasswordController.text != confirmPasswordController.text) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Las contraseñas no coinciden'),
-                      backgroundColor: Colors.orange,
+                    SnackBar(
+                      content: const Text('Las contraseñas no coinciden'),
+                      backgroundColor: AppColors.warning,
                     ),
                   );
                   return;
                 }
 
-                // Mostrar loading
                 Navigator.pop(context);
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (context) => const Center(
-                    child: CircularProgressIndicator(),
+                  builder: (context) => Center(
+                    child: CircularProgressIndicator(color: isDark ? AppColors.gold : AppColors.brown),
                   ),
                 );
 
-                // Llamar al servicio
                 final result = await _authService.changePassword(
                   currentPassword: currentPasswordController.text,
                   newPassword: newPasswordController.text,
                 );
 
-                // Cerrar loading
                 if (mounted) {
                   Navigator.pop(context);
 
-                  // Mostrar resultado
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(result['message'] ?? 'Operación completada'),
-                      backgroundColor: result['success'] ? Colors.green : Colors.red,
+                      backgroundColor: result['success'] ? AppColors.success : AppColors.error,
                     ),
                   );
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('Cambiar'),
             ),
           ],
@@ -1069,8 +961,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildPasswordField(String label, TextEditingController controller, bool obscure, VoidCallback onToggle, bool isDark) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: isDark ? AppColors.gold : AppColors.brown, width: 2),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscure ? Icons.visibility : Icons.visibility_off,
+            color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+          ),
+          onPressed: onToggle,
+        ),
+      ),
+    );
+  }
+
   void _showStatsDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final totalDocs = _documents.length;
     final processedDocs = _documents.where((d) => d.status == 'processed').length;
     final pendingDocs = _documents.where((d) => d.status == 'pending').length;
@@ -1079,34 +999,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Estadísticas Detalladas',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStatRow('Total documentos:', '$totalDocs'),
-            _buildStatRow('Procesados:', '$processedDocs'),
-            _buildStatRow('Pendientes:', '$pendingDocs'),
-            _buildStatRow('Con errores:', '$failedDocs'),
+            _buildStatRow('Total documentos:', '$totalDocs', isDark),
+            _buildStatRow('Procesados:', '$processedDocs', isDark),
+            _buildStatRow('Pendientes:', '$pendingDocs', isDark),
+            _buildStatRow('Con errores:', '$failedDocs', isDark),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.gold : AppColors.brown)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatRow(String label, String value) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
+  Widget _buildStatRow(String label, String value, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -1114,13 +1033,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             label,
-            style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+            style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
           ),
           Text(
             value,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
         ],
@@ -1129,19 +1048,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showHelpDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
+            Icon(Icons.help_outline, color: isDark ? AppColors.gold : AppColors.brown),
             const SizedBox(width: 8),
             Text(
               'Ayuda y Soporte',
-              style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+              style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
             ),
           ],
         ),
@@ -1150,15 +1070,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '¿Tienes alguna pregunta o problema?\n\n'
-              'Estamos aquí para ayudarte:',
+              '¿Tienes alguna pregunta o problema?\n\nEstamos aquí para ayudarte:',
               style: TextStyle(
                 fontSize: 15,
-                color: isDarkMode ? Colors.white70 : Colors.black87,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             const SizedBox(height: 20),
-            // WhatsApp button
             ElevatedButton.icon(
               onPressed: () async {
                 final whatsappUrl = Uri.parse('https://wa.me/593984173150');
@@ -1168,9 +1086,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   } else {
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No se pudo abrir WhatsApp'),
-                          backgroundColor: Colors.red,
+                        SnackBar(
+                          content: const Text('No se pudo abrir WhatsApp'),
+                          backgroundColor: AppColors.error,
                         ),
                       );
                     }
@@ -1180,7 +1098,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Error: $e'),
-                        backgroundColor: Colors.red,
+                        backgroundColor: AppColors.error,
                       ),
                     );
                   }
@@ -1195,11 +1113,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // Email info
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -1207,7 +1124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(
                     Icons.email_outlined,
                     size: 20,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                    color: isDark ? AppColors.gold : AppColors.brown,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -1215,7 +1132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'support@sumly.app',
                       style: TextStyle(
                         fontSize: 14,
-                        color: isDarkMode ? Colors.white : Colors.black87,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
                   ),
@@ -1227,7 +1144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.gold : AppColors.brown)),
           ),
         ],
       ),
@@ -1235,30 +1152,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showLogoutDialog() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Cerrar Sesión',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         content: Text(
           '¿Estás seguro de que quieres cerrar sesión?',
-          style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87),
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
 
-              // Cerrar sesión usando AuthService
               await _authService.logout();
 
               if (mounted) {
@@ -1269,7 +1186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Cerrar Sesión'),
           ),
         ],
