@@ -120,6 +120,41 @@ class SummaryService {
     }
   }
 
+  // Obtener resúmenes de un documento específico
+  Future<Map<String, dynamic>> getSummariesByDocument(String documentId) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.summaries}?documentId=$documentId'),
+        headers: headers,
+      ).timeout(ApiConfig.connectionTimeout);
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        final summaries = (data['data']['summaries'] as List)
+            .map((s) => Summary.fromJson(s))
+            .toList();
+
+        return {
+          'success': true,
+          'summaries': summaries,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al obtener resúmenes del documento',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
+
   // Alternar favorito
   Future<Map<String, dynamic>> toggleFavorite(String summaryId) async {
     try {

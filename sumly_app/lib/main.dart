@@ -8,7 +8,6 @@ import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/summary_screen.dart';
-import 'screens/summaries_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/upload_screen.dart';
 import 'screens/settings_screen.dart';
@@ -16,7 +15,7 @@ import 'screens/processing_screen.dart';
 import 'screens/pdf_viewer_screen.dart';
 import 'screens/terms_screen.dart';
 import 'screens/privacy_screen.dart';
-import 'screens/profile_screen.dart';
+import 'screens/document_detail_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'providers/theme_provider.dart';
@@ -76,7 +75,6 @@ class SumlyApp extends StatelessWidget {
         '/settings': (context) => const SettingsScreen(),
         '/terms': (context) => const TermsScreen(),
         '/privacy': (context) => const PrivacyScreen(),
-        '/profile': (context) => const ProfileScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
       // Rutas con argumentos
@@ -107,11 +105,11 @@ class SumlyApp extends StatelessWidget {
             ),
           );
         }
-        if (settings.name == '/summaries') {
+        if (settings.name == '/document-detail') {
           final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
-            builder: (context) => SummariesScreen(
-              filter: args?['filter'],
+            builder: (context) => DocumentDetailScreen(
+              documentId: args?['documentId'] ?? '',
             ),
           );
         }

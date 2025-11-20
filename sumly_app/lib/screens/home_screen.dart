@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
-import 'dashboard_screen.dart';
 import 'library_screen.dart';
 import 'favorites_screen.dart';
-import 'profile_screen.dart';
+import 'activity_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialTab;
@@ -17,15 +17,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
 
-  void _changeTab(int index) {
-    setState(() => _selectedIndex = index);
-  }
-
   List<Widget> get _pages => [
-    DashboardScreen(onTabChange: _changeTab),
     const LibraryScreen(),
     const FavoritesScreen(),
-    const ProfileScreen(),
+    const ActivityScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -62,17 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           destinations: [
             NavigationDestination(
               icon: Icon(
-                Icons.home_outlined,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-              ),
-              selectedIcon: Icon(
-                Icons.home,
-                color: isDark ? AppColors.gold : AppColors.brown,
-              ),
-              label: 'Inicio',
-            ),
-            NavigationDestination(
-              icon: Icon(
                 Icons.library_books_outlined,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
@@ -95,14 +80,25 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             NavigationDestination(
               icon: Icon(
-                Icons.person_outline,
+                Icons.timeline_outlined,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               selectedIcon: Icon(
-                Icons.person,
+                Icons.timeline,
                 color: isDark ? AppColors.gold : AppColors.brown,
               ),
-              label: 'Perfil',
+              label: 'Actividad',
+            ),
+            NavigationDestination(
+              icon: Icon(
+                Icons.settings_outlined,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              selectedIcon: Icon(
+                Icons.settings,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+              label: 'Ajustes',
             ),
           ],
         ),
