@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_colors.dart';
 import 'dashboard_screen.dart';
 import 'library_screen.dart';
 import 'favorites_screen.dart';
@@ -35,35 +36,76 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() => _selectedIndex = index);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Inicio',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              width: 0.5,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.library_books_outlined),
-            selectedIcon: Icon(Icons.library_books),
-            label: 'Biblioteca',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_outline),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Perfil',
-          ),
-        ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() => _selectedIndex = index);
+          },
+          backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+          indicatorColor: isDark
+              ? AppColors.gold.withOpacity(0.2)
+              : AppColors.brown.withOpacity(0.1),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            NavigationDestination(
+              icon: Icon(
+                Icons.home_outlined,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              selectedIcon: Icon(
+                Icons.home,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+              label: 'Inicio',
+            ),
+            NavigationDestination(
+              icon: Icon(
+                Icons.library_books_outlined,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              selectedIcon: Icon(
+                Icons.library_books,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+              label: 'Biblioteca',
+            ),
+            NavigationDestination(
+              icon: Icon(
+                Icons.favorite_outline,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              selectedIcon: Icon(
+                Icons.favorite,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+              label: 'Favoritos',
+            ),
+            NavigationDestination(
+              icon: Icon(
+                Icons.person_outline,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+              selectedIcon: Icon(
+                Icons.person,
+                color: isDark ? AppColors.gold : AppColors.brown,
+              ),
+              label: 'Perfil',
+            ),
+          ],
+        ),
       ),
     );
   }

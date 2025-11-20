@@ -86,27 +86,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
       return Scaffold(
-        body: const Center(child: CircularProgressIndicator()),
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? AppColors.gold : AppColors.brown,
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+              Icon(Icons.error_outline, size: 64, color: AppColors.error),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -129,20 +138,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final recentDocs = _documents.take(5).toList();
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: RefreshIndicator(
         onRefresh: _loadData,
+        color: isDark ? AppColors.gold : AppColors.brown,
         child: CustomScrollView(
           slivers: [
-            // App Bar con gradiente
+            // App Bar con gradiente dorado/café
             SliverAppBar(
-              expandedHeight: 220,
+              expandedHeight: 200,
               floating: false,
               pinned: true,
-              backgroundColor: Colors.transparent,
+              backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient(isDarkMode),
+                    gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
                   ),
                   child: SafeArea(
                     child: Padding(
@@ -153,20 +164,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Text(
                             '${_getGreeting()},',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.white70,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isDark ? AppColors.black.withOpacity(0.7) : AppColors.white.withOpacity(0.8),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             _user?.name ?? 'Usuario',
-                            style: const TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
-                              letterSpacing: -1,
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.black : AppColors.white,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ],
@@ -185,11 +196,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Estadísticas
-                    const Text(
+                    Text(
                       'Tus Estadísticas',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -201,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '$totalDocs',
                             'documentos',
                             Icons.description,
-                            Colors.blue,
+                            isDark ? AppColors.gold : AppColors.brown,
                             '/library',
                             null,
                           ),
@@ -213,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '$processedDocs',
                             'completados',
                             Icons.check_circle,
-                            Colors.green,
+                            AppColors.success,
                             '/library',
                             {'filter': 'processed'},
                           ),
@@ -229,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '$pendingDocs',
                             'por procesar',
                             Icons.pending,
-                            Colors.orange,
+                            AppColors.warning,
                             '/library',
                             {'filter': 'pending'},
                           ),
@@ -241,7 +253,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             '${_user?.stats['totalSummaries'] ?? 0}',
                             'generados',
                             Icons.auto_stories,
-                            Colors.purple,
+                            isDark ? AppColors.goldLight : AppColors.brownLight,
                             '/summaries',
                             null,
                           ),
@@ -252,11 +264,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(height: 32),
 
                     // Acciones rápidas
-                    const Text(
+                    Text(
                       'Acciones Rápidas',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -264,18 +277,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Expanded(
                           child: _buildActionCard(
-                            'Nuevo\nResumen',
-                            Icons.auto_awesome,
-                            Colors.blue,
+                            'Nuevo\nDocumento',
+                            Icons.add_circle_outline,
+                            isDark ? AppColors.gold : AppColors.brown,
                             () => Navigator.pushNamed(context, '/upload'),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildActionCard(
-                            'Nuevo\nAudiolibro',
-                            Icons.headphones,
-                            Colors.purple,
+                            'Generar\nResumen',
+                            Icons.auto_awesome,
+                            isDark ? AppColors.goldLight : AppColors.brownLight,
                             () => Navigator.pushNamed(context, '/upload'),
                           ),
                         ),
@@ -288,20 +301,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Documentos Recientes',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           ),
                         ),
                         if (totalDocs > 3)
                           TextButton(
                             onPressed: () {
-                              // Cambiar al tab de biblioteca (índice 1)
                               widget.onTabChange?.call(1);
                             },
-                            child: const Text('Ver todos'),
+                            child: Text(
+                              'Ver todos',
+                              style: TextStyle(
+                                color: isDark ? AppColors.gold : AppColors.brown,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                       ],
                     ),
@@ -322,16 +341,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient(isDarkMode),
+          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.buttonShadow(isDarkMode),
+          boxShadow: [
+            BoxShadow(
+              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: FloatingActionButton.extended(
           onPressed: () {
             Navigator.pushNamed(context, '/upload');
           },
-          icon: const Icon(Icons.add),
-          label: const Text('Nuevo', style: TextStyle(fontWeight: FontWeight.bold)),
+          icon: Icon(Icons.add, color: isDark ? AppColors.black : AppColors.white),
+          label: Text(
+            'Nuevo',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.black : AppColors.white,
+            ),
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
@@ -348,7 +379,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String route,
     Map<String, dynamic>? arguments,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return GestureDetector(
       onTap: () {
@@ -359,63 +390,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isDarkMode ? AppColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isDark ? AppColors.darkCard : AppColors.lightCard,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 2,
+            color: color.withOpacity(0.3),
+            width: 1.5,
           ),
-          boxShadow: AppColors.cardShadow(isDarkMode, color: color),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      color.withOpacity(0.2),
-                      color.withOpacity(0.1),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 24),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const Spacer(),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              child: Icon(icon, color: color, size: 24),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              fontWeight: FontWeight.w600,
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
             ),
-          ),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 10,
-              color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 10,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -427,43 +454,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Color color,
     VoidCallback onTap,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.15),
-                color.withOpacity(0.05),
-              ],
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: color.withOpacity(0.3),
+              width: 1.5,
             ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withOpacity(0.4), width: 2),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.2),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: color.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 36),
-              const SizedBox(height: 12),
+              Icon(icon, color: color, size: 32),
+              const SizedBox(height: 10),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                   color: color,
                 ),
                 textAlign: TextAlign.center,
@@ -476,18 +499,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDocumentCard(DocumentModel document) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Color getStatusColor() {
       switch (document.status) {
         case 'processed':
-          return Colors.green;
+          return AppColors.success;
         case 'processing':
-          return Colors.orange;
+          return AppColors.warning;
         case 'failed':
-          return Colors.red;
+          return AppColors.error;
         default:
-          return Colors.grey;
+          return isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary;
       }
     }
 
@@ -519,12 +542,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 5,
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
@@ -542,12 +568,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
+                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                    color: isDark ? AppColors.gold : AppColors.brown,
                     size: 20,
                   ),
                 ),
@@ -561,7 +587,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isDarkMode ? Colors.white : Colors.black87,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -575,7 +601,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: getStatusColor().withOpacity(0.1),
+                              color: getStatusColor().withOpacity(0.15),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -592,7 +618,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             _formatDate(document.createdAt),
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDarkMode ? Colors.grey[600] : Colors.grey[500],
+                              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
                           ),
                         ],
@@ -600,7 +626,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: isDarkMode ? Colors.grey[600] : Colors.grey[400], size: 20),
+                Icon(
+                  Icons.chevron_right,
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -610,37 +640,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildEmptyState() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
-          Icon(Icons.auto_stories_outlined, size: 64, color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
+          Icon(
+            Icons.auto_stories_outlined,
+            size: 64,
+            color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+          ),
           const SizedBox(height: 16),
           Text(
             'No tienes documentos aún',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Comienza subiendo tu primer documento',
-            style: TextStyle(fontSize: 13, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -655,11 +695,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showDocumentOptions(DocumentModel document) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -674,7 +714,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -686,7 +726,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black87,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -694,53 +734,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 8),
               ListTile(
-                leading: const Icon(Icons.summarize, color: Colors.blue),
-                title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
-                subtitle: Text('Crear resumen con IA', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                leading: Icon(Icons.summarize, color: isDark ? AppColors.gold : AppColors.brown),
+                title: Text(
+                  'Generar Resumen',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Crear resumen con IA',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _generateSummary(document);
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.headphones, color: Colors.purple),
-                title: Text('Generar Audiolibro', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
-                subtitle: Text('Convertir a audio con TTS', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
-                    context,
-                    '/processing',
-                    arguments: {
-                      'mode': 'audiobook',
-                      'documentId': document.id,
-                    },
-                  );
-                },
-              ),
               if (document.fileType == 'pdf')
                 ListTile(
-                  leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                  title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
-                  subtitle: Text('Abrir documento original', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                  leading: Icon(Icons.picture_as_pdf, color: AppColors.error),
+                  title: Text(
+                    'Ver PDF',
+                    style: TextStyle(
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Abrir documento original',
+                    style: TextStyle(
+                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     _viewPDF(document);
                   },
                 ),
               ListTile(
-                leading: const Icon(Icons.share, color: Colors.green),
-                title: Text('Compartir', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
-                subtitle: Text('Compartir documento', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                leading: Icon(Icons.share, color: AppColors.success),
+                title: Text(
+                  'Compartir',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Compartir documento',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _shareDocument(document);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-                subtitle: Text('Borrar documento', style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600])),
+                leading: Icon(Icons.delete, color: AppColors.error),
+                title: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
+                subtitle: Text(
+                  'Borrar documento',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _deleteDocument(document);
@@ -766,17 +825,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     final result = await _summaryService.generateSummary(document.id);
 
-    if (mounted) Navigator.pop(context); // Cerrar loading
+    if (mounted) Navigator.pop(context);
 
     if (result['success'] == true) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Resumen generado exitosamente'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Resumen generado exitosamente'),
+            backgroundColor: AppColors.success,
           ),
         );
-        // Navegar a la pantalla de resumen
         final summary = result['summary'];
         final summaryId = summary is Map ? summary['_id'] : summary.id;
         Navigator.pushNamed(
@@ -790,7 +848,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message'] ?? 'Error al generar resumen'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -798,22 +856,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _viewPDF(DocumentModel document) async {
-    // Get filePath from document
     final filePath = document.filePath;
 
     if (filePath == null || filePath.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('El archivo PDF no está disponible'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('El archivo PDF no está disponible'),
+            backgroundColor: AppColors.error,
           ),
         );
       }
       return;
     }
 
-    // Build the PDF URL from the backend
     final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
     final pdfUrl = filePath.startsWith('http')
         ? filePath
@@ -855,35 +911,44 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al compartir: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
   }
 
   Future<void> _deleteDocument(DocumentModel document) async {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         title: Text(
           '¿Eliminar documento?',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          ),
         ),
         content: Text(
           '¿Estás seguro de eliminar "${document.title}"?',
-          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('Eliminar'),
           ),
         ],
@@ -891,7 +956,6 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
     );
 
     if (confirmed == true) {
-      // Mostrar loading
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -902,17 +966,16 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
 
       final result = await _documentService.deleteDocument(document.id);
 
-      if (mounted) Navigator.pop(context); // Cerrar loading
+      if (mounted) Navigator.pop(context);
 
       if (result['success'] == true) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Documento eliminado'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Documento eliminado'),
+              backgroundColor: AppColors.success,
             ),
           );
-          // Recargar datos
           _loadData();
         }
       } else {
@@ -920,7 +983,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(result['message'] ?? 'Error al eliminar'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }
