@@ -35,7 +35,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     setState(() => _isLoading = true);
 
     final result = await _authService.resetPassword(
-      devCode: widget.devCode,
+      email: widget.email,
+      code: widget.devCode,
       newPassword: _passwordController.text,
     );
 
