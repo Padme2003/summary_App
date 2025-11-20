@@ -6,7 +6,9 @@ import '../utils/app_colors.dart';
 import 'summary_screen.dart';
 
 class SummariesScreen extends StatefulWidget {
-  const SummariesScreen({super.key});
+  final String? filter;
+
+  const SummariesScreen({super.key, this.filter});
 
   @override
   State<SummariesScreen> createState() => _SummariesScreenState();
@@ -32,7 +34,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
     });
 
     try {
-      final result = await _summaryService.getAllSummaries();
+      final result = await _summaryService.getSummaries();
 
       if (mounted) {
         if (result['success'] == true) {

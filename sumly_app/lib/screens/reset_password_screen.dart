@@ -4,9 +4,9 @@ import '../utils/app_colors.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   final String email;
-  final String token;
+  final String devCode;
 
-  const ResetPasswordScreen({super.key, required this.email, required this.token});
+  const ResetPasswordScreen({super.key, required this.email, required this.devCode});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -35,7 +35,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     setState(() => _isLoading = true);
 
     final result = await _authService.resetPassword(
-      token: widget.token,
+      devCode: widget.devCode,
       newPassword: _passwordController.text,
     );
 

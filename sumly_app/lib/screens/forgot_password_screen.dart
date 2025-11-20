@@ -27,7 +27,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _isLoading = true);
 
-    final result = await _authService.forgotPassword(_emailController.text);
+    final result = await _authService.forgotPassword(email: _emailController.text);
 
     if (mounted) {
       setState(() => _isLoading = false);

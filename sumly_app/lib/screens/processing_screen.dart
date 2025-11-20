@@ -4,10 +4,12 @@ import '../utils/app_colors.dart';
 
 class ProcessingScreen extends StatefulWidget {
   final String documentId;
+  final String mode;
 
   const ProcessingScreen({
     super.key,
     required this.documentId,
+    this.mode = 'summary',
   });
 
   @override
