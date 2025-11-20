@@ -96,7 +96,7 @@ INSTRUCCIONES IMPORTANTES:
 
 ⚠️ FORMATO DE RESPUESTA - MUY IMPORTANTE:
 Debes responder ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes o después.
-NO uses markdown, NO uses bloques de código (```), SOLO el JSON puro.
+NO uses markdown, NO uses bloques de código, SOLO el JSON puro.
 
 TEXTO A RESUMIR:
 ${document.content.substring(0, 30000)}
