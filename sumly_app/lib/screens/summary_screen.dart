@@ -825,20 +825,16 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           : '${ApiConfig.baseUrl.replaceAll('/api', '')}${_summary!.audioUrl}';
 
       final uri = Uri.parse(audioUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Abriendo descarga de audio...'),
-              behavior: SnackBarBehavior.floating,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else {
-        throw 'No se puede abrir el enlace';
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Abriendo descarga de audio...'),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

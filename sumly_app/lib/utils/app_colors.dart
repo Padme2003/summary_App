@@ -6,10 +6,10 @@ class AppColors {
   // COLORES PRINCIPALES
   // ========================================
 
-  // Dorado Premium
-  static const Color gold = Color(0xFFD4AF37);
-  static const Color goldLight = Color(0xFFFFD700);
-  static const Color goldDark = Color(0xFFB8860B);
+  // Dorado Premium (tonos más oscuros y elegantes)
+  static const Color gold = Color(0xFFC5A572);        // Dorado medio premium
+  static const Color goldLight = Color(0xFFD4AF37);   // Dorado claro
+  static const Color goldDark = Color(0xFF8B7355);    // Dorado oscuro
 
   // Negro Premium
   static const Color black = Color(0xFF0A0A0A);
@@ -35,10 +35,10 @@ class AppColors {
   static const Color darkCard = Color(0xFF2A2A2A);
 
   static const Color darkTextPrimary = Color(0xFFFFFDF7);
-  static const Color darkTextSecondary = Color(0xFFD4AF37);
+  static const Color darkTextSecondary = Color(0xFFC5A572);  // Dorado premium
   static const Color darkTextTertiary = Color(0xFFB8B8B8);
 
-  static const Color darkAccent = Color(0xFFD4AF37);
+  static const Color darkAccent = Color(0xFFC5A572);         // Dorado premium
   static const Color darkBorder = Color(0xFF3A3A3A);
 
   // ========================================
@@ -72,7 +72,7 @@ class AppColors {
   static const LinearGradient goldGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [goldLight, gold, goldDark],
+    colors: [goldDark, gold, goldLight],  // Oscuro a claro para más profundidad
   );
 
   static const LinearGradient brownGradient = LinearGradient(

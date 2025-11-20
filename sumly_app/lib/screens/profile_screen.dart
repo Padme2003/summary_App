@@ -1079,26 +1079,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () async {
-                final whatsappUrl = Uri.parse('https://wa.me/593984173150');
+                final whatsappUrl = Uri.parse('https://wa.me/593984173150?text=Hola, necesito ayuda con Sumly');
                 try {
-                  if (await canLaunchUrl(whatsappUrl)) {
-                    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
-                  } else {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('No se pudo abrir WhatsApp'),
-                          backgroundColor: AppColors.error,
-                        ),
-                      );
-                    }
-                  }
+                  await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
                 } catch (e) {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error: $e'),
+                        content: const Text('Por favor instala WhatsApp o abre el navegador en: wa.me/593984173150'),
                         backgroundColor: AppColors.error,
+                        duration: const Duration(seconds: 4),
                       ),
                     );
                   }
