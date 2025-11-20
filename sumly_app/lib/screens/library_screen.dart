@@ -71,16 +71,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Text(
           'Mi Biblioteca',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
@@ -89,7 +90,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           IconButton(
             icon: Icon(
               Icons.refresh,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.gold : AppColors.brown,
             ),
             onPressed: _loadDocuments,
           ),
@@ -98,17 +99,29 @@ class _LibraryScreenState extends State<LibraryScreen> {
       body: _buildBody(),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient(isDarkMode),
+          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.buttonShadow(isDarkMode),
+          boxShadow: [
+            BoxShadow(
+              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: FloatingActionButton.extended(
           onPressed: () async {
             await Navigator.pushNamed(context, '/upload');
             _loadDocuments();
           },
-          icon: const Icon(Icons.add),
-          label: const Text('Nuevo Contenido', style: TextStyle(fontWeight: FontWeight.bold)),
+          icon: Icon(Icons.add, color: isDark ? AppColors.black : AppColors.white),
+          label: Text(
+            'Nuevo Documento',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.black : AppColors.white,
+            ),
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
@@ -117,10 +130,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Widget _buildBody() {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: CircularProgressIndicator(
+          color: isDark ? AppColors.gold : AppColors.brown,
+        ),
+      );
     }
 
     if (_errorMessage != null) {
@@ -128,7 +145,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: isDarkMode ? Colors.red[400] : Colors.red[300]),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -136,7 +153,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 _errorMessage!,
                 style: TextStyle(
                   fontSize: 16,
-                  color: isDarkMode ? Colors.grey[300] : Colors.black87,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -156,21 +173,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_stories_outlined,
-                size: 100, color: isDarkMode ? Colors.grey[700] : Colors.grey[300]),
+            Icon(
+              Icons.auto_stories_outlined,
+              size: 100,
+              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+            ),
             const SizedBox(height: 24),
             Text(
-              'No tienes contenido aún',
+              'No tienes documentos aún',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Comienza cargando tu primer documento',
-              style: TextStyle(fontSize: 14, color: isDarkMode ? Colors.grey[600] : Colors.grey[500]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
             ),
           ],
         ),
@@ -188,7 +211,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 'Documentos',
                 '${_documents.length}',
                 Icons.description,
-                Colors.blue,
+                isDark ? AppColors.gold : AppColors.brown,
               ),
             ),
             const SizedBox(width: 12),
@@ -197,7 +220,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 'Procesados',
                 '${_documents.where((d) => d.status == 'processed').length}',
                 Icons.check_circle,
-                Colors.green,
+                AppColors.success,
               ),
             ),
           ],
@@ -208,18 +231,19 @@ class _LibraryScreenState extends State<LibraryScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Mis Documentos',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
             Text(
               '${_documents.length} total',
               style: TextStyle(
                 fontSize: 14,
-                color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
             ),
           ],
@@ -239,18 +263,24 @@ class _LibraryScreenState extends State<LibraryScreen> {
     IconData icon,
     Color color,
   ) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: isDarkMode ? AppColors.surfaceDark : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 2,
+          color: color.withOpacity(0.3),
+          width: 1.5,
         ),
-        boxShadow: AppColors.cardShadow(isDarkMode, color: color),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,12 +288,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withOpacity(0.2),
-                  color.withOpacity(0.1),
-                ],
-              ),
+              color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 26),
@@ -274,12 +299,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           Text(
             label,
-            style: TextStyle(fontSize: 12, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
+            style: TextStyle(
+              fontSize: 12,
+              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+            ),
           ),
         ],
       ),
@@ -288,18 +316,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildDocumentCard(DocumentModel document) {
     final fileType = document.fileType?.toUpperCase() ?? 'TXT';
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Color getStatusColor() {
       switch (document.status) {
         case 'processed':
-          return Colors.green;
+          return AppColors.success;
         case 'processing':
-          return Colors.orange;
+          return AppColors.warning;
         case 'failed':
-          return Colors.red;
+          return AppColors.error;
         default:
-          return Colors.grey;
+          return isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary;
       }
     }
 
@@ -331,12 +359,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -355,12 +386,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: isDarkMode ? Colors.blue.withOpacity(0.2) : Colors.blue[50],
+                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: isDarkMode ? Colors.blue[400] : Colors.blue[700],
+                    color: isDark ? AppColors.gold : AppColors.brown,
                     size: 28,
                   ),
                 ),
@@ -376,7 +407,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Colors.black87,
+                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -390,7 +421,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: getStatusColor().withOpacity(0.1),
+                              color: getStatusColor().withOpacity(0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -407,7 +438,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             fileType,
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+                              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -418,7 +449,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         _formatDate(document.createdAt),
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDarkMode ? Colors.grey[600] : Colors.grey[500],
+                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                         ),
                       ),
                     ],
@@ -430,8 +461,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   icon: Icon(
                     document.isFavorite ? Icons.favorite : Icons.favorite_border,
                     color: document.isFavorite
-                        ? Colors.red
-                        : (isDarkMode ? Colors.grey[600] : Colors.grey),
+                        ? AppColors.error
+                        : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   onPressed: () => _toggleFavorite(document),
                 ),
@@ -440,7 +471,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                   onPressed: () => _showOptionsMenu(document),
                 ),
@@ -483,7 +514,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -491,11 +522,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _showOptionsMenu(DocumentModel document) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -505,19 +536,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle
               const SizedBox(height: 12),
               Container(
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Document title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
@@ -525,7 +554,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black87,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -534,52 +563,54 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ),
               const SizedBox(height: 8),
 
-              // Options
               ListTile(
-                leading: const Icon(Icons.summarize, color: Colors.blue),
-                title: Text('Generar Resumen', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                leading: Icon(
+                  Icons.summarize,
+                  color: isDark ? AppColors.gold : AppColors.brown,
+                ),
+                title: Text(
+                  'Generar Resumen',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _generateSummary(document);
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.headphones, color: Colors.purple),
-                title: Text('Generar Audiolibro', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(
-                    context,
-                    '/processing',
-                    arguments: {
-                      'mode': 'audiobook',
-                      'documentId': document.id,
-                    },
-                  );
-                },
-              ),
               if (document.fileType == 'pdf')
                 ListTile(
-                  leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                  title: Text('Ver PDF', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                  leading: Icon(Icons.picture_as_pdf, color: AppColors.error),
+                  title: Text(
+                    'Ver PDF',
+                    style: TextStyle(
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
                     _viewPDF(document);
                   },
                 ),
               ListTile(
-                leading: const Icon(Icons.share, color: Colors.green),
-                title: Text('Compartir', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87)),
+                leading: Icon(Icons.share, color: AppColors.success),
+                title: Text(
+                  'Compartir',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _shareDocument(document);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text(
+                leading: Icon(Icons.delete, color: AppColors.error),
+                title: Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -595,7 +626,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Future<void> _generateSummary(DocumentModel document) async {
-    // Navegar a pantalla de procesamiento para mostrar progreso
     Navigator.pushNamed(
       context,
       '/processing',
@@ -607,26 +637,21 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   void _viewPDF(DocumentModel document) async {
-    // Get filePath from document
     final filePath = document.filePath;
 
     if (filePath == null || filePath.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('El archivo PDF no está disponible'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: const Text('El archivo PDF no está disponible'),
+            backgroundColor: AppColors.error,
           ),
         );
       }
       return;
     }
 
-    // Build the PDF URL from the backend
-    // Remove /api from baseUrl and add the file path
     final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
-
-    // filePath comes from backend as 'uploads/...' so we need to add a leading slash
     final pdfUrl = filePath.startsWith('http')
         ? filePath
         : filePath.startsWith('/')
@@ -668,7 +693,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al compartir: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -676,30 +701,39 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
   }
 
   Future<void> _deleteDocument(DocumentModel document) async {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
         title: Text(
           '¿Eliminar documento?',
-          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black87),
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+          ),
         ),
         content: Text(
           '¿Estás seguro de que deseas eliminar "${document.title}"?\n\n'
           'Esta acción no se puede deshacer.',
-          style: TextStyle(color: isDarkMode ? Colors.grey[300] : Colors.black87),
+          style: TextStyle(
+            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+              foregroundColor: AppColors.error,
             ),
             child: const Text('Eliminar'),
           ),
@@ -723,9 +757,9 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
 
         if (result['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Documento eliminado exitosamente'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Documento eliminado exitosamente'),
+              backgroundColor: AppColors.success,
             ),
           );
           _loadDocuments();
@@ -735,7 +769,7 @@ Compartido desde Sumly - Tu asistente de lectura inteligente
               content: Text(
                 result['message'] ?? 'Error al eliminar el documento',
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }
