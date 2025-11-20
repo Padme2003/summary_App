@@ -68,51 +68,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
 
   void _startProcessing() async {
     try {
-      // MODO AUDIOLIBRO: Ir directo a TTS Nativo (sin usar backend/cuotas)
-      if (widget.mode == 'audiobook') {
-        // Simular proceso de preparación
-        if (mounted) {
-          setState(() {
-            _currentStep = 'Preparando audiolibro con voz nativa...';
-            _progress = 0.3;
-          });
-        }
-
-        await Future.delayed(const Duration(milliseconds: 800));
-
-        if (mounted) {
-          setState(() {
-            _currentStep = 'Optimizando para reproducción...';
-            _progress = 0.7;
-          });
-        }
-
-        await Future.delayed(const Duration(milliseconds: 800));
-
-        if (mounted) {
-          setState(() {
-            _currentStep = '¡Listo! Preparando reproductor...';
-            _progress = 1.0;
-          });
-        }
-
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        if (mounted) {
-          // Navegar al reproductor con modo TTS nativo
-          Navigator.pushReplacementNamed(
-            context,
-            '/audiobook',
-            arguments: {
-              'documentId': widget.documentId,
-              'useTtsNative': true,
-            },
-          );
-        }
-        return;
-      }
-
-      // MODO RESUMEN: Usar backend como siempre
+      // Solo modo resumen - audiobook eliminado
       if (mounted) {
         setState(() {
           _currentStep = _summarySteps[0];
