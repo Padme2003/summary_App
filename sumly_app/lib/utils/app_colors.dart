@@ -1,204 +1,97 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de colores y gradientes de la aplicación
+/// Paleta de colores premium: Negro, Dorado, Café, Blanco
 class AppColors {
-  // Colores principales - Modo Claro
-  static const Color primaryCyan = Color(0xFF00D4FF);
-  static const Color primaryPurple = Color(0xFFB465DA);
-  static const Color secondaryPink = Color(0xFFFF6B9D);
-  static const Color secondaryOrange = Color(0xFFFFA726);
+  // ========================================
+  // COLORES PRINCIPALES
+  // ========================================
 
-  // Colores principales - Modo Oscuro
-  static const Color primaryCyanDark = Color(0xFF00E5FF);
-  static const Color primaryPurpleDark = Color(0xFFD946EF);
-  static const Color secondaryPinkDark = Color(0xFFFF6BBF);
-  static const Color secondaryOrangeDark = Color(0xFFFFB74D);
+  // Dorado Premium
+  static const Color gold = Color(0xFFD4AF37);
+  static const Color goldLight = Color(0xFFFFD700);
+  static const Color goldDark = Color(0xFFB8860B);
 
-  // Colores de estado
-  static const Color successLight = Color(0xFF10B981);
-  static const Color successDark = Color(0xFF34D399);
-  static const Color warningLight = Color(0xFFF59E0B);
-  static const Color warningDark = Color(0xFFFBBF24);
-  static const Color errorLight = Color(0xFFEF4444);
-  static const Color errorDark = Color(0xFFF87171);
-  static const Color infoLight = Color(0xFF3B82F6);
-  static const Color infoDark = Color(0xFF60A5FA);
+  // Negro Premium
+  static const Color black = Color(0xFF0A0A0A);
+  static const Color blackLight = Color(0xFF1A1A1A);
+  static const Color blackMedium = Color(0xFF2A2A2A);
 
-  // Backgrounds
-  static const Color backgroundLight = Color(0xFFF5F7FA);
-  static const Color backgroundDark = Color(0xFF0F1419);
-  static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF1E2738);
+  // Café Premium
+  static const Color brown = Color(0xFF6B4423);
+  static const Color brownLight = Color(0xFF8B5A3C);
+  static const Color brownDark = Color(0xFF4A2C1A);
 
-  // Text colors
-  static const Color textLight = Color(0xFF1A1F2E);
-  static const Color textDark = Colors.white;
-  static const Color textSecondaryLight = Color(0xFF6B7280);
-  static const Color textSecondaryDark = Color(0xFF9CA3AF);
+  // Blanco/Crema
+  static const Color white = Color(0xFFFFFDF7);
+  static const Color cream = Color(0xFFFAF8F3);
+  static const Color creamDark = Color(0xFFF5F3ED);
 
-  /// Gradiente principal (Cyan → Purple)
-  static LinearGradient primaryGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [primaryCyanDark, primaryPurpleDark]
-          : [primaryCyan, primaryPurple],
-    );
-  }
+  // ========================================
+  // MODO OSCURO
+  // ========================================
 
-  /// Gradiente secundario (Pink → Orange)
-  static LinearGradient secondaryGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [secondaryPinkDark, secondaryOrangeDark]
-          : [secondaryPink, secondaryOrange],
-    );
-  }
+  static const Color darkBackground = Color(0xFF0A0A0A);
+  static const Color darkSurface = Color(0xFF1A1A1A);
+  static const Color darkCard = Color(0xFF2A2A2A);
 
-  /// Gradiente de éxito (Verde)
-  static LinearGradient successGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [successDark, const Color(0xFF6EE7B7)]
-          : [successLight, successDark],
-    );
-  }
+  static const Color darkTextPrimary = Color(0xFFFFFDF7);
+  static const Color darkTextSecondary = Color(0xFFD4AF37);
+  static const Color darkTextTertiary = Color(0xFFB8B8B8);
 
-  /// Gradiente de advertencia (Ámbar)
-  static LinearGradient warningGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [warningDark, const Color(0xFFFDE68A)]
-          : [warningLight, warningDark],
-    );
-  }
+  static const Color darkAccent = Color(0xFFD4AF37);
+  static const Color darkBorder = Color(0xFF3A3A3A);
 
-  /// Gradiente de error (Rojo)
-  static LinearGradient errorGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [errorDark, const Color(0xFFFECACA)]
-          : [errorLight, errorDark],
-    );
-  }
+  // ========================================
+  // MODO CLARO
+  // ========================================
 
-  /// Gradiente de info (Azul)
-  static LinearGradient infoGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [infoDark, const Color(0xFF93C5FD)]
-          : [infoLight, infoDark],
-    );
-  }
+  static const Color lightBackground = Color(0xFFFFFDF7);
+  static const Color lightSurface = Color(0xFFFAF8F3);
+  static const Color lightCard = Color(0xFFFFFFFF);
 
-  /// Gradiente de fondo sutil
-  static LinearGradient backgroundGradient(bool isDark) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: isDark
-          ? [
-              backgroundDark,
-              const Color(0xFF1A1F2E),
-              const Color(0xFF16213E),
-            ]
-          : [
-              backgroundLight,
-              const Color(0xFFE8EAF6),
-              const Color(0xFFDCE4F7),
-            ],
-    );
-  }
+  static const Color lightTextPrimary = Color(0xFF0A0A0A);
+  static const Color lightTextSecondary = Color(0xFF6B4423);
+  static const Color lightTextTertiary = Color(0xFF666666);
 
-  /// Sombra de card con color
-  static List<BoxShadow> cardShadow(bool isDark, {Color? color}) {
-    return [
-      BoxShadow(
-        color: (color ?? primaryCyan).withOpacity(isDark ? 0.2 : 0.1),
-        blurRadius: 20,
-        offset: const Offset(0, 8),
-        spreadRadius: -5,
-      ),
-      BoxShadow(
-        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-        blurRadius: 10,
-        offset: const Offset(0, 2),
-      ),
-    ];
-  }
+  static const Color lightAccent = Color(0xFF6B4423);
+  static const Color lightBorder = Color(0xFFE8E6E1);
 
-  /// Sombra para botones elevados
-  static List<BoxShadow> buttonShadow(bool isDark) {
-    return [
-      BoxShadow(
-        color: primaryCyan.withOpacity(isDark ? 0.4 : 0.3),
-        blurRadius: 15,
-        offset: const Offset(0, 8),
-      ),
-    ];
-  }
+  // ========================================
+  // ESTADOS
+  // ========================================
 
-  /// Obtener color por categoría
-  static Color getCategoryColor(String category, bool isDark) {
-    switch (category.toLowerCase()) {
-      case 'resumen':
-      case 'summary':
-        return isDark ? infoLight : infoLight;
-      case 'audiolibro':
-      case 'audiobook':
-        return isDark ? primaryPurpleDark : primaryPurple;
-      case 'documento':
-      case 'document':
-        return isDark ? secondaryPinkDark : secondaryPink;
-      default:
-        return isDark ? textSecondaryDark : textSecondaryLight;
-    }
-  }
+  static const Color success = Color(0xFF2E7D32);
+  static const Color error = Color(0xFFD32F2F);
+  static const Color warning = Color(0xFFED6C02);
+  static const Color info = Color(0xFF0288D1);
 
-  /// Obtener color de estado
-  static Color getStatusColor(String status, bool isDark) {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case 'processed':
-      case 'success':
-        return isDark ? successDark : successLight;
-      case 'processing':
-      case 'pending':
-        return isDark ? warningDark : warningLight;
-      case 'failed':
-      case 'error':
-        return isDark ? errorDark : errorLight;
-      default:
-        return isDark ? textSecondaryDark : textSecondaryLight;
-    }
-  }
+  // ========================================
+  // GRADIENTES
+  // ========================================
 
-  /// Degradado de shimmer para efectos de carga
-  static LinearGradient shimmerGradient(bool isDark) {
-    final baseColor = isDark ? surfaceDark : const Color(0xFFE0E0E0);
-    final highlightColor =
-        isDark ? const Color(0xFF2A3346) : const Color(0xFFF5F5F5);
+  static const LinearGradient goldGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [goldLight, gold, goldDark],
+  );
 
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.centerRight,
-      colors: [
-        baseColor,
-        highlightColor,
-        baseColor,
-      ],
-      stops: const [0.0, 0.5, 1.0],
-    );
+  static const LinearGradient brownGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [brownLight, brown, brownDark],
+  );
+
+  static const LinearGradient darkGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [blackLight, black],
+  );
+
+  // ========================================
+  // OPACIDADES
+  // ========================================
+
+  static Color withOpacity(Color color, double opacity) {
+    return color.withOpacity(opacity);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/app_colors.dart';
 
 class ThemeProvider with ChangeNotifier {
   static const String _themeKey = 'theme_mode';
@@ -36,88 +37,120 @@ class ThemeProvider with ChangeNotifier {
     await prefs.setBool(_themeKey, mode == ThemeMode.dark);
   }
 
-  // Paleta de colores personalizada moderna y llamativa
-  static const Color primaryLight = Color(0xFF00D4FF); // Cyan vibrante
-  static const Color primaryDark = Color(0xFFB465DA); // Purple vibrante
-  static const Color secondaryLight = Color(0xFFFF6B9D); // Pink
-  static const Color secondaryDark = Color(0xFFFFA726); // Orange
-
-  static const Color primaryDarkMode = Color(0xFF00E5FF); // Cyan brillante
-  static const Color purpleDarkMode = Color(0xFFD946EF); // Purple neón
-  static const Color pinkDarkMode = Color(0xFFFF6BBF); // Pink brillante
-  static const Color orangeDarkMode = Color(0xFFFFB74D); // Orange brillante
-
-  // Temas personalizados
+  // ========================================
+  // TEMA CLARO - Negro, Dorado, Café, Blanco
+  // ========================================
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: primaryLight,
-      secondary: secondaryLight,
-      tertiary: const Color(0xFFB465DA),
-      surface: Colors.white,
-      background: const Color(0xFFF5F7FA),
-      error: const Color(0xFFEF4444),
-      onPrimary: Colors.white,
-      onSecondary: Colors.white,
-      onSurface: const Color(0xFF1A1F2E),
-      onBackground: const Color(0xFF1A1F2E),
+      primary: AppColors.brown,
+      secondary: AppColors.gold,
+      tertiary: AppColors.brownLight,
+      surface: AppColors.lightCard,
+      background: AppColors.lightBackground,
+      error: AppColors.error,
+      onPrimary: AppColors.white,
+      onSecondary: AppColors.black,
+      onSurface: AppColors.lightTextPrimary,
+      onBackground: AppColors.lightTextPrimary,
     ),
-    scaffoldBackgroundColor: const Color(0xFFF5F7FA),
+    scaffoldBackgroundColor: AppColors.lightBackground,
     appBarTheme: const AppBarTheme(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: Color(0xFF1A1F2E),
-      iconTheme: IconThemeData(color: Color(0xFF1A1F2E)),
+      foregroundColor: AppColors.lightTextPrimary,
+      iconTheme: IconThemeData(color: AppColors.lightTextPrimary),
+      titleTextStyle: TextStyle(
+        color: AppColors.lightTextPrimary,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
+      color: AppColors.lightCard,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: AppColors.brown,
+        foregroundColor: AppColors.white,
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.brown,
+      ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.gold,
+      foregroundColor: AppColors.black,
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: AppColors.gold,
     ),
   );
 
+  // ========================================
+  // TEMA OSCURO - Negro, Dorado, Café, Blanco
+  // ========================================
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    colorScheme: ColorScheme.dark(
-      primary: primaryDarkMode,
-      secondary: pinkDarkMode,
-      tertiary: purpleDarkMode,
-      surface: const Color(0xFF1E2738),
-      background: const Color(0xFF0F1419),
-      error: const Color(0xFFEF4444),
-      onPrimary: const Color(0xFF0F1419),
-      onSecondary: const Color(0xFF0F1419),
-      onSurface: Colors.white,
-      onBackground: Colors.white,
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.gold,
+      secondary: AppColors.brownLight,
+      tertiary: AppColors.goldLight,
+      surface: AppColors.darkSurface,
+      background: AppColors.darkBackground,
+      error: AppColors.error,
+      onPrimary: AppColors.black,
+      onSecondary: AppColors.white,
+      onSurface: AppColors.darkTextPrimary,
+      onBackground: AppColors.darkTextPrimary,
     ),
-    scaffoldBackgroundColor: const Color(0xFF0F1419),
+    scaffoldBackgroundColor: AppColors.darkBackground,
     appBarTheme: const AppBarTheme(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.white,
-      iconTheme: IconThemeData(color: Colors.white),
+      foregroundColor: AppColors.darkTextPrimary,
+      iconTheme: IconThemeData(color: AppColors.darkTextPrimary),
+      titleTextStyle: TextStyle(
+        color: AppColors.darkTextPrimary,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
-    cardColor: const Color(0xFF1E2738),
+    cardColor: AppColors.darkCard,
     cardTheme: CardThemeData(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color(0xFF1E2738),
+      color: AppColors.darkCard,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: AppColors.gold,
+        foregroundColor: AppColors.black,
       ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.gold,
+      ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: AppColors.gold,
+      foregroundColor: AppColors.black,
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
+      color: AppColors.gold,
     ),
   );
 }
