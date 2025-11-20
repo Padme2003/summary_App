@@ -125,7 +125,7 @@ class _UploadScreenState extends State<UploadScreen>
           'Nuevo Documento',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 32,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             letterSpacing: -0.5,
           ),
@@ -156,7 +156,7 @@ class _UploadScreenState extends State<UploadScreen>
           onTap: _pickFile,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            height: 280,
+            height: 200,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
               borderRadius: BorderRadius.circular(24),
@@ -210,24 +210,24 @@ class _UploadScreenState extends State<UploadScreen>
             ),
             child: Icon(
               Icons.cloud_upload_outlined,
-              size: 64,
+              size: 48,
               color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             'Toca para seleccionar archivo',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             'PDF, TXT, DOC, DOCX',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
@@ -252,7 +252,7 @@ class _UploadScreenState extends State<UploadScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle, size: 50, color: AppColors.success),
+          Icon(Icons.check_circle, size: 40, color: AppColors.success),
           const SizedBox(height: 16),
           Text(
             'Archivo seleccionado',
@@ -317,7 +317,7 @@ class _UploadScreenState extends State<UploadScreen>
     final canProcess = _selectedFilePath != null;
 
     return Container(
-      height: 64,
+      height: 56,
       decoration: BoxDecoration(
         gradient: canProcess
             ? LinearGradient(
@@ -347,8 +347,8 @@ class _UploadScreenState extends State<UploadScreen>
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          minimumSize: const Size(double.infinity, 64),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+          minimumSize: const Size(double.infinity, 56),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
         child: _isUploading
             ? SizedBox(
@@ -374,7 +374,7 @@ class _UploadScreenState extends State<UploadScreen>
                   Text(
                     'Generar Resumen',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: canProcess
                           ? (isDark ? AppColors.black : AppColors.white)
@@ -391,7 +391,7 @@ class _UploadScreenState extends State<UploadScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.1),
         borderRadius: BorderRadius.circular(24),
@@ -430,7 +430,7 @@ class _UploadScreenState extends State<UploadScreen>
             child: Icon(
               Icons.info_outline,
               color: isDark ? AppColors.black : AppColors.white,
-              size: 32,
+              size: 24,
             ),
           ),
           const SizedBox(width: 20),
@@ -441,7 +441,7 @@ class _UploadScreenState extends State<UploadScreen>
                 Text(
                   'Resumen Inteligente con IA',
                   style: TextStyle(
-                    fontSize: 17,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),

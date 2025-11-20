@@ -166,7 +166,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                   child: SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -184,7 +184,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Text(
                             _user?.name ?? 'Usuario',
                             style: TextStyle(
-                              fontSize: 38,
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.black : AppColors.white,
                               letterSpacing: -0.5,
@@ -308,7 +308,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -371,7 +371,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             [AppColors.warning, AppColors.warning.withOpacity(0.7)],
           ),
 
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
 
           // Filter chips
           SingleChildScrollView(
@@ -398,7 +398,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               Text(
                 'Mis Documentos',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   letterSpacing: -0.5,
@@ -453,7 +453,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(24),
@@ -498,7 +498,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -667,13 +667,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
                     // Icono con gradiente
                     Container(
-                      width: 64,
-                      height: 64,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -701,7 +701,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           Text(
                             document.title,
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             ),

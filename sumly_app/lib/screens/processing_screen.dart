@@ -255,8 +255,8 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           ScaleTransition(
             scale: _scaleAnimation,
             child: Container(
-              width: 180,
-              height: 180,
+              width: 120,
+              height: 120,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -275,7 +275,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
               ),
               child: Icon(
                 Icons.auto_awesome,
-                size: 80,
+                size: 60,
                 color: isDark ? AppColors.black : AppColors.white,
               ),
             ),
@@ -287,7 +287,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           Text(
             'Generando Resumen Inteligente',
             style: TextStyle(
-              fontSize: 28,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
@@ -337,7 +337,7 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           Text(
             '${(_progress * 100).toInt()}%',
             style: TextStyle(
-              fontSize: 40,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
               letterSpacing: -1,
               color: isDark ? AppColors.darkAccent : AppColors.lightAccent,

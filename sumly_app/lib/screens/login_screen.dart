@@ -121,8 +121,8 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         // Logo con gradiente
                         Container(
-                          width: 120,
-                          height: 120,
+                          width: 100,
+                          height: 100,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -159,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen>
                             '¡Bienvenido!',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 40,
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: -0.5,
@@ -179,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                         // Email Field
                         Container(
-                          height: 64,
+                          height: 56,
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : AppColors.lightCard,
                             borderRadius: BorderRadius.circular(16),
@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                         // Password Field
                         Container(
-                          height: 64,
+                          height: 56,
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : AppColors.lightCard,
                             borderRadius: BorderRadius.circular(16),
@@ -333,7 +333,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                         // Botón Login con gradiente
                         Container(
-                          height: 64,
+                          height: 56,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [

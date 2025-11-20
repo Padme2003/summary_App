@@ -344,7 +344,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Configuración',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 28,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -355,7 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildProfileCard(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -381,8 +381,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Stack(
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -391,7 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 40,
+                    radius: 32,
                     backgroundColor: isDark ? AppColors.black : AppColors.white,
                     backgroundImage: _user?.avatar != null && _user!.avatar!.isNotEmpty
                         ? (_user!.avatar!.startsWith('data:')
@@ -402,7 +402,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ? Text(
                             (_user?.name ?? 'U').substring(0, 1).toUpperCase(),
                             style: TextStyle(
-                              fontSize: 32,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                             ),
@@ -559,7 +559,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool isDark,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       leading: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -617,7 +617,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           leading: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -677,7 +677,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool isDark,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       leading: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -728,7 +728,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool isDark,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       leading: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -1436,27 +1436,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
+      // Intentar abrir directamente sin verificar primero (mejor compatibilidad)
+      final launched = await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir WhatsApp. Asegúrate de tener WhatsApp instalado.'),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+          ),
         );
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('No se pudo abrir WhatsApp'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: $e'),
+            content: const Text('Error al intentar abrir WhatsApp. Asegúrate de tener la aplicación instalada.'),
             backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }

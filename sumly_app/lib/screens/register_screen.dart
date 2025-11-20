@@ -126,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           "Crear Cuenta",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 40,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                             letterSpacing: -0.5,
@@ -395,7 +395,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Botón Register con gradiente
                       Container(
-                        height: 64,
+                        height: 56,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
