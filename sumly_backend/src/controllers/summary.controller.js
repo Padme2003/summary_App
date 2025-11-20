@@ -193,12 +193,7 @@ Responde SOLO con el JSON, nada más.
       language: 'es',
     };
 
-    // NOTA: Audio generation deshabilitado - requiere Google Cloud TTS (costoso)
-    // Los usuarios pueden usar TTS nativo del dispositivo para escuchar resúmenes
-    // Si quieres habilitar audio del backend:
-    // 1. Configura Google Cloud TTS credentials
-    // 2. Descomenta el código a continuación
-    /*
+    // Generar audio del resumen con Google TTS
     try {
       console.log('🎵 Iniciando generación de audio del resumen...');
       const audioFilename = `summary_${summary._id}`;
@@ -216,12 +211,20 @@ Responde SOLO con el JSON, nada más.
       summary.audioDuration = audioResult.duration;
 
       console.log(`✅ Audio del resumen generado exitosamente`);
+      console.log(`   - URL: ${audioResult.audioUrl}`);
+      console.log(`   - Duración: ${audioResult.duration}s`);
+      console.log(`   - Tamaño: ${(audioResult.fileSize / 1024).toFixed(2)} KB`);
     } catch (audioError) {
-      console.error('❌ Error al generar audio:', audioError.message);
+      console.error('❌ Error al generar audio del resumen:');
+      console.error('   - Mensaje:', audioError.message);
+      console.error('   - Stack:', audioError.stack);
+      console.error('   - Detalles completos:', JSON.stringify(audioError, null, 2));
+
+      // Continuar sin audio si hay error
       summary.metadata = summary.metadata || {};
       summary.metadata.audioGenerationError = audioError.message;
+      summary.metadata.audioGenerationStack = audioError.stack;
     }
-    */
 
     await summary.save();
 
