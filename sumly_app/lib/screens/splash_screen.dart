@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import '../services/auth_service.dart';
+import '../utils/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -9,246 +9,134 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _scaleController;
-  late AnimationController _rotationController;
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _rotationAnimation;
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
 
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    _rotationController = AnimationController(
-      duration: const Duration(seconds: 2),
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
-    );
-
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * math.pi).animate(
-      CurvedAnimation(parent: _rotationController, curve: Curves.easeInOut),
-    );
-
-    _fadeController.forward();
-    _scaleController.forward();
-
-    // Verificar autenticación y navegar
+    _controller.forward();
     _checkAuthAndNavigate();
   }
 
   Future<void> _checkAuthAndNavigate() async {
-    // Esperar animaciones (mínimo 2 segundos)
-    await Future.delayed(const Duration(seconds: 2));
+    // Esperar mínimo 1.5 segundos para mostrar el splash
+    await Future.wait([
+      Future.delayed(const Duration(milliseconds: 1500)),
+      _authService.isAuthenticated(),
+    ]);
 
     if (!mounted) return;
 
-    try {
-      final authService = AuthService();
-      final isAuthenticated = await authService.isAuthenticated();
+    final isAuth = await _authService.isAuthenticated();
 
-      if (!mounted) return;
-
-      if (isAuthenticated) {
-        // Usuario ya está autenticado, ir a home
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        // No está autenticado, ir a login
-        Navigator.pushReplacementNamed(context, '/login');
-      }
-    } catch (e) {
-      // En caso de error, ir a login
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
-      }
-    }
+    Navigator.pushReplacementNamed(
+      context,
+      isAuth ? '/home' : '/login',
+    );
   }
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _scaleController.dispose();
-    _rotationController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF667eea),
-              const Color(0xFF764ba2),
-              const Color(0xFFf093fb),
-            ],
+      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: isDark ? AppColors.darkGradient : null,
           ),
-        ),
-        child: Stack(
-          children: [
-            // Círculos de fondo animados
-            Positioned(
-              top: -100,
-              right: -100,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  width: 300,
-                  height: 300,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo/Icono
+                Container(
+                  width: 120,
+                  height: 120,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -50,
-              left: -50,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.08),
-                  ),
-                ),
-              ),
-            ),
-            // Contenido principal
-            Center(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo con sombra y animación
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.auto_stories_rounded,
-                          size: 80,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Título con efecto de brillo
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [Colors.white, Colors.white70],
-                        ).createShader(bounds),
-                        child: const Text(
-                          'Sumly',
-                          style: TextStyle(
-                            fontSize: 56,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 3,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black26,
-                                offset: Offset(2, 2),
-                                blurRadius: 4,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Subtítulo
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'Resúmenes Inteligentes con IA',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 60),
-                      // Indicador de carga animado
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white.withOpacity(0.8),
-                          ),
-                          strokeWidth: 3,
-                        ),
+                    gradient: AppColors.goldGradient,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gold.withOpacity(0.3),
+                        blurRadius: 30,
+                        spreadRadius: 5,
                       ),
                     ],
                   ),
+                  child: Icon(
+                    Icons.auto_stories_rounded,
+                    size: 60,
+                    color: isDark ? AppColors.black : AppColors.white,
+                  ),
                 ),
-              ),
-            ),
-            // Texto de versión en la parte inferior
-            Positioned(
-              bottom: 50,
-              left: 0,
-              right: 0,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Center(
-                  child: Text(
-                    'v1.0.0',
+
+                const SizedBox(height: 32),
+
+                // Título
+                ShaderMask(
+                  shaderCallback: (bounds) => AppColors.goldGradient.createShader(bounds),
+                  child: const Text(
+                    'Sumly',
                     style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.7),
-                      fontWeight: FontWeight.w300,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2,
                     ),
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 8),
+
+                // Subtítulo
+                Text(
+                  'Tu biblioteca de resúmenes',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                    letterSpacing: 1,
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
+                // Loading indicator
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      isDark ? AppColors.gold : AppColors.brown,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
