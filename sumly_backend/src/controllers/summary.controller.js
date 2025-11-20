@@ -87,26 +87,32 @@ async function generateSummaryWithAI(document, summary, user) {
     const prompt = `
 Eres un experto en crear resúmenes claros y concisos. Analiza el siguiente texto y crea un resumen estructurado.
 
-INSTRUCCIONES:
+INSTRUCCIONES IMPORTANTES:
 1. Crea un resumen de 3-5 párrafos que capture las ideas principales
 2. Identifica 5-7 puntos clave del texto
 3. Divide el contenido en secciones lógicas (Introducción, Desarrollo, Conclusión)
-4. Usa un lenguaje claro y profesional
+4. Usa un lenguaje claro y profesional en español
 5. Mantén la objetividad del texto original
+
+⚠️ FORMATO DE RESPUESTA - MUY IMPORTANTE:
+Debes responder ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes o después.
+NO uses markdown, NO uses bloques de código (```), SOLO el JSON puro.
 
 TEXTO A RESUMIR:
 ${document.content.substring(0, 30000)}
 
-FORMATO DE RESPUESTA (JSON):
+FORMATO EXACTO DE RESPUESTA (copia este formato):
 {
-  "summary": "Resumen completo en 3-5 párrafos...",
-  "keyPoints": ["Punto 1", "Punto 2", "..."],
+  "summary": "Tu resumen completo aquí en 3-5 párrafos separados por saltos de línea...",
+  "keyPoints": ["Punto clave 1", "Punto clave 2", "Punto clave 3"],
   "sections": [
-    {"title": "Introducción", "content": "..."},
-    {"title": "Desarrollo", "content": "..."},
-    {"title": "Conclusión", "content": "..."}
+    {"title": "Introducción", "content": "Contenido de la introducción"},
+    {"title": "Desarrollo", "content": "Contenido del desarrollo"},
+    {"title": "Conclusión", "content": "Contenido de la conclusión"}
   ]
 }
+
+Responde SOLO con el JSON, nada más.
 `;
 
     const result = await model.generateContent(prompt);
@@ -141,14 +147,29 @@ FORMATO DE RESPUESTA (JSON):
 
     } catch (parseError) {
       console.error('❌ Error parseando JSON:', parseError.message);
-      console.log('Respuesta completa:', text);
+      console.log('Respuesta completa (primeros 1000 chars):', text.substring(0, 1000));
 
-      // Si no es JSON válido, usar el texto directamente
+      // Gemini no devolvió JSON válido - extraer el resumen manualmente
+      // A veces Gemini ignora el formato y solo devuelve texto plano
+      let cleanText = text;
+
+      // Limpiar cualquier formato residual de código/llaves
+      cleanText = cleanText
+        .replace(/^\{+/, '')  // Quitar llaves al inicio
+        .replace(/\}+$/, '')  // Quitar llaves al final
+        .replace(/"summary":\s*"/gi, '')  // Quitar "summary": "
+        .replace(/"keyPoints":\s*\[.*?\]/gi, '')  // Quitar sección keyPoints
+        .replace(/"sections":\s*\[.*?\]/gi, '')  // Quitar sección sections
+        .replace(/,\s*$/g, '')  // Quitar comas finales
+        .trim();
+
       summaryData = {
-        summary: text,
+        summary: cleanText,
         keyPoints: [],
         sections: [],
       };
+
+      console.log('⚠️ Usando texto limpio sin JSON:', cleanText.substring(0, 200));
     }
 
     const endTime = Date.now();
@@ -172,7 +193,12 @@ FORMATO DE RESPUESTA (JSON):
       language: 'es',
     };
 
-    // Generar audio del resumen
+    // NOTA: Audio generation deshabilitado - requiere Google Cloud TTS (costoso)
+    // Los usuarios pueden usar TTS nativo del dispositivo para escuchar resúmenes
+    // Si quieres habilitar audio del backend:
+    // 1. Configura Google Cloud TTS credentials
+    // 2. Descomenta el código a continuación
+    /*
     try {
       console.log('🎵 Iniciando generación de audio del resumen...');
       const audioFilename = `summary_${summary._id}`;
@@ -190,18 +216,12 @@ FORMATO DE RESPUESTA (JSON):
       summary.audioDuration = audioResult.duration;
 
       console.log(`✅ Audio del resumen generado exitosamente`);
-      console.log(`   - URL: ${audioResult.audioUrl}`);
-      console.log(`   - Duración: ${audioResult.duration}s`);
-      console.log(`   - Tamaño: ${(audioResult.fileSize / 1024).toFixed(2)} KB`);
     } catch (audioError) {
-      console.error('❌ Error al generar audio del resumen:');
-      console.error('   - Mensaje:', audioError.message);
-      console.error('   - Stack:', audioError.stack);
-      console.error('   - Detalles:', audioError);
-      // Continuar sin audio si hay error
+      console.error('❌ Error al generar audio:', audioError.message);
       summary.metadata = summary.metadata || {};
       summary.metadata.audioGenerationError = audioError.message;
     }
+    */
 
     await summary.save();
 
