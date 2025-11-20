@@ -93,7 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
         body: Center(
           child: CircularProgressIndicator(
-            color: isDark ? AppColors.gold : AppColors.brown,
+            color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
           ),
         ),
       );
@@ -141,23 +141,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: RefreshIndicator(
         onRefresh: _loadData,
-        color: isDark ? AppColors.gold : AppColors.brown,
+        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         child: CustomScrollView(
           slivers: [
-            // App Bar con gradiente dorado/café
+            // App Bar con gradiente - MÁS ALTO Y ELEGANTE
             SliverAppBar(
-              expandedHeight: 200,
+              expandedHeight: 240,
               floating: false,
               pinned: true,
               backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(
-                    gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                    gradient: isDark
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.darkAccent,
+                            AppColors.darkAccent2,
+                          ],
+                        )
+                      : LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.lightAccent,
+                            AppColors.lightAccent2,
+                          ],
+                        ),
                   ),
                   child: SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(32),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -165,19 +181,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Text(
                             '${_getGreeting()},',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: isDark ? AppColors.black.withOpacity(0.7) : AppColors.white.withOpacity(0.8),
-                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: isDark ? AppColors.black.withOpacity(0.7) : AppColors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
                           Text(
                             _user?.name ?? 'Usuario',
                             style: TextStyle(
-                              fontSize: 32,
+                              fontSize: 38,
                               fontWeight: FontWeight.bold,
                               color: isDark ? AppColors.black : AppColors.white,
-                              letterSpacing: 0.5,
+                              letterSpacing: -0.5,
+                              height: 1.2,
                             ),
                           ),
                         ],
@@ -191,111 +209,103 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Contenido principal
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Estadísticas
+                    // Estadísticas con NUEVO DISEÑO
                     Text(
                       'Tus Estadísticas',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        letterSpacing: -0.5,
                       ),
                     ),
+                    const SizedBox(height: 24),
+
+                    // STAT CARDS CON LAYOUT HORIZONTAL (CAMBIO REAL)
+                    _buildStatCard(
+                      'Total Documentos',
+                      '$totalDocs',
+                      'en tu biblioteca',
+                      Icons.description_rounded,
+                      [isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                       isDark ? AppColors.darkAccent2 : AppColors.lightAccent2],
+                      '/library',
+                      null,
+                    ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Total',
-                            '$totalDocs',
-                            'documentos',
-                            Icons.description,
-                            isDark ? AppColors.gold : AppColors.brown,
-                            '/library',
-                            null,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Procesados',
-                            '$processedDocs',
-                            'completados',
-                            Icons.check_circle,
-                            AppColors.success,
-                            '/library',
-                            {'filter': 'processed'},
-                          ),
-                        ),
-                      ],
+                    _buildStatCard(
+                      'Procesados',
+                      '$processedDocs',
+                      'listos para leer',
+                      Icons.check_circle_rounded,
+                      [AppColors.success, AppColors.success.withOpacity(0.7)],
+                      '/library',
+                      {'filter': 'processed'},
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Pendientes',
-                            '$pendingDocs',
-                            'por procesar',
-                            Icons.pending,
-                            AppColors.warning,
-                            '/library',
-                            {'filter': 'pending'},
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildStatCard(
-                            'Resúmenes',
-                            '${_user?.stats['totalSummaries'] ?? 0}',
-                            'generados',
-                            Icons.auto_stories,
-                            isDark ? AppColors.goldLight : AppColors.brownLight,
-                            '/summaries',
-                            null,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 16),
+                    _buildStatCard(
+                      'Pendientes',
+                      '$pendingDocs',
+                      'en procesamiento',
+                      Icons.pending_rounded,
+                      [AppColors.warning, AppColors.warning.withOpacity(0.7)],
+                      '/library',
+                      {'filter': 'pending'},
+                    ),
+                    const SizedBox(height: 16),
+                    _buildStatCard(
+                      'Resúmenes',
+                      '${_user?.stats['totalSummaries'] ?? 0}',
+                      'generados con IA',
+                      Icons.auto_stories_rounded,
+                      [isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                       isDark ? AppColors.darkAccent : AppColors.lightAccent],
+                      '/summaries',
+                      null,
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
 
-                    // Acciones rápidas
+                    // Acciones rápidas CON MÁS SPACING
                     Text(
                       'Acciones Rápidas',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Row(
                       children: [
                         Expanded(
                           child: _buildActionCard(
                             'Nuevo\nDocumento',
-                            Icons.add_circle_outline,
-                            isDark ? AppColors.gold : AppColors.brown,
+                            Icons.add_circle_rounded,
+                            [isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                             isDark ? AppColors.darkAccent2 : AppColors.lightAccent2],
                             () => Navigator.pushNamed(context, '/upload'),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: _buildActionCard(
                             'Generar\nResumen',
-                            Icons.auto_awesome,
-                            isDark ? AppColors.goldLight : AppColors.brownLight,
+                            Icons.auto_awesome_rounded,
+                            [isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                             isDark ? AppColors.darkAccent : AppColors.lightAccent],
                             () => Navigator.pushNamed(context, '/upload'),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 48),
 
                     // Documentos recientes
                     Row(
@@ -304,9 +314,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Text(
                           'Documentos Recientes',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         if (totalDocs > 3)
@@ -317,14 +328,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: Text(
                               'Ver todos',
                               style: TextStyle(
-                                color: isDark ? AppColors.gold : AppColors.brown,
+                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                                 fontWeight: FontWeight.w600,
+                                fontSize: 15,
                               ),
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
                     if (recentDocs.isEmpty)
                       _buildEmptyState()
@@ -341,13 +353,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-          borderRadius: BorderRadius.circular(16),
+          gradient: isDark
+            ? LinearGradient(
+                colors: [AppColors.darkAccent, AppColors.darkAccent2],
+              )
+            : LinearGradient(
+                colors: [AppColors.lightAccent, AppColors.lightAccent2],
+              ),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -361,6 +379,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.black : AppColors.white,
+              fontSize: 16,
             ),
           ),
           backgroundColor: Colors.transparent,
@@ -370,12 +389,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // STAT CARD CON LAYOUT HORIZONTAL (CAMBIO REAL DE DISEÑO)
   Widget _buildStatCard(
     String label,
     String value,
     String subtitle,
     IconData icon,
-    Color color,
+    List<Color> gradientColors,
     String route,
     Map<String, dynamic>? arguments,
   ) {
@@ -390,56 +410,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(28), // MÁS PADDING
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
           border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1.5,
+            color: gradientColors[0].withOpacity(0.4),
+            width: 2, // BORDE MÁS GRUESO
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: gradientColors[0].withOpacity(0.2),
+              blurRadius: 20, // SOMBRA MÁS GRANDE
+              offset: const Offset(0, 8), // MÁS ELEVADO
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row( // LAYOUT HORIZONTAL (CAMBIO DE COLUMN A ROW)
           children: [
+            // Icono con gradiente
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: gradientColors,
+                ),
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: gradientColors[0].withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, size: 32, color: Colors.white), // ICONO MÁS GRANDE
             ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 10,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+            const SizedBox(width: 20), // MÁS ESPACIO
+
+            // Texto a la derecha
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 32, // MÁS GRANDE
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.5, // LETTER SPACING
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 14, // MÁS GRANDE
+                      fontWeight: FontWeight.w600, // MÁS BOLD
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -451,7 +494,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildActionCard(
     String label,
     IconData icon,
-    Color color,
+    List<Color> gradientColors,
     VoidCallback onTap,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -460,34 +503,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(28), // MÁS PADDING
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                gradientColors[0].withOpacity(0.15),
+                gradientColors[1].withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: color.withOpacity(0.3),
-              width: 1.5,
+              color: gradientColors[0].withOpacity(0.4),
+              width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.15),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: gradientColors[0].withOpacity(0.2),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: gradientColors[0].withOpacity(0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: Colors.white, size: 36),
+              ),
+              const SizedBox(height: 16),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: color,
+                  color: gradientColors[0],
+                  height: 1.3,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -530,54 +597,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
     IconData getFileIcon() {
       switch (document.fileType) {
         case 'pdf':
-          return Icons.picture_as_pdf;
+          return Icons.picture_as_pdf_rounded;
         case 'doc':
         case 'docx':
-          return Icons.description;
+          return Icons.description_rounded;
         default:
-          return Icons.text_snippet;
+          return Icons.text_snippet_rounded;
       }
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20), // MÁS REDONDEADO
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           onTap: () => _showDocumentOptions(document),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(20), // MÁS PADDING
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 54,
+                  height: 54,
                   decoration: BoxDecoration(
-                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      colors: [
+                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.2),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: isDark ? AppColors.gold : AppColors.brown,
-                    size: 20,
+                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    size: 28,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,39 +658,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Text(
                         document.title,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
+                              horizontal: 8,
+                              vertical: 4,
                             ),
                             decoration: BoxDecoration(
                               color: getStatusColor().withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               getStatusText(),
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: getStatusColor(),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Text(
                             _formatDate(document.createdAt),
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
                           ),
@@ -627,9 +700,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 Icon(
-                  Icons.chevron_right,
+                  Icons.chevron_right_rounded,
                   color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                  size: 20,
+                  size: 24,
                 ),
               ],
             ),
@@ -643,18 +716,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -662,28 +735,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Icon(
             Icons.auto_stories_outlined,
-            size: 64,
+            size: 72,
             color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             'No tienes documentos aún',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             'Comienza subiendo tu primer documento',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/upload'),
             icon: const Icon(Icons.add),
@@ -734,7 +807,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 8),
               ListTile(
-                leading: Icon(Icons.summarize, color: isDark ? AppColors.gold : AppColors.brown),
+                leading: Icon(Icons.summarize, color: isDark ? AppColors.darkAccent : AppColors.lightAccent),
                 title: Text(
                   'Generar Resumen',
                   style: TextStyle(

@@ -27,33 +27,35 @@ class AppColors {
   static const Color creamDark = Color(0xFFF5F3ED);
 
   // ========================================
-  // MODO OSCURO
+  // MODO OSCURO - USA LOS 4 COLORES
   // ========================================
 
-  static const Color darkBackground = Color(0xFF0A0A0A);
-  static const Color darkSurface = Color(0xFF1A1A1A);
-  static const Color darkCard = Color(0xFF2A2A2A);
+  static const Color darkBackground = black;              // Negro
+  static const Color darkSurface = blackLight;            // Negro claro
+  static const Color darkCard = blackMedium;              // Negro medio
 
-  static const Color darkTextPrimary = Color(0xFFFFFDF7);
-  static const Color darkTextSecondary = Color(0xFFC5A572);  // Dorado premium
-  static const Color darkTextTertiary = Color(0xFFB8B8B8);
+  static const Color darkTextPrimary = white;             // Blanco
+  static const Color darkTextSecondary = gold;            // Dorado
+  static const Color darkTextTertiary = brown;            // Café
 
-  static const Color darkAccent = Color(0xFFC5A572);         // Dorado premium
+  static const Color darkAccent = gold;                   // Dorado
+  static const Color darkAccent2 = brown;                 // Café (acento secundario)
   static const Color darkBorder = Color(0xFF3A3A3A);
 
   // ========================================
-  // MODO CLARO
+  // MODO CLARO - USA LOS 4 COLORES
   // ========================================
 
-  static const Color lightBackground = Color(0xFFFFFDF7);
-  static const Color lightSurface = Color(0xFFFAF8F3);
-  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color lightBackground = white;             // Blanco
+  static const Color lightSurface = cream;                // Crema
+  static const Color lightCard = Color(0xFFFFFFFF);       // Blanco puro
 
-  static const Color lightTextPrimary = Color(0xFF0A0A0A);
-  static const Color lightTextSecondary = Color(0xFF6B4423);
-  static const Color lightTextTertiary = Color(0xFF666666);
+  static const Color lightTextPrimary = black;            // Negro
+  static const Color lightTextSecondary = brown;          // Café
+  static const Color lightTextTertiary = gold;            // Dorado
 
-  static const Color lightAccent = Color(0xFF6B4423);
+  static const Color lightAccent = brown;                 // Café
+  static const Color lightAccent2 = gold;                 // Dorado (acento secundario)
   static const Color lightBorder = Color(0xFFE8E6E1);
 
   // ========================================

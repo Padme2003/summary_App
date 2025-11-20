@@ -38,10 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     try {
-      // Cargar datos del usuario
       final userResult = await _authService.getProfile();
-
-      // Cargar documentos para las estadísticas
       final docsResult = await _documentService.getDocuments();
 
       if (mounted) {
@@ -90,8 +87,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             ListTile(
               leading: Icon(
-                Icons.camera_alt,
-                color: isDark ? AppColors.gold : AppColors.brown,
+                Icons.camera_alt_rounded,
+                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               ),
               title: Text(
                 'Tomar foto',
@@ -104,8 +101,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ListTile(
               leading: Icon(
-                Icons.photo_library,
-                color: isDark ? AppColors.gold : AppColors.brown,
+                Icons.photo_library_rounded,
+                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               ),
               title: Text(
                 'Elegir de galería',
@@ -118,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             if (_user?.avatar != null && _user!.avatar!.isNotEmpty)
               ListTile(
-                leading: Icon(Icons.delete, color: AppColors.error),
+                leading: Icon(Icons.delete_rounded, color: AppColors.error),
                 title: Text('Eliminar foto', style: TextStyle(color: AppColors.error)),
                 onTap: () {
                   Navigator.pop(context);
@@ -143,11 +140,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
 
       if (image != null) {
-        // Read image as bytes and convert to base64
         final bytes = await File(image.path).readAsBytes();
         final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
 
-        // Update profile with new avatar
         final result = await _authService.updateProfile(avatar: base64Image);
 
         if (mounted) {
@@ -225,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
         body: Center(
           child: CircularProgressIndicator(
-            color: isDark ? AppColors.gold : AppColors.brown,
+            color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
           ),
         ),
       );
@@ -255,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ElevatedButton(
                 onPressed: _loadUserData,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                  backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text('Reintentar'),
@@ -274,11 +269,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 32),
                 _buildStatsSection(isDark),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 _buildAchievementsSection(isDark),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 _buildOptionsSection(isDark),
                 const SizedBox(height: 80),
               ],
@@ -298,7 +293,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
-            gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+            gradient: isDark
+              ? LinearGradient(colors: [AppColors.darkAccent, AppColors.darkAccent2])
+              : LinearGradient(colors: [AppColors.lightAccent, AppColors.lightAccent2]),
           ),
           child: SafeArea(
             child: Column(
@@ -327,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 style: TextStyle(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? AppColors.gold : AppColors.brown,
+                                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                                 ),
                               )
                             : null,
@@ -345,9 +342,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            Icons.camera_alt,
+                            Icons.camera_alt_rounded,
                             size: 20,
-                            color: isDark ? AppColors.gold : AppColors.brown,
+                            color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                           ),
                         ),
                       ),
@@ -381,22 +378,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final processedDocs = _documents.where((d) => d.status == 'processed').length;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
         children: [
+          // STAT CARD HORIZONTAL REDISEÑADO
           _buildStatCard(
             'Documentos',
             '$totalDocs',
-            Icons.library_books,
-            isDark ? AppColors.gold : AppColors.brown,
+            'en tu biblioteca',
+            Icons.library_books_rounded,
+            [isDark ? AppColors.darkAccent : AppColors.lightAccent,
+             isDark ? AppColors.darkAccent2 : AppColors.lightAccent2],
             isDark,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(height: 16),
           _buildStatCard(
             'Procesados',
             '$processedDocs',
-            Icons.check_circle,
-            AppColors.success,
+            'completados',
+            Icons.check_circle_rounded,
+            [AppColors.success, AppColors.success.withOpacity(0.7)],
             isDark,
           ),
         ],
@@ -404,73 +405,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // STAT CARD HORIZONTAL (REDISEÑO REAL)
   Widget _buildStatCard(
     String label,
     String value,
+    String subtitle,
     IconData icon,
-    Color color,
+    List<Color> gradientColors,
     bool isDark,
   ) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-            width: 1,
+    return Container(
+      padding: const EdgeInsets.all(28), // MÁS PADDING
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
+        border: Border.all(
+          color: gradientColors[0].withOpacity(0.4),
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: gradientColors[0].withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          boxShadow: AppColors.cardShadow(isDark),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    color.withOpacity(0.2),
-                    color.withOpacity(0.1),
-                  ],
+        ],
+      ),
+      child: Row( // LAYOUT HORIZONTAL
+        children: [
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: gradientColors[0].withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 26),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-              ),
+            child: Icon(icon, color: Colors.white, size: 32),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildAchievementsSection(bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(28), // MÁS PADDING
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.5,
         ),
         boxShadow: AppColors.cardShadow(isDark),
       ),
@@ -479,34 +510,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.emoji_events, color: isDark ? AppColors.goldLight : AppColors.brownLight, size: 24),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.emoji_events_rounded, color: isDark ? AppColors.darkAccent : AppColors.lightAccent, size: 24),
+              ),
+              const SizedBox(width: 12),
               Text(
                 'Logros',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  letterSpacing: -0.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  colors: [
+                    (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                    (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                  width: 1.5,
                 ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.emoji_events, color: isDark ? AppColors.gold : AppColors.brown, size: 24),
+                  Icon(Icons.emoji_events_rounded, color: isDark ? AppColors.darkAccent : AppColors.lightAccent, size: 24),
                   const SizedBox(width: 12),
                   Flexible(
                     child: Text(
@@ -515,6 +565,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                         fontSize: 14,
                         fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -530,19 +581,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildOptionsSection(bool isDark) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.5,
         ),
         boxShadow: AppColors.cardShadow(isDark),
       ),
       child: Column(
         children: [
           _buildOptionTile(
-            icon: Icons.edit,
+            icon: Icons.edit_rounded,
             title: 'Editar Perfil',
             subtitle: 'Cambia tu nombre, foto y más',
             onTap: _showEditProfileDialog,
@@ -550,7 +602,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.lock_outline,
+            icon: Icons.lock_outline_rounded,
             title: 'Cambiar Contraseña',
             subtitle: 'Actualiza tu contraseña',
             onTap: _showChangePasswordDialog,
@@ -558,7 +610,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.favorite,
+            icon: Icons.favorite_rounded,
             title: 'Favoritos',
             subtitle: 'Ver documentos favoritos',
             onTap: () {
@@ -573,7 +625,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.bar_chart,
+            icon: Icons.bar_chart_rounded,
             title: 'Estadísticas',
             subtitle: 'Ver tu progreso detallado',
             onTap: _showStatsDialog,
@@ -581,7 +633,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.settings,
+            icon: Icons.settings_rounded,
             title: 'Configuración',
             subtitle: 'Preferencias y ajustes',
             onTap: () {
@@ -591,7 +643,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.help_outline,
+            icon: Icons.help_outline_rounded,
             title: 'Ayuda y Soporte',
             subtitle: '¿Necesitas ayuda?',
             onTap: _showHelpDialog,
@@ -599,7 +651,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildDivider(isDark),
           _buildOptionTile(
-            icon: Icons.logout,
+            icon: Icons.logout_rounded,
             title: 'Cerrar Sesión',
             subtitle: 'Salir de tu cuenta',
             iconColor: AppColors.error,
@@ -611,6 +663,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // OPTION TILE REDISEÑADO con MÁS PADDING
   Widget _buildOptionTile({
     required IconData icon,
     required String title,
@@ -620,20 +673,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback onTap,
     required bool isDark,
   }) {
-    final accentColor = isDark ? AppColors.gold : AppColors.brown;
+    final accentColor = isDark ? AppColors.darkAccent : AppColors.lightAccent;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20), // MÁS PADDING
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(12), // MÁS PADDING
                 decoration: BoxDecoration(
-                  color: (iconColor ?? accentColor).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [
+                      (iconColor ?? accentColor).withOpacity(0.15),
+                      (iconColor ?? accentColor).withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   icon,
@@ -654,7 +712,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: TextStyle(
@@ -665,7 +723,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-              trailing ?? Icon(Icons.chevron_right, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+              trailing ?? Icon(Icons.chevron_right_rounded, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
             ],
           ),
         ),
@@ -675,7 +733,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildDivider(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Divider(
         height: 1,
         color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
@@ -737,7 +795,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : NetworkImage(_user!.avatar!) as ImageProvider)
                                   : null),
                           child: selectedImage == null && (_user?.avatar == null || _user!.avatar!.isEmpty)
-                              ? Icon(Icons.person, size: 50, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)
+                              ? Icon(Icons.person_rounded, size: 50, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)
                               : null,
                         ),
                         Positioned(
@@ -746,11 +804,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.gold : AppColors.brown,
+                              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.camera_alt,
+                              Icons.camera_alt_rounded,
                               size: 18,
                               color: Colors.white,
                             ),
@@ -778,7 +836,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: isDark ? AppColors.gold : AppColors.brown, width: 2),
+                        borderSide: BorderSide(color: isDark ? AppColors.darkAccent : AppColors.lightAccent, width: 2),
                       ),
                     ),
                   ),
@@ -802,7 +860,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     context: context,
                     barrierDismissible: false,
                     builder: (context) => Center(
-                      child: CircularProgressIndicator(color: isDark ? AppColors.gold : AppColors.brown),
+                      child: CircularProgressIndicator(color: isDark ? AppColors.darkAccent : AppColors.lightAccent),
                     ),
                   );
 
@@ -836,7 +894,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                  backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text('Guardar'),
@@ -929,7 +987,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context: context,
                   barrierDismissible: false,
                   builder: (context) => Center(
-                    child: CircularProgressIndicator(color: isDark ? AppColors.gold : AppColors.brown),
+                    child: CircularProgressIndicator(color: isDark ? AppColors.darkAccent : AppColors.lightAccent),
                   ),
                 );
 
@@ -950,7 +1008,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? AppColors.gold : AppColors.brown,
+                backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Cambiar'),
@@ -976,11 +1034,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: isDark ? AppColors.gold : AppColors.brown, width: 2),
+          borderSide: BorderSide(color: isDark ? AppColors.darkAccent : AppColors.lightAccent, width: 2),
         ),
         suffixIcon: IconButton(
           icon: Icon(
-            obscure ? Icons.visibility : Icons.visibility_off,
+            obscure ? Icons.visibility_rounded : Icons.visibility_off_rounded,
             color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
           ),
           onPressed: onToggle,
@@ -1018,7 +1076,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.gold : AppColors.brown)),
+            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.darkAccent : AppColors.lightAccent)),
           ),
         ],
       ),
@@ -1057,7 +1115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(Icons.help_outline, color: isDark ? AppColors.gold : AppColors.brown),
+            Icon(Icons.help_outline_rounded, color: isDark ? AppColors.darkAccent : AppColors.lightAccent),
             const SizedBox(width: 8),
             Text(
               'Ayuda y Soporte',
@@ -1094,7 +1152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 }
               },
-              icon: const Icon(Icons.chat),
+              icon: const Icon(Icons.chat_rounded),
               label: const Text('Contactar por WhatsApp'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF25D366),
@@ -1106,7 +1164,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
+                gradient: LinearGradient(
+                  colors: [
+                    (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                    (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -1114,7 +1177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(
                     Icons.email_outlined,
                     size: 20,
-                    color: isDark ? AppColors.gold : AppColors.brown,
+                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -1134,7 +1197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.gold : AppColors.brown)),
+            child: Text('Cerrar', style: TextStyle(color: isDark ? AppColors.darkAccent : AppColors.lightAccent)),
           ),
         ],
       ),

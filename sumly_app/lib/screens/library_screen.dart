@@ -82,15 +82,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
           'Mi Biblioteca',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 28,
+            fontSize: 32,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              Icons.refresh,
-              color: isDark ? AppColors.gold : AppColors.brown,
+              Icons.refresh_rounded,
+              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+              size: 26,
             ),
             onPressed: _loadDocuments,
           ),
@@ -99,13 +101,15 @@ class _LibraryScreenState extends State<LibraryScreen> {
       body: _buildBody(),
       floatingActionButton: Container(
         decoration: BoxDecoration(
-          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-          borderRadius: BorderRadius.circular(16),
+          gradient: isDark
+            ? LinearGradient(colors: [AppColors.darkAccent, AppColors.darkAccent2])
+            : LinearGradient(colors: [AppColors.lightAccent, AppColors.lightAccent2]),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -114,11 +118,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
             await Navigator.pushNamed(context, '/upload');
             _loadDocuments();
           },
-          icon: Icon(Icons.add, color: isDark ? AppColors.black : AppColors.white),
+          icon: Icon(Icons.add_rounded, color: isDark ? AppColors.black : AppColors.white),
           label: Text(
             'Nuevo Documento',
             style: TextStyle(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
               color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
@@ -135,7 +140,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     if (_isLoading) {
       return Center(
         child: CircularProgressIndicator(
-          color: isDark ? AppColors.gold : AppColors.brown,
+          color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         ),
       );
     }
@@ -201,31 +206,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24), // MÁS PADDING
       children: [
-        // Estadísticas
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                'Documentos',
-                '${_documents.length}',
-                Icons.description,
-                isDark ? AppColors.gold : AppColors.brown,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                'Procesados',
-                '${_documents.where((d) => d.status == 'processed').length}',
-                Icons.check_circle,
-                AppColors.success,
-              ),
-            ),
-          ],
+        // Estadísticas REDISEÑADAS - HORIZONTAL
+        _buildStatCard(
+          'Total Documentos',
+          '${_documents.length}',
+          'en tu biblioteca',
+          Icons.description_rounded,
+          [isDark ? AppColors.darkAccent : AppColors.lightAccent,
+           isDark ? AppColors.darkAccent2 : AppColors.lightAccent2],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
+        _buildStatCard(
+          'Procesados',
+          '${_documents.where((d) => d.status == 'processed').length}',
+          'listos para leer',
+          Icons.check_circle_rounded,
+          [AppColors.success, AppColors.success.withOpacity(0.7)],
+        ),
+
+        const SizedBox(height: 48), // MÁS SPACING
 
         // Título
         Row(
@@ -234,79 +235,128 @@ class _LibraryScreenState extends State<LibraryScreen> {
             Text(
               'Mis Documentos',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                letterSpacing: -0.5,
               ),
             ),
-            Text(
-              '${_documents.length} total',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                    (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                  width: 1.5,
+                ),
+              ),
+              child: Text(
+                '${_documents.length} total',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
 
-        // Lista de documentos
+        // Lista de documentos REDISEÑADOS
         ..._documents.map((document) => _buildDocumentCard(document)),
         const SizedBox(height: 80),
       ],
     );
   }
 
+  // STAT CARD HORIZONTAL (REDISEÑO REAL)
   Widget _buildStatCard(
     String label,
     String value,
+    String subtitle,
     IconData icon,
-    Color color,
+    List<Color> gradientColors,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(28), // MÁS PADDING
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
         border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1.5,
+          color: gradientColors[0].withOpacity(0.4),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: gradientColors[0].withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row( // LAYOUT HORIZONTAL
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors,
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: gradientColors[0].withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 26),
+            child: Icon(icon, color: Colors.white, size: 32),
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            ),
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -314,6 +364,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
+  // DOCUMENT CARD REDISEÑADO
   Widget _buildDocumentCard(DocumentModel document) {
     final fileType = document.fileType?.toUpperCase() ?? 'TXT';
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -347,55 +398,63 @@ class _LibraryScreenState extends State<LibraryScreen> {
     IconData getFileIcon() {
       switch (document.fileType) {
         case 'pdf':
-          return Icons.picture_as_pdf;
+          return Icons.picture_as_pdf_rounded;
         case 'doc':
         case 'docx':
-          return Icons.description;
+          return Icons.description_rounded;
         default:
-          return Icons.text_snippet;
+          return Icons.text_snippet_rounded;
       }
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20), // MÁS SPACING
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
           onTap: () => _showOptionsMenu(document),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24), // MÁS PADDING
             child: Row(
               children: [
-                // Icono del archivo
+                // Icono con gradiente
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
-                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     getFileIcon(),
-                    color: isDark ? AppColors.gold : AppColors.brown,
-                    size: 28,
+                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    size: 32,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
 
                 // Información
                 Expanded(
@@ -405,24 +464,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       Text(
                         document.title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
+                              horizontal: 10,
+                              vertical: 5,
                             ),
                             decoration: BoxDecoration(
                               color: getStatusColor().withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: getStatusColor().withOpacity(0.4),
+                                width: 1,
+                              ),
                             ),
                             child: Text(
                               getStatusText(),
@@ -433,18 +496,25 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            fileType,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                              fontWeight: FontWeight.w500,
+                          const SizedBox(width: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              fileType,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         _formatDate(document.createdAt),
                         style: TextStyle(
@@ -456,24 +526,26 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                 ),
 
-                // Botón de favoritos
-                IconButton(
-                  icon: Icon(
-                    document.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: document.isFavorite
-                        ? AppColors.error
-                        : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                  ),
-                  onPressed: () => _toggleFavorite(document),
-                ),
-
-                // Menú de opciones
-                IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  ),
-                  onPressed: () => _showOptionsMenu(document),
+                // Botones de acción
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        document.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        color: document.isFavorite
+                            ? AppColors.error
+                            : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                        size: 22,
+                      ),
+                      onPressed: () => _toggleFavorite(document),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                      size: 24,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -565,8 +637,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
               ListTile(
                 leading: Icon(
-                  Icons.summarize,
-                  color: isDark ? AppColors.gold : AppColors.brown,
+                  Icons.summarize_rounded,
+                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                 ),
                 title: Text(
                   'Generar Resumen',
@@ -581,7 +653,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ),
               if (document.fileType == 'pdf')
                 ListTile(
-                  leading: Icon(Icons.picture_as_pdf, color: AppColors.error),
+                  leading: Icon(Icons.picture_as_pdf_rounded, color: AppColors.error),
                   title: Text(
                     'Ver PDF',
                     style: TextStyle(
@@ -594,7 +666,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   },
                 ),
               ListTile(
-                leading: Icon(Icons.share, color: AppColors.success),
+                leading: Icon(Icons.share_rounded, color: AppColors.success),
                 title: Text(
                   'Compartir',
                   style: TextStyle(
@@ -607,7 +679,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.delete, color: AppColors.error),
+                leading: Icon(Icons.delete_rounded, color: AppColors.error),
                 title: Text(
                   'Eliminar',
                   style: TextStyle(color: AppColors.error),

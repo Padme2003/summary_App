@@ -30,7 +30,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   double _playbackSpeed = 1.0;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
-  double _textSize = 17.0; // Tamaño óptimo para lectura
+  double _textSize = 19.0; // Nuevo tamaño para lectura más cómoda
 
   @override
   void initState() {
@@ -208,7 +208,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back,
+              Icons.arrow_back_rounded,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: () => Navigator.pop(context),
@@ -216,7 +216,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         ),
         body: Center(
           child: CircularProgressIndicator(
-            color: isDark ? AppColors.gold : AppColors.brown,
+            color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
           ),
         ),
       );
@@ -230,7 +230,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back,
+              Icons.arrow_back_rounded,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: () => Navigator.pop(context),
@@ -274,7 +274,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_rounded,
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
@@ -286,14 +286,14 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           ),
           IconButton(
             icon: Icon(
-              Icons.share,
+              Icons.share_rounded,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: _shareSummary,
           ),
           IconButton(
             icon: Icon(
-              Icons.more_vert,
+              Icons.more_vert_rounded,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: () {
@@ -312,6 +312,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     );
   }
 
+  // HEADER COMPLETAMENTE REDISEÑADO
   Widget _buildHeader() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final durationText = _summary?.audioDuration != null
@@ -319,55 +320,91 @@ Generado con Sumly - Resúmenes Inteligentes con IA
         : 'Sin audio';
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(32), // MÁS PADDING
       child: Column(
         children: [
+          // Card de icono de libro MÁS GRANDE Y ELEGANTE
           Container(
-            width: 120,
-            height: 160,
+            width: 140,
+            height: 180,
             decoration: BoxDecoration(
-              gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-              borderRadius: BorderRadius.circular(16),
+              gradient: isDark
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.darkAccent,
+                      AppColors.darkAccent2,
+                    ],
+                  )
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.lightAccent,
+                      AppColors.lightAccent2,
+                    ],
+                  ),
+              borderRadius: BorderRadius.circular(20), // MÁS REDONDEADO
               boxShadow: [
                 BoxShadow(
-                  color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                  blurRadius: 24, // SOMBRA MÁS GRANDE
+                  offset: const Offset(0, 12),
                 ),
               ],
             ),
             child: Icon(
-              Icons.auto_stories,
-              size: 50,
+              Icons.auto_stories_rounded,
+              size: 60, // ICONO MÁS GRANDE
               color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+
+          // Título MÁS GRANDE
           Text(
             _summary?.title ?? 'Resumen',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 28, // MÁS GRANDE
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              letterSpacing: -0.5,
+              height: 1.2,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             'Generado el ${_formatDate(_summary?.createdAt)}',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
+
+          // Tags REDISEÑADOS con más estilo
           Wrap(
-            spacing: 8,
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.center,
             children: [
-              _buildTag('Resumen IA', isDark ? AppColors.gold : AppColors.brown),
-              _buildTag(durationText, AppColors.warning),
+              _buildTag(
+                'Resumen IA',
+                [isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                 isDark ? AppColors.darkAccent2 : AppColors.lightAccent2],
+              ),
+              _buildTag(
+                durationText,
+                [AppColors.warning, AppColors.warning.withOpacity(0.7)],
+              ),
               if (_summary?.keyPoints.isNotEmpty ?? false)
-                _buildTag('${_summary!.keyPoints.length} puntos', isDark ? AppColors.goldLight : AppColors.brownLight),
+                _buildTag(
+                  '${_summary!.keyPoints.length} puntos',
+                  [AppColors.success, AppColors.success.withOpacity(0.7)],
+                ),
             ],
           ),
         ],
@@ -385,44 +422,55 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  Widget _buildTag(String label, Color color) {
+  // TAG REDISEÑADO con gradiente
+  Widget _buildTag(String label, List<Color> gradientColors) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // MÁS PADDING
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        gradient: LinearGradient(
+          colors: [
+            gradientColors[0].withOpacity(0.2),
+            gradientColors[1].withOpacity(0.15),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
+        border: Border.all(
+          color: gradientColors[0].withOpacity(0.4),
+          width: 1.5,
+        ),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color,
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: gradientColors[0],
         ),
       ),
     );
   }
 
+  // CONTENT CARD REDISEÑADA
   Widget _buildContent() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final summaryContent = _summary?.content ?? 'No hay contenido disponible';
     final keyPoints = _summary?.keyPoints ?? [];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(32), // MÁS PADDING
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24), // MÁS REDONDEADO
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+            blurRadius: 16, // SOMBRA MÁS GRANDE
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -435,66 +483,123 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Text(
                   'Resumen',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22, // MÁS GRANDE
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const Spacer(),
-                IconButton(
-                  icon: Icon(
-                    Icons.text_fields,
-                    size: 20,
-                    color: isDark ? AppColors.gold : AppColors.brown,
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  onPressed: () {
-                    _showTextSizeDialog();
-                  },
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.text_fields_rounded,
+                      size: 22,
+                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    ),
+                    onPressed: () {
+                      _showTextSizeDialog();
+                    },
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24), // MÁS ESPACIO
+
+            // Contenido con MEJOR TIPOGRAFÍA
             Text(
               summaryContent,
               style: TextStyle(
                 fontSize: _textSize,
-                height: 1.7, // Espaciado de línea cómodo para lectura
+                height: 1.8, // MÁS ALTURA DE LÍNEA
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                letterSpacing: 0.3,
+                letterSpacing: 0.4,
+                fontWeight: FontWeight.w400,
               ),
             ),
+
             if (keyPoints.isNotEmpty) ...[
-              const SizedBox(height: 32),
-              Text(
-                'Puntos Clave',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              const SizedBox(height: 40), // MÁS ESPACIO
+
+              // Título de puntos clave
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.key_rounded,
+                      size: 20,
+                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Puntos Clave',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Puntos clave REDISEÑADOS
               ...keyPoints.map((point) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.only(bottom: 20),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 8,
-                          height: 8,
-                          margin: const EdgeInsets.only(top: 7, right: 12),
+                          width: 10,
+                          height: 10,
+                          margin: const EdgeInsets.only(top: 8, right: 16),
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.gold : AppColors.brown,
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                              ],
+                            ),
                             shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
                         Expanded(
                           child: Text(
                             point,
                             style: TextStyle(
-                              fontSize: 15,
-                              height: 1.6,
+                              fontSize: 16,
+                              height: 1.7,
                               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -508,26 +613,28 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     );
   }
 
+  // AUDIO CONTROLS REDISEÑADOS
   Widget _buildAudioControls() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasAudio = _summary?.audioUrl != null && _summary!.audioUrl!.isNotEmpty;
 
     if (!hasAudio) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+              width: 1.5,
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+              blurRadius: 24,
+              offset: const Offset(0, -8),
             ),
           ],
         ),
@@ -536,14 +643,15 @@ Generado con Sumly - Resúmenes Inteligentes con IA
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.info_outline,
+                Icons.info_outline_rounded,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 'Audio no disponible',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                   color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 ),
               ),
@@ -554,20 +662,21 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         border: Border(
           top: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+            width: 1.5,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+            blurRadius: 24,
+            offset: const Offset(0, -8),
           ),
         ],
       ),
@@ -580,72 +689,92 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                 Text(
                   _formatDuration(_position),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   ),
                 ),
                 Expanded(
-                  child: Slider(
-                    value: _duration.inSeconds > 0
-                        ? _position.inSeconds / _duration.inSeconds
-                        : 0.0,
-                    activeColor: isDark ? AppColors.gold : AppColors.brown,
-                    inactiveColor: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.2),
-                    onChanged: (value) {
-                      final newPosition = Duration(
-                        seconds: (value * _duration.inSeconds).round(),
-                      );
-                      _audioPlayer.seek(newPosition);
-                    },
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      trackHeight: 4,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                    ),
+                    child: Slider(
+                      value: _duration.inSeconds > 0
+                          ? _position.inSeconds / _duration.inSeconds
+                          : 0.0,
+                      activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      inactiveColor: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                      onChanged: (value) {
+                        final newPosition = Duration(
+                          seconds: (value * _duration.inSeconds).round(),
+                        );
+                        _audioPlayer.seek(newPosition);
+                      },
+                    ),
                   ),
                 ),
                 Text(
                   _formatDuration(_duration),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                     color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // Botón de velocidad REDISEÑADO
                 AnimatedScaleButton(
                   onPressed: () {
                     _showSpeedDialog();
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                          (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        width: 1.5,
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 20,
+                      vertical: 14,
                     ),
                     child: Text(
                       '${_playbackSpeed}x',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.gold : AppColors.brown,
+                        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                       ),
                     ),
                   ),
                 ),
+
+                // Botón -10s
                 AnimatedScaleButton(
                   onPressed: () => _seekRelative(-10),
                   child: Icon(
-                    Icons.replay_10,
-                    size: 32,
+                    Icons.replay_10_rounded,
+                    size: 36,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
+
+                // Botón PLAY/PAUSE REDISEÑADO
                 StreamBuilder<PlayerState>(
                   stream: _audioPlayer.playerStateStream,
                   builder: (context, snapshot) {
@@ -656,52 +785,68 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                       onPressed: _togglePlayPause,
                       scaleValue: 0.9,
                       child: Container(
-                        width: 70,
-                        height: 70,
+                        width: 76,
+                        height: 76,
                         decoration: BoxDecoration(
-                          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                            ],
+                          ),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+                              blurRadius: 20,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
                         child: Icon(
-                          isPlaying ? Icons.pause : Icons.play_arrow,
-                          size: 36,
+                          isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                          size: 40,
                           color: isDark ? AppColors.black : AppColors.white,
                         ),
                       ),
                     );
                   },
                 ),
+
+                // Botón +10s
                 AnimatedScaleButton(
                   onPressed: () => _seekRelative(10),
                   child: Icon(
-                    Icons.forward_10,
-                    size: 32,
+                    Icons.forward_10_rounded,
+                    size: 36,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
+
+                // Botón de descarga REDISEÑADO
                 AnimatedScaleButton(
                   onPressed: _downloadAudio,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                          (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        width: 1.5,
                       ),
                     ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.download,
-                        color: isDark ? AppColors.gold : AppColors.brown,
-                      ),
-                      onPressed: _downloadAudio,
+                    padding: const EdgeInsets.all(14),
+                    child: Icon(
+                      Icons.download_rounded,
+                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      size: 22,
                     ),
                   ),
                 ),
@@ -743,7 +888,7 @@ Generado con Sumly - Resúmenes Inteligentes con IA
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
               ),
-              activeColor: isDark ? AppColors.gold : AppColors.brown,
+              activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               value: speed,
               groupValue: _playbackSpeed,
               onChanged: (value) {
@@ -760,10 +905,10 @@ Generado con Sumly - Resúmenes Inteligentes con IA
   void _showTextSizeDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final sizes = {
-      'Pequeño': 14.0,
-      'Normal': 17.0,
-      'Grande': 19.0,
-      'Muy grande': 21.0,
+      'Pequeño': 16.0,
+      'Normal': 19.0,
+      'Grande': 21.0,
+      'Muy grande': 24.0,
     };
 
     showDialog(
@@ -791,8 +936,8 @@ Generado con Sumly - Resúmenes Inteligentes con IA
               ),
               trailing: isSelected
                   ? Icon(
-                      Icons.check,
-                      color: isDark ? AppColors.gold : AppColors.brown,
+                      Icons.check_rounded,
+                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                     )
                   : null,
               onTap: () {
@@ -963,8 +1108,8 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
           children: [
             ListTile(
               leading: Icon(
-                Icons.copy,
-                color: isDark ? AppColors.gold : AppColors.brown,
+                Icons.copy_rounded,
+                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               ),
               title: Text(
                 'Copiar texto',
@@ -979,8 +1124,8 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
             ),
             ListTile(
               leading: Icon(
-                Icons.download,
-                color: isDark ? AppColors.gold : AppColors.brown,
+                Icons.download_rounded,
+                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               ),
               title: Text(
                 'Descargar audio',
@@ -990,16 +1135,11 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
               ),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Función de descarga próximamente'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                _downloadAudio();
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete, color: AppColors.error),
+              leading: Icon(Icons.delete_rounded, color: AppColors.error),
               title: Text(
                 'Eliminar resumen',
                 style: TextStyle(color: AppColors.error),
