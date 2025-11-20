@@ -66,8 +66,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           'Favoritos',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 28,
+            fontSize: 32,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
         actions: [
@@ -97,32 +98,34 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       onRefresh: _loadFavorites,
       color: isDark ? AppColors.gold : AppColors.brown,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         children: [
           if (_favoriteDocuments.isNotEmpty) ...[
             Text(
               'Documentos',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             ..._favoriteDocuments.map((doc) => _buildDocumentCard(doc, isDark)),
-            const SizedBox(height: 24),
+            const SizedBox(height: 48),
           ],
 
           if (_favoriteSummaries.isNotEmpty) ...[
             Text(
               'Resúmenes',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             ..._favoriteSummaries.map((summary) => _buildSummaryCard(summary, isDark)),
           ],
         ],
@@ -134,38 +137,58 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
       color: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         onTap: () {
           _showDocumentOptions(document, isDark);
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.picture_as_pdf,
-                    color: AppColors.error,
-                    size: 24,
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.picture_as_pdf,
+                      color: isDark ? AppColors.black : AppColors.white,
+                      size: 28,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       document.title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
@@ -176,32 +199,35 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Icon(
                     Icons.favorite,
                     color: AppColors.error,
-                    size: 20,
+                    size: 24,
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                  const SizedBox(width: 4),
+                  Icon(Icons.calendar_today, size: 16, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                  const SizedBox(width: 6),
                   Text(
                     dateFormat.format(document.createdAt),
-                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    style: TextStyle(fontSize: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                      ),
                     ),
                     child: Text(
                       document.fileType.toUpperCase(),
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.gold : AppColors.brown,
+                        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                       ),
                     ),
                   ),
@@ -278,17 +304,18 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
       color: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         onTap: () {
           Navigator.push(
             context,
@@ -298,17 +325,42 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ).then((_) => _loadFavorites());
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome,
+                      color: isDark ? AppColors.black : AppColors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       summary.title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
@@ -319,36 +371,37 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   Icon(
                     Icons.favorite,
                     color: AppColors.error,
-                    size: 20,
+                    size: 24,
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Text(
                 summary.content,
                 style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  fontSize: 15,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  height: 1.5,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                  const SizedBox(width: 4),
+                  Icon(Icons.calendar_today, size: 16, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                  const SizedBox(width: 6),
                   Text(
                     dateFormat.format(summary.createdAt),
-                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    style: TextStyle(fontSize: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                    const SizedBox(width: 4),
+                    Icon(Icons.headphones, size: 16, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    const SizedBox(width: 6),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',
-                      style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                     ),
                   ],
                 ],
@@ -386,34 +439,48 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.error.withOpacity(0.3),
+                  AppColors.error.withOpacity(0.1),
+                ],
+              ),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.error.withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Icon(
               Icons.favorite_outline,
-              size: 80,
+              size: 96,
               color: AppColors.error,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Text(
             'Sin favoritos aún',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
               'Los resúmenes que marques como favoritos aparecerán aquí',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
+                height: 1.5,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
             ),

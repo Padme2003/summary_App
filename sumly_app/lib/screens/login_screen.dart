@@ -119,67 +119,79 @@ class _LoginScreenState extends State<LoginScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo con gradiente dorado
+                        // Logo con gradiente
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 120,
+                          height: 120,
                           decoration: BoxDecoration(
-                            gradient: AppColors.goldGradient,
-                            borderRadius: BorderRadius.circular(28),
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.gold.withOpacity(0.4),
-                                blurRadius: 24,
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                                blurRadius: 28,
                                 spreadRadius: 2,
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.auto_stories_rounded,
-                            size: 50,
+                            size: 60,
                             color: isDark ? AppColors.black : AppColors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Título
-                        ShaderMask(
-                          shaderCallback: (bounds) => AppColors.goldGradient.createShader(bounds),
-                          child: const Text(
-                            '¡Bienvenido!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Inicia sesión en tu biblioteca',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                           ),
                         ),
                         const SizedBox(height: 40),
 
+                        // Título
+                        ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [
+                              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                            ],
+                          ).createShader(bounds),
+                          child: const Text(
+                            '¡Bienvenido!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Inicia sesión en tu biblioteca',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+
                         // Email Field
                         Container(
+                          height: 64,
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : AppColors.lightCard,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                              width: 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -198,7 +210,8 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               prefixIcon: Icon(
                                 Icons.email_outlined,
-                                color: isDark ? AppColors.gold : AppColors.brown,
+                                size: 24,
+                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -222,21 +235,23 @@ class _LoginScreenState extends State<LoginScreen>
                             },
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
                         // Password Field
                         Container(
+                          height: 64,
                           decoration: BoxDecoration(
                             color: isDark ? AppColors.darkCard : AppColors.lightCard,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                              width: 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -255,7 +270,8 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
-                                color: isDark ? AppColors.gold : AppColors.brown,
+                                size: 24,
+                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -306,25 +322,31 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Text(
                               '¿Olvidaste tu contraseña?',
                               style: TextStyle(
-                                color: isDark ? AppColors.gold : AppColors.brown,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
 
                         // Botón Login con gradiente
                         Container(
-                          height: 56,
+                          height: 64,
                           decoration: BoxDecoration(
-                            gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),
@@ -351,15 +373,14 @@ class _LoginScreenState extends State<LoginScreen>
                                 : Text(
                                     'Iniciar Sesión',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 19,
                                       fontWeight: FontWeight.bold,
                                       color: isDark ? AppColors.black : AppColors.white,
-                                      letterSpacing: 0.5,
                                     ),
                                   ),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 40),
 
                         // Divider
                         Row(

@@ -255,64 +255,75 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           ScaleTransition(
             scale: _scaleAnimation,
             child: Container(
-              width: 150,
-              height: 150,
+              width: 180,
+              height: 180,
               decoration: BoxDecoration(
-                gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                gradient: LinearGradient(
+                  colors: [
+                    isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                  ],
+                ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
+                    color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
                     blurRadius: 40,
                     offset: const Offset(0, 20),
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.auto_awesome,
-                size: 70,
-                color: Colors.white,
+                size: 80,
+                color: isDark ? AppColors.black : AppColors.white,
               ),
             ),
           ),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
 
           // Título
           Text(
             'Generando Resumen Inteligente',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
+              letterSpacing: -0.5,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             textAlign: TextAlign.center,
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
 
           // Barra de progreso
           Stack(
             children: [
               Container(
-                height: 8,
+                height: 10,
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.lightBorder,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
-                height: 8,
+                height: 10,
                 width: MediaQuery.of(context).size.width * _progress - 64,
                 decoration: BoxDecoration(
-                  gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [
+                      isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.5),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
+                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -320,55 +331,63 @@ class _ProcessingScreenState extends State<ProcessingScreen>
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           // Porcentaje
           Text(
             '${(_progress * 100).toInt()}%',
             style: TextStyle(
-              fontSize: 32,
+              fontSize: 40,
               fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.gold : AppColors.brown,
+              letterSpacing: -1,
+              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Paso actual
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 16,
+              horizontal: 28,
+              vertical: 20,
             ),
             decoration: BoxDecoration(
-              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
-                width: 1,
+                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                width: 2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 24,
+                  height: 24,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isDark ? AppColors.gold : AppColors.brown,
+                      isDark ? AppColors.darkAccent : AppColors.lightAccent,
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 Flexible(
                   child: Text(
                     _currentStep,
                     style: TextStyle(
-                      fontSize: 15,
-                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -416,15 +435,16 @@ class _ProcessingScreenState extends State<ProcessingScreen>
             Text(
               'Esto puede tomar unos momentos...',
               style: TextStyle(
-                fontSize: 14,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               'Estamos usando IA para crear un resumen de calidad',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               textAlign: TextAlign.center,

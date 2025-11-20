@@ -76,13 +76,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Configuración',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 24,
+            fontSize: 32,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         children: [
           _buildSection(
             title: 'Apariencia',
@@ -105,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
 
           _buildSection(
             title: 'Audio',
@@ -146,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
 
           _buildSection(
             title: 'Notificaciones',
@@ -166,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
 
           _buildSection(
             title: 'Datos y almacenamiento',
@@ -193,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
 
           _buildSection(
             title: 'Soporte',
@@ -216,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 48),
 
           _buildSection(
             title: 'Acerca de',
@@ -266,21 +267,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 12),
+          padding: const EdgeInsets.only(left: 12, bottom: 16),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: isDark ? AppColors.black : AppColors.white,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -290,11 +310,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Container(
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkCard : AppColors.lightCard,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+              width: 2,
             ),
-            boxShadow: AppColors.cardShadow(isDark),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(children: children),
         ),
@@ -310,40 +337,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<bool> onChanged,
     required bool isDark,
   }) {
-    final accentColor = isDark ? AppColors.gold : AppColors.brown;
-
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: accentColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: [
+              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Icon(
           icon,
-          color: accentColor,
-          size: 24,
+          color: isDark ? AppColors.black : AppColors.white,
+          size: 28,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeColor: accentColor,
+      trailing: Transform.scale(
+        scale: 1.2,
+        child: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+        ),
       ),
     );
   }
@@ -359,45 +400,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<double> onChanged,
     required bool isDark,
   }) {
-    final accentColor = isDark ? AppColors.gold : AppColors.brown;
-
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
+            horizontal: 24,
+            vertical: 12,
           ),
           leading: Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Icon(
               icon,
-              color: accentColor,
-              size: 24,
+              color: isDark ? AppColors.black : AppColors.white,
+              size: 28,
             ),
           ),
           title: Text(
             title,
             style: TextStyle(
-              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
           subtitle: Text(
             subtitle,
             style: TextStyle(
-              fontSize: 13,
-              color: accentColor,
+              fontSize: 16,
+              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Slider(
             value: value,
             min: min,
@@ -405,10 +457,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             divisions: divisions,
             label: '${value}x',
             onChanged: onChanged,
-            activeColor: accentColor,
+            activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
       ],
     );
   }
@@ -420,38 +472,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required VoidCallback onTap,
     required bool isDark,
   }) {
-    final accentColor = isDark ? AppColors.gold : AppColors.brown;
-
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: accentColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            colors: [
+              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Icon(
           icon,
-          color: accentColor,
-          size: 24,
+          color: isDark ? AppColors.black : AppColors.white,
+          size: 28,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
+        size: 28,
         color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
       ),
       onTap: onTap,
@@ -466,35 +530,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool isDark,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+          color: (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary).withOpacity(0.15),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Icon(
           icon,
-          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-          size: 24,
+          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          size: 28,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
-          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
           color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
+        size: 28,
         color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
       ),
       onTap: onTap,

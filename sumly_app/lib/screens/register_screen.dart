@@ -116,28 +116,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       // Título
                       ShaderMask(
-                        shaderCallback: (bounds) => AppColors.goldGradient.createShader(bounds),
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [
+                            isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                            isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                          ],
+                        ).createShader(bounds),
                         child: const Text(
                           "Crear Cuenta",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 40,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            letterSpacing: 0.5,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
                         "Únete a tu biblioteca personal",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 16,
-                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                          fontSize: 17,
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 40),
 
                       // Nombre
                       Container(
@@ -390,15 +395,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Botón Register con gradiente
                       Container(
-                        height: 56,
+                        height: 64,
                         decoration: BoxDecoration(
-                          gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
+                          gradient: LinearGradient(
+                            colors: [
+                              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                            ],
+                          ),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),
@@ -425,15 +435,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               : Text(
                                   "Registrarse",
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 19,
                                     fontWeight: FontWeight.bold,
                                     color: isDark ? AppColors.black : AppColors.white,
-                                    letterSpacing: 0.5,
                                   ),
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
 
                       // Link a Login
                       Row(

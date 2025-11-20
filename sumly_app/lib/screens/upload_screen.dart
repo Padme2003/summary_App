@@ -140,24 +140,25 @@ class _UploadScreenState extends State<UploadScreen>
           'Nuevo Documento',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 24,
+            fontSize: 32,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: false,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildTabSelector(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             if (_selectedTab == 0) _buildFileUploadSection(),
             if (_selectedTab == 1) _buildTextInputSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             _buildProcessButton(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             _buildInfoCard(),
           ],
         ),
@@ -168,18 +169,19 @@ class _UploadScreenState extends State<UploadScreen>
   Widget _buildTabSelector() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -220,32 +222,46 @@ class _UploadScreenState extends State<UploadScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(18),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               gradient: isSelected
-                  ? (isDark ? AppColors.goldGradient : AppColors.brownGradient)
+                  ? LinearGradient(
+                      colors: [
+                        isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                        isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                      ],
+                    )
                   : null,
               color: isSelected ? null : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   icon,
-                  size: 20,
+                  size: 24,
                   color: isSelected
                       ? (isDark ? AppColors.black : AppColors.white)
                       : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: isSelected
                         ? (isDark ? AppColors.black : AppColors.white)
                         : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
@@ -267,21 +283,21 @@ class _UploadScreenState extends State<UploadScreen>
           onTap: _pickFile,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            height: 250,
+            height: 280,
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: _selectedFileName != null
-                    ? (isDark ? AppColors.gold : AppColors.brown)
-                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    ? (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.6)
+                    : (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
                 width: 2,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -302,39 +318,52 @@ class _UploadScreenState extends State<UploadScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                ],
+              ),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: Icon(
               Icons.cloud_upload_outlined,
-              size: 60,
-              color: isDark ? AppColors.gold : AppColors.brown,
+              size: 64,
+              color: isDark ? AppColors.black : AppColors.white,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
             'Toca para seleccionar archivo',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             'PDF, TXT, DOC, DOCX',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             'Máximo 50 MB • 800 páginas',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
             ),
           ),
@@ -413,18 +442,19 @@ class _UploadScreenState extends State<UploadScreen>
   Widget _buildTextInputSection() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -433,22 +463,42 @@ class _UploadScreenState extends State<UploadScreen>
         children: [
           Row(
             children: [
-              Icon(
-                Icons.edit_note,
-                color: isDark ? AppColors.gold : AppColors.brown,
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.edit_note,
+                  size: 28,
+                  color: isDark ? AppColors.black : AppColors.white,
+                ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 16),
               Text(
                 'Escribe o pega tu texto aquí',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           TextField(
             controller: _textController,
             maxLines: 12,
@@ -461,21 +511,21 @@ class _UploadScreenState extends State<UploadScreen>
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(
-                  color: isDark ? AppColors.gold : AppColors.brown,
+                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   width: 2,
                 ),
               ),
@@ -512,21 +562,26 @@ class _UploadScreenState extends State<UploadScreen>
         (_selectedTab == 1 && _textController.text.trim().isNotEmpty);
 
     return Container(
-      height: 56,
+      height: 64,
       decoration: BoxDecoration(
         gradient: canProcess
-            ? (isDark ? AppColors.goldGradient : AppColors.brownGradient)
+            ? LinearGradient(
+                colors: [
+                  isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                ],
+              )
             : null,
         color: canProcess
             ? null
             : (isDark ? AppColors.darkCard : AppColors.lightCard),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: canProcess
             ? [
                 BoxShadow(
-                  color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ]
             : null,
@@ -536,8 +591,9 @@ class _UploadScreenState extends State<UploadScreen>
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          minimumSize: const Size(double.infinity, 56),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          minimumSize: const Size(double.infinity, 64),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         ),
         child: _isUploading
             ? SizedBox(
@@ -563,7 +619,7 @@ class _UploadScreenState extends State<UploadScreen>
                   Text(
                     'Generar Resumen',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: canProcess
                           ? (isDark ? AppColors.black : AppColors.white)
@@ -580,22 +636,49 @@ class _UploadScreenState extends State<UploadScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: isDark ? AppColors.gold : AppColors.brown,
-            size: 24,
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.info_outline,
+              color: isDark ? AppColors.black : AppColors.white,
+              size: 32,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,17 +686,18 @@ class _UploadScreenState extends State<UploadScreen>
                 Text(
                   'Resumen Inteligente con IA',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.gold : AppColors.brown,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   'Se generará un resumen de 3-5 páginas con los puntos clave y audio de 5-15 minutos',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    height: 1.4,
                   ),
                 ),
               ],

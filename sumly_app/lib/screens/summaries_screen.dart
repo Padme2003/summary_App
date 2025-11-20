@@ -79,8 +79,9 @@ class _SummariesScreenState extends State<SummariesScreen> {
           'Mis Resúmenes',
           style: TextStyle(
             color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-            fontSize: 24,
+            fontSize: 32,
             fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
           ),
         ),
         actions: [
@@ -101,7 +102,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
     if (_isLoading) {
       return Center(
         child: CircularProgressIndicator(
-          color: isDark ? AppColors.gold : AppColors.brown,
+          color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         ),
       );
     }
@@ -111,27 +112,56 @@ class _SummariesScreenState extends State<SummariesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: AppColors.error),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 80, color: AppColors.error),
+            const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage!,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadSummaries,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? AppColors.gold : AppColors.brown,
-                foregroundColor: Colors.white,
+            const SizedBox(height: 32),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-              child: const Text('Reintentar'),
+              child: ElevatedButton(
+                onPressed: _loadSummaries,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  'Reintentar',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.black : AppColors.white,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -144,34 +174,48 @@ class _SummariesScreenState extends State<SummariesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.1),
+                gradient: LinearGradient(
+                  colors: [
+                    isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                  ],
+                ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.summarize,
-                size: 80,
-                color: isDark ? AppColors.gold : AppColors.brown,
+                size: 96,
+                color: isDark ? AppColors.black : AppColors.white,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             Text(
               'No hay resúmenes aún',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
                 color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48),
               child: Text(
                 'Sube un documento y genera tu primer resumen',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
+                  height: 1.5,
                   color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 ),
               ),
@@ -183,9 +227,9 @@ class _SummariesScreenState extends State<SummariesScreen> {
 
     return RefreshIndicator(
       onRefresh: _loadSummaries,
-      color: isDark ? AppColors.gold : AppColors.brown,
+      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         itemCount: _summaries.length,
         itemBuilder: (context, index) => _buildSummaryCard(_summaries[index], isDark),
       ),
@@ -196,17 +240,18 @@ class _SummariesScreenState extends State<SummariesScreen> {
     final dateFormat = DateFormat('d MMM yyyy', 'es');
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 20),
       elevation: 0,
       color: isDark ? AppColors.darkCard : AppColors.lightCard,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         side: BorderSide(
-          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+          width: 2,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         onTap: () {
           Navigator.push(
             context,
@@ -216,30 +261,42 @@ class _SummariesScreenState extends State<SummariesScreen> {
           ).then((_) => _loadSummaries());
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-                      borderRadius: BorderRadius.circular(10),
+                      gradient: LinearGradient(
+                        colors: [
+                          isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.auto_awesome,
-                      color: Colors.white,
-                      size: 20,
+                      color: isDark ? AppColors.black : AppColors.white,
+                      size: 28,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Text(
                       summary.title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                       ),
@@ -251,53 +308,53 @@ class _SummariesScreenState extends State<SummariesScreen> {
                     Icon(
                       Icons.favorite,
                       color: AppColors.error,
-                      size: 18,
+                      size: 22,
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 summary.content,
                 style: TextStyle(
-                  fontSize: 14,
-                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                  height: 1.5,
+                  fontSize: 15,
+                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  height: 1.6,
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(Icons.calendar_today, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                  const SizedBox(width: 4),
+                  Icon(Icons.calendar_today, size: 16, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                  const SizedBox(width: 6),
                   Text(
                     dateFormat.format(summary.createdAt),
-                    style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    style: TextStyle(fontSize: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                   ),
                   const Spacer(),
                   if (summary.audioUrl != null) ...[
-                    Icon(Icons.headphones, size: 14, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                    const SizedBox(width: 4),
+                    Icon(Icons.headphones, size: 16, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                    const SizedBox(width: 6),
                     Text(
                       '${(summary.audioDuration ?? 0) ~/ 60} min',
-                      style: TextStyle(fontSize: 12, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                   ],
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(summary.status, isDark).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: _getStatusColor(summary.status, isDark).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: _getStatusColor(summary.status, isDark).withOpacity(0.3),
+                        color: _getStatusColor(summary.status, isDark).withOpacity(0.4),
                       ),
                     ),
                     child: Text(
                       _getStatusText(summary.status),
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: _getStatusColor(summary.status, isDark),
                       ),
@@ -318,7 +375,7 @@ class _SummariesScreenState extends State<SummariesScreen> {
         return AppColors.success;
       case 'pending':
       case 'processing':
-        return isDark ? AppColors.gold : AppColors.brown;
+        return isDark ? AppColors.darkAccent : AppColors.lightAccent;
       case 'failed':
       case 'error':
         return AppColors.error;

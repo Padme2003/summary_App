@@ -80,30 +80,43 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                 // Header
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    gradient: isDark ? AppColors.goldGradient : AppColors.brownGradient,
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors: [
+                        isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                        isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.lock_reset,
-                    size: 48,
-                    color: Colors.white,
+                    size: 64,
+                    color: isDark ? AppColors.black : AppColors.white,
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
                 Text(
                   '¿Olvidaste tu contraseña?',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 Text(
                   'Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.',
@@ -154,32 +167,50 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 24),
 
                 // Submit Button
-                SizedBox(
+                Container(
                   width: double.infinity,
-                  height: 56,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                        isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? AppColors.gold : AppColors.brown,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.5),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 0,
                     ),
                     child: _isLoading
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: isDark ? AppColors.black : AppColors.white,
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'Enviar instrucciones',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppColors.black : AppColors.white,
+                            ),
                           ),
                   ),
                 ),
