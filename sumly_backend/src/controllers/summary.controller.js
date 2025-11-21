@@ -150,22 +150,46 @@ Responde SOLO con el JSON, nada más.
       console.log('Respuesta completa (primeros 1000 chars):', text.substring(0, 1000));
 
       // Gemini no devolvió JSON válido - extraer el resumen manualmente
-      // A veces Gemini ignora el formato y solo devuelve texto plano
       let cleanText = text;
+      let extractedKeyPoints = [];
 
-      // Limpiar cualquier formato residual de código/llaves
-      cleanText = cleanText
-        .replace(/^\{+/, '')  // Quitar llaves al inicio
-        .replace(/\}+$/, '')  // Quitar llaves al final
-        .replace(/"summary":\s*"/gi, '')  // Quitar "summary": "
-        .replace(/"keyPoints":\s*\[.*?\]/gi, '')  // Quitar sección keyPoints
-        .replace(/"sections":\s*\[.*?\]/gi, '')  // Quitar sección sections
-        .replace(/,\s*$/g, '')  // Quitar comas finales
-        .trim();
+      // Intentar extraer el contenido del campo "summary" si existe
+      const summaryMatch = text.match(/"summary"\s*:\s*"([\s\S]*?)(?:"\s*,\s*"|"\s*\})/);
+      if (summaryMatch && summaryMatch[1]) {
+        cleanText = summaryMatch[1];
+      } else {
+        // Limpieza agresiva de formato JSON residual
+        cleanText = cleanText
+          .replace(/```json\s*/gi, '')
+          .replace(/```\s*/gi, '')
+          .replace(/^\s*\{\s*/, '')  // Quitar { al inicio
+          .replace(/\s*\}\s*$/, '')  // Quitar } al final
+          .replace(/"summary"\s*:\s*"/gi, '')
+          .replace(/"keyPoints"\s*:\s*\[[\s\S]*?\]/gi, '')
+          .replace(/"sections"\s*:\s*\[[\s\S]*?\]/gi, '')
+          .replace(/",?\s*$/g, '')  // Quitar comillas y comas finales
+          .replace(/^"/g, '')  // Quitar comillas al inicio
+          .replace(/\\n/g, '\n')  // Convertir \n a saltos de línea reales
+          .replace(/\\"/g, '"')  // Convertir \" a comillas
+          .trim();
+      }
+
+      // Intentar extraer keyPoints si existen
+      const keyPointsMatch = text.match(/"keyPoints"\s*:\s*\[([\s\S]*?)\]/);
+      if (keyPointsMatch && keyPointsMatch[1]) {
+        try {
+          const kpArray = JSON.parse('[' + keyPointsMatch[1] + ']');
+          if (Array.isArray(kpArray)) {
+            extractedKeyPoints = kpArray.filter(kp => typeof kp === 'string');
+          }
+        } catch (e) {
+          // Ignorar si no se puede parsear
+        }
+      }
 
       summaryData = {
         summary: cleanText,
-        keyPoints: [],
+        keyPoints: extractedKeyPoints,
         sections: [],
       };
 
