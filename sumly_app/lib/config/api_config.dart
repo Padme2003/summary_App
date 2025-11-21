@@ -15,11 +15,10 @@ class ApiConfig {
 
   // PRODUCCIÓN - RAILWAY (Backend en la nube 24/7):
   // Usa esto para producción - funciona con datos móviles y cualquier red
-  static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
+  // static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
 
   // DESARROLLO LOCAL (cuando necesites probar en local):
-  // Descomenta esta línea y comenta la de arriba para desarrollo local
-  // static const String baseUrl = 'http://192.168.18.54:5000/api';
+  static const String baseUrl = 'http://192.168.18.54:5000/api';
 
   // Auth Endpoints
   static const String login = '$baseUrl/auth/login';
@@ -40,6 +39,6 @@ class ApiConfig {
   static String getSummary(String summaryId) => '$summaries/$summaryId';
 
   // Timeouts
-  static const Duration connectionTimeout = Duration(seconds: 30);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  static const Duration connectionTimeout = Duration(seconds: 10);
+  static const Duration receiveTimeout = Duration(seconds: 10);
 }
