@@ -156,7 +156,7 @@ class _UploadScreenState extends State<UploadScreen>
           onTap: _pickFile,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            height: 140,
+            constraints: BoxConstraints(minHeight: 140),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : AppColors.lightCard,
               borderRadius: BorderRadius.circular(20),
@@ -248,12 +248,12 @@ class _UploadScreenState extends State<UploadScreen>
   Widget _buildFilePreview() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle, size: 40, color: AppColors.success),
-          const SizedBox(height: 16),
+          Icon(Icons.check_circle, size: 36, color: AppColors.success),
+          const SizedBox(height: 12),
           Text(
             'Archivo seleccionado',
             style: TextStyle(
@@ -295,7 +295,7 @@ class _UploadScreenState extends State<UploadScreen>
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           TextButton.icon(
             onPressed: _pickFile,
             icon: Icon(Icons.refresh, color: isDark ? AppColors.gold : AppColors.brown),
