@@ -36,6 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('📱 LibraryScreen initState - Loading data...');
     _loadData();
   }
 
@@ -58,6 +59,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
       if (mounted) {
         if (userResult['success'] == true && docsResult['success'] == true) {
           _user = userResult['user'];
+
+          // DEBUG: Log del usuario cargado
+          debugPrint('👤 Usuario cargado desde API: ${_user?.name} (ID: ${_user?.id})');
+
           _documents = docsResult['documents'] ?? [];
 
           // Load summaries for each document
@@ -76,14 +81,42 @@ class _LibraryScreenState extends State<LibraryScreen> {
             _isLoading = false;
           });
         } else {
-          setState(() {
-            _errorMessage = userResult['message'] ?? 'Error al cargar datos';
-            _isLoading = false;
-          });
+          // Si el perfil falla, intentar cargar usuario guardado como fallback
+          debugPrint('⚠️ Error al obtener perfil: ${userResult['message']}');
+
+          final savedUser = await _authService.getSavedUser();
+          debugPrint('👤 Usuario guardado (fallback): ${savedUser?.name} (ID: ${savedUser?.id})');
+
+          if (savedUser != null && docsResult['success'] == true) {
+            _user = savedUser;
+            _documents = docsResult['documents'] ?? [];
+
+            // Load summaries for each document
+            for (final doc in _documents) {
+              try {
+                final summariesResult = await _summaryService.getSummariesByDocument(doc.id);
+                if (summariesResult['success'] == true) {
+                  _documentSummaries[doc.id] = summariesResult['summaries'] ?? [];
+                }
+              } catch (e) {
+                debugPrint('Error loading summaries for doc ${doc.id}: $e');
+              }
+            }
+
+            setState(() {
+              _isLoading = false;
+            });
+          } else {
+            setState(() {
+              _errorMessage = userResult['message'] ?? 'Error al cargar datos';
+              _isLoading = false;
+            });
+          }
         }
       }
     } catch (e) {
       if (mounted) {
+        debugPrint('❌ Excepción en _loadData: $e');
         setState(() {
           _errorMessage = 'Error de conexión: $e';
           _isLoading = false;
@@ -116,6 +149,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
 
     return filtered;
+  }
+
+  String _getDisplayName() {
+    final displayName = _user?.name ?? 'Usuario';
+    debugPrint('📝 Nombre mostrado: "$displayName" (user: ${_user?.name}, isEmpty: ${_user?.name?.isEmpty ?? true})');
+    return displayName;
   }
 
   String _getGreeting() {
@@ -182,7 +221,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _user?.name ?? 'Usuario',
+                            _getDisplayName(),
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,

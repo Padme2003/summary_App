@@ -26,7 +26,10 @@ class AuthService {
   // Guardar usuario
   Future<void> _saveUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+    final jsonData = jsonEncode(user.toJson());
+    await prefs.setString(_userKey, jsonData);
+    debugPrint('💾 Usuario guardado en SharedPreferences: ${user.name} (ID: ${user.id})');
+    debugPrint('   JSON: $jsonData');
   }
 
   // Obtener usuario guardado
@@ -34,16 +37,22 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final userJson = prefs.getString(_userKey);
     if (userJson != null) {
-      return User.fromJson(jsonDecode(userJson));
+      final user = User.fromJson(jsonDecode(userJson));
+      debugPrint('📖 Usuario recuperado de SharedPreferences: ${user.name} (ID: ${user.id})');
+      return user;
     }
+    debugPrint('⚠️ No hay usuario guardado en SharedPreferences');
     return null;
   }
 
   // Cerrar sesión
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
+    debugPrint('🔐 Limpiando sesión...');
     await prefs.remove(_tokenKey);
+    debugPrint('   ✓ Token eliminado');
     await prefs.remove(_userKey);
+    debugPrint('   ✓ Usuario eliminado');
   }
 
   // Verificar si está autenticado
@@ -75,6 +84,7 @@ class AuthService {
         final token = data['data']['token'];
         final user = User.fromJson(data['data']['user']);
 
+        debugPrint('✅ Registro exitoso - Usuario: ${user.name} (${user.email})');
         await _saveToken(token);
         await _saveUser(user);
 
@@ -118,6 +128,8 @@ class AuthService {
         final token = data['data']['token'];
         final user = User.fromJson(data['data']['user']);
 
+        debugPrint('✅ Login exitoso - Usuario: ${user.name} (${user.email})');
+        debugPrint('   Respuesta del servidor: ${data['data']['user']}');
         await _saveToken(token);
         await _saveUser(user);
 
@@ -163,6 +175,7 @@ class AuthService {
 
       if (response.statusCode == 200 && data['success'] == true) {
         final user = User.fromJson(data['data']['user']);
+        debugPrint('📋 Perfil obtenido desde API: ${user.name} (${user.email})');
         await _saveUser(user);
 
         return {
