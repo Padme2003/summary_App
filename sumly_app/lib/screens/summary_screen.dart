@@ -876,57 +876,6 @@ Generado con Sumly - Resúmenes Inteligentes con IA
     );
   }
 
-  void _showTextSizeDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final sizes = {
-      'Pequeño': 16.0,
-      'Normal': 19.0,
-      'Grande': 21.0,
-      'Muy grande': 24.0,
-    };
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        title: Text(
-          'Tamaño del texto',
-          style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: sizes.entries.map((entry) {
-            final isSelected = _textSize == entry.value;
-            return ListTile(
-              title: Text(
-                entry.key,
-                style: TextStyle(
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                  fontSize: entry.value,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-              trailing: isSelected
-                  ? Icon(
-                      Icons.check_rounded,
-                      color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                    )
-                  : null,
-              onTap: () {
-                setState(() {
-                  _textSize = entry.value;
-                });
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
   Future<void> _downloadAudio() async {
     if (_summary?.audioUrl == null || _summary!.audioUrl!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
