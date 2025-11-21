@@ -298,37 +298,41 @@ class _ProcessingScreenState extends State<ProcessingScreen>
           const SizedBox(height: 40),
 
           // Barra de progreso
-          Stack(
-            children: [
-              Container(
-                height: 10,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : AppColors.lightBorder,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                height: 10,
-                width: MediaQuery.of(context).size.width * _progress - 64,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                      isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCard : AppColors.lightBorder,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    height: 10,
+                    width: constraints.maxWidth * _progress,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 20),

@@ -91,6 +91,7 @@ class Summary {
   final int? audioDuration;
   final String status;
   final bool isFavorite;
+  final String? documentId;
   final Map<String, dynamic>? metadata;
   final DateTime createdAt;
 
@@ -103,6 +104,7 @@ class Summary {
     this.audioDuration,
     required this.status,
     required this.isFavorite,
+    this.documentId,
     this.metadata,
     required this.createdAt,
   });
@@ -117,6 +119,7 @@ class Summary {
       audioDuration: json['audioDuration'],
       status: json['status'] ?? 'generating',
       isFavorite: json['isFavorite'] ?? false,
+      documentId: json['document']?['_id'] ?? json['document'],
       metadata: json['metadata'],
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
     );

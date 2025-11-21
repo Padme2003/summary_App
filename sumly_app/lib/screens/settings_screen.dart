@@ -30,7 +30,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _defaultSpeed = 1.0;
   String _voiceLanguage = 'es-ES';
   bool _wifiOnly = false;
-  String _fontSize = 'medium';
 
   @override
   void initState() {
@@ -79,7 +78,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _defaultSpeed = prefs.getDouble('defaultSpeed') ?? 1.0;
       _voiceLanguage = prefs.getString('voiceLanguage') ?? 'es-ES';
       _wifiOnly = prefs.getBool('wifiOnly') ?? false;
-      _fontSize = prefs.getString('fontSize') ?? 'medium';
     });
   }
 
@@ -88,7 +86,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setDouble('defaultSpeed', _defaultSpeed);
     await prefs.setString('voiceLanguage', _voiceLanguage);
     await prefs.setBool('wifiOnly', _wifiOnly);
-    await prefs.setString('fontSize', _fontSize);
   }
 
   @override
@@ -173,14 +170,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             isDark: isDark,
                           );
                         },
-                      ),
-                      _buildDivider(isDark),
-                      _buildSelectTile(
-                        title: 'Tamaño de fuente',
-                        subtitle: _getFontSizeName(_fontSize),
-                        icon: Icons.text_fields_rounded,
-                        onTap: () => _showFontSizeDialog(),
-                        isDark: isDark,
                       ),
                     ],
                   ),
@@ -729,15 +718,6 @@ Widget _buildLogoutButton(bool isDark) {
   }
 
 
-  String _getFontSizeName(String size) {
-    final sizes = {
-      'small': 'Pequeño',
-      'medium': 'Mediano',
-      'large': 'Grande',
-    };
-    return sizes[size] ?? 'Mediano';
-  }
-
   Future<void> _changeProfilePhoto() async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -1130,40 +1110,6 @@ Widget _buildLogoutButton(bool isDark) {
     );
   }
 
-
-  void _showFontSizeDialog() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-        title: Text(
-          'Tamaño de fuente',
-          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ['small', 'medium', 'large'].map((size) {
-            return RadioListTile<String>(
-              title: Text(
-                _getFontSizeName(size),
-                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-              ),
-              activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-              value: size,
-              groupValue: _fontSize,
-              onChanged: (value) {
-                setState(() => _fontSize = value!);
-                _saveSettings();
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
 
   Future<void> _openWhatsApp() async {
     const phoneNumber = '593984173150';

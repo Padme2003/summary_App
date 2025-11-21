@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/animated_widgets.dart';
 import '../services/summary_service.dart';
+import '../services/document_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
 import '../utils/app_colors.dart';
@@ -21,6 +22,7 @@ class SummaryScreen extends StatefulWidget {
 
 class _SummaryScreenState extends State<SummaryScreen> {
   final SummaryService _summaryService = SummaryService();
+  final DocumentService _documentService = DocumentService();
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   Summary? _summary;
@@ -267,19 +269,34 @@ Generado con Sumly - Resúmenes Inteligentes con IA
       );
     }
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) return;
+
+        final shouldPop = await _showExitConfirmation(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            ),
+            onPressed: () async {
+              final shouldPop = await _showExitConfirmation(context);
+              if (shouldPop && context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
+          actions: [
           AnimatedHeartIcon(
             isFavorite: _isFavorite,
             onTap: _toggleFavorite,
@@ -302,14 +319,69 @@ Generado con Sumly - Resúmenes Inteligentes con IA
           ),
         ],
       ),
-      body: Column(
-        children: [
-          AnimatedCard(delay: 0, child: _buildHeader()),
-          Expanded(child: AnimatedCard(delay: 100, child: _buildContent())),
-          AnimatedCard(delay: 200, child: _buildAudioControls()),
+        body: Column(
+          children: [
+            AnimatedCard(delay: 0, child: _buildHeader()),
+            Expanded(child: AnimatedCard(delay: 100, child: _buildContent())),
+            AnimatedCard(delay: 200, child: _buildAudioControls()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showExitConfirmation(BuildContext context) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.info_outline, color: isDark ? AppColors.darkAccent : AppColors.lightAccent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '¿Volver atrás?',
+                style: TextStyle(
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'El resumen se ha guardado en tu biblioteca.',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Seguir leyendo',
+              style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+              foregroundColor: isDark ? AppColors.black : AppColors.white,
+            ),
+            child: const Text('Volver a biblioteca'),
+          ),
         ],
       ),
     );
+
+    return result ?? false;
   }
 
   // HEADER COMPLETAMENTE REDISEÑADO
@@ -1016,6 +1088,69 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
     }
   }
 
+  Future<void> _viewOriginalPDF() async {
+    if (_summary?.documentId == null) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final result = await _documentService.getDocument(_summary!.documentId!);
+
+      if (mounted) {
+        Navigator.pop(context);
+
+        if (result['success'] == true) {
+          final document = result['document'] as DocumentModel;
+
+          if (document.filePath != null && document.filePath!.isNotEmpty) {
+            final pdfUrl = document.filePath!.startsWith('http')
+                ? document.filePath!
+                : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+            Navigator.pushNamed(
+              context,
+              '/pdf-viewer',
+              arguments: {
+                'url': pdfUrl,
+                'title': document.title,
+              },
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('PDF no disponible'),
+                backgroundColor: AppColors.warning,
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Error al cargar documento'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   void _showOptionsMenu() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -1029,6 +1164,23 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (_summary?.documentId != null)
+              ListTile(
+                leading: Icon(
+                  Icons.picture_as_pdf_rounded,
+                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                ),
+                title: Text(
+                  'Ver PDF original',
+                  style: TextStyle(
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _viewOriginalPDF();
+                },
+              ),
             ListTile(
               leading: Icon(
                 Icons.copy_rounded,
