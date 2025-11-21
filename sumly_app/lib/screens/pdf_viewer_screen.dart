@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../utils/app_colors.dart';
+import '../config/api_config.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final String documentTitle;
@@ -25,6 +26,23 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   int _totalPages = 0;
   bool _isLoading = true;
   String? _errorMessage;
+
+  // Construir URL completa del PDF
+  String? get _fullPdfUrl {
+    if (widget.pdfUrl == null) return null;
+
+    // Si ya es URL completa, usarla directamente
+    if (widget.pdfUrl!.startsWith('http://') || widget.pdfUrl!.startsWith('https://')) {
+      return widget.pdfUrl;
+    }
+
+    // Si es URL relativa, construir URL completa
+    String baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+    String pdfPath = widget.pdfUrl!;
+    if (!pdfPath.startsWith('/')) pdfPath = '/$pdfPath';
+
+    return '$baseUrl$pdfPath';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +108,9 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       ),
       body: Stack(
         children: [
-          if (widget.pdfUrl != null && _errorMessage == null)
+          if (_fullPdfUrl != null && _errorMessage == null)
             SfPdfViewer.network(
-              widget.pdfUrl!,
+              _fullPdfUrl!,
               controller: _pdfViewerController,
               onDocumentLoaded: (PdfDocumentLoadedDetails details) {
                 setState(() {

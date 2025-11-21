@@ -38,7 +38,10 @@ class ApiConfig {
   static String toggleFavorite(String summaryId) => '$summaries/$summaryId/favorite';
   static String getSummary(String summaryId) => '$summaries/$summaryId';
 
-  // Timeouts
-  static const Duration connectionTimeout = Duration(seconds: 10);
-  static const Duration receiveTimeout = Duration(seconds: 10);
+  // Timeouts optimizados (1-3s para operaciones rápidas)
+  static const Duration connectionTimeout = Duration(seconds: 3);
+  static const Duration receiveTimeout = Duration(seconds: 3);
+
+  // Timeout largo para generación de resúmenes y uploads
+  static const Duration generationTimeout = Duration(seconds: 60);
 }

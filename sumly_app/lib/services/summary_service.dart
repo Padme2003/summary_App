@@ -15,7 +15,7 @@ class SummaryService {
     };
   }
 
-  // Generar resumen
+  // Generar resumen (usa timeout largo porque la IA tarda)
   Future<Map<String, dynamic>> generateSummary(String documentId) async {
     try {
       final headers = await _getHeaders();
@@ -24,7 +24,7 @@ class SummaryService {
         Uri.parse('${ApiConfig.summaries}/generate'),
         headers: headers,
         body: jsonEncode({'documentId': documentId}),
-      ).timeout(ApiConfig.connectionTimeout);
+      ).timeout(ApiConfig.generationTimeout);
 
       final data = jsonDecode(response.body);
 

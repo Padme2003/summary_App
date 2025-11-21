@@ -17,7 +17,7 @@ class DocumentService {
     };
   }
 
-  // Subir archivo
+  // Subir archivo (usa timeout largo)
   Future<Map<String, dynamic>> uploadFile(File file, String title) async {
     try {
       final token = await _authService.getToken();
@@ -34,7 +34,7 @@ class DocumentService {
       request.fields['title'] = title;
       request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(ApiConfig.generationTimeout);
       final response = await http.Response.fromStream(streamedResponse);
       final data = jsonDecode(response.body);
 
