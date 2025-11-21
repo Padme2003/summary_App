@@ -1,0 +1,33 @@
+{
+  "name": "sumly-backend",
+  "version": "1.0.0",
+  "description": "Backend API para SUMLY",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node scripts/setup-railway.js && node src/server.js",
+    "dev": "nodemon src/server.js",
+    "railway:start": "node scripts/setup-railway.js && node src/server.js"
+  },
+  "keywords": ["sumly", "api", "nodejs"],
+  "author": "Pamela Moposita",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.0",
+    "pdf-parse": "^1.1.1",
+    "@google/generative-ai": "^0.1.3",
+    "@google-cloud/text-to-speech": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
