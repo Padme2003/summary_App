@@ -549,9 +549,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: Row(
                   children: [
                     Container(
-                      width: 3,
-                      height: 32,
-                      margin: const EdgeInsets.only(right: 10),
+                      width: 2,
+                      height: 28,
+                      margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -561,11 +561,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(1.5),
+                        borderRadius: BorderRadius.circular(1),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -573,47 +573,51 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         activity['icon'] as IconData,
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        size: 16,
+                        size: 14,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             activity['title'] as String,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 1),
                           Text(
                             isDocument ? 'Doc' : 'Resumen',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 9,
                               color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _formatDate(activity['date'] as DateTime),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        _formatDate(activity['date'] as DateTime),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],

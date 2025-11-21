@@ -62,6 +62,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
         _textSize += 1.0;
       });
       _saveTextSize(_textSize);
+      _showTextSizeFeedback('Tamaño: ${_textSize.toInt()}px');
     }
   }
 
@@ -71,7 +72,28 @@ class _SummaryScreenState extends State<SummaryScreen> {
         _textSize -= 1.0;
       });
       _saveTextSize(_textSize);
+      _showTextSizeFeedback('Tamaño: ${_textSize.toInt()}px');
     }
+  }
+
+  void _showTextSizeFeedback(String message) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.text_fields_rounded, color: Colors.white, size: 18),
+            const SizedBox(width: 8),
+            Text(message, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        duration: const Duration(milliseconds: 800),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.only(bottom: 180, left: 16, right: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -1170,20 +1192,27 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 100), // Posicionado sobre los controles de audio
+      margin: const EdgeInsets.only(bottom: 100),
       child: Material(
-        elevation: 6,
-        borderRadius: BorderRadius.circular(30),
+        elevation: 8,
+        borderRadius: BorderRadius.circular(35),
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(35),
             border: Border.all(
-              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-              width: 1.5,
+              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+              width: 2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1191,93 +1220,114 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
               AnimatedScaleButton(
                 onPressed: _decreaseTextSize,
                 child: Container(
-                  width: 40,
-                  height: 40,
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
-                      ],
-                    ),
+                    gradient: _textSize <= 14.0
+                        ? null
+                        : LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                            ],
+                          ),
+                    color: _textSize <= 14.0 ? Colors.grey.withOpacity(0.2) : null,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _textSize <= 14.0
-                          ? Colors.grey.withOpacity(0.3)
-                          : (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-                      width: 1.5,
-                    ),
+                    boxShadow: _textSize <= 14.0
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                   ),
                   child: Icon(
                     Icons.remove_rounded,
-                    size: 20,
+                    size: 24,
                     color: _textSize <= 14.0
                         ? Colors.grey
-                        : (isDark ? AppColors.darkAccent : AppColors.lightAccent),
+                        : (isDark ? AppColors.black : AppColors.white),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              // Indicador de tamaño
+              const SizedBox(width: 12),
+              // Indicador de tamaño MÁS GRANDE
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.15),
-                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.1),
+                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.text_fields_rounded,
-                      size: 18,
+                      size: 22,
                       color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     Text(
-                      '${_textSize.toInt()}',
+                      '${_textSize.toInt()}px',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               // Botón +
               AnimatedScaleButton(
                 onPressed: _increaseTextSize,
                 child: Container(
-                  width: 40,
-                  height: 40,
+                  width: 46,
+                  height: 46,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                        (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
-                      ],
-                    ),
+                    gradient: _textSize >= 24.0
+                        ? null
+                        : LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                            ],
+                          ),
+                    color: _textSize >= 24.0 ? Colors.grey.withOpacity(0.2) : null,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _textSize >= 24.0
-                          ? Colors.grey.withOpacity(0.3)
-                          : (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.5),
-                      width: 1.5,
-                    ),
+                    boxShadow: _textSize >= 24.0
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                   ),
                   child: Icon(
                     Icons.add_rounded,
-                    size: 20,
+                    size: 24,
                     color: _textSize >= 24.0
                         ? Colors.grey
-                        : (isDark ? AppColors.darkAccent : AppColors.lightAccent),
+                        : (isDark ? AppColors.black : AppColors.white),
                   ),
                 ),
               ),

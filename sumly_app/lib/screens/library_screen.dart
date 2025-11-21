@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
 import '../services/summary_service.dart';
@@ -69,50 +70,21 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
       if (mounted) {
         if (userResult['success'] == true && docsResult['success'] == true) {
           _user = userResult['user'];
-
-          // DEBUG: Log del usuario cargado
           debugPrint('👤 Usuario cargado desde API: ${_user?.name} (ID: ${_user?.id})');
-
           _documents = docsResult['documents'] ?? [];
 
-          // Load summaries for each document
-          for (final doc in _documents) {
-            try {
-              final summariesResult = await _summaryService.getSummariesByDocument(doc.id);
-              if (summariesResult['success'] == true) {
-                _documentSummaries[doc.id] = summariesResult['summaries'] ?? [];
-              }
-            } catch (e) {
-              debugPrint('Error loading summaries for doc ${doc.id}: $e');
-            }
-          }
-
+          // ✅ NO cargar resúmenes aquí - se cargan al expandir
           setState(() {
             _isLoading = false;
           });
         } else {
-          // Si el perfil falla, intentar cargar usuario guardado como fallback
           debugPrint('⚠️ Error al obtener perfil: ${userResult['message']}');
-
           final savedUser = await _authService.getSavedUser();
           debugPrint('👤 Usuario guardado (fallback): ${savedUser?.name} (ID: ${savedUser?.id})');
 
           if (savedUser != null && docsResult['success'] == true) {
             _user = savedUser;
             _documents = docsResult['documents'] ?? [];
-
-            // Load summaries for each document
-            for (final doc in _documents) {
-              try {
-                final summariesResult = await _summaryService.getSummariesByDocument(doc.id);
-                if (summariesResult['success'] == true) {
-                  _documentSummaries[doc.id] = summariesResult['summaries'] ?? [];
-                }
-              } catch (e) {
-                debugPrint('Error loading summaries for doc ${doc.id}: $e');
-              }
-            }
-
             setState(() {
               _isLoading = false;
             });
@@ -132,6 +104,22 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           _isLoading = false;
         });
       }
+    }
+  }
+
+  // Nueva función para cargar resúmenes solo cuando se expande
+  Future<void> _loadSummariesForDocument(String documentId) async {
+    if (_documentSummaries.containsKey(documentId)) return; // Ya cargados
+
+    try {
+      final summariesResult = await _summaryService.getSummariesByDocument(documentId);
+      if (mounted && summariesResult['success'] == true) {
+        setState(() {
+          _documentSummaries[documentId] = summariesResult['summaries'] ?? [];
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading summaries for doc $documentId: $e');
     }
   }
 
@@ -443,7 +431,7 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           const SizedBox(height: 16),
           _buildStatCard(
             'Procesados',
-            '${_documents.where((doc) => doc.status == 'completed' && (_documentSummaries[doc.id]?.isNotEmpty ?? false)).length}',
+            '${_documents.where((doc) => doc.status == 'completed' || doc.status == 'processed').length}',
             'listos para leer',
             Icons.check_circle_rounded,
             [AppColors.success, AppColors.success.withOpacity(0.7)],
@@ -743,14 +731,18 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(24),
-              onTap: () {
-                setState(() {
-                  if (isExpanded) {
+              onTap: () async {
+                if (isExpanded) {
+                  setState(() {
                     _expandedDocuments.remove(document.id);
-                  } else {
+                  });
+                } else {
+                  setState(() {
                     _expandedDocuments.add(document.id);
-                  }
-                });
+                  });
+                  // Cargar resúmenes solo cuando se expande
+                  await _loadSummariesForDocument(document.id);
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -907,6 +899,24 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
               child: Divider(
                 height: 1,
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              ),
+            ),
+            // Botón para abrir documento original
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: ElevatedButton.icon(
+                onPressed: () => _openDocument(document),
+                icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                label: const Text('Ver Documento Original'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  foregroundColor: isDark ? AppColors.black : AppColors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
               ),
             ),
             _buildSummaryList(document.id),
@@ -1121,6 +1131,41 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           SnackBar(
             content: Text('Error: $e'),
             backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _openDocument(DocumentModel document) async {
+    if (document.filePath == null || document.filePath!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Documento no disponible'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final fileUrl = document.filePath!.startsWith('http')
+          ? document.filePath!
+          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+      final uri = Uri.parse(fileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el archivo';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al abrir documento: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
