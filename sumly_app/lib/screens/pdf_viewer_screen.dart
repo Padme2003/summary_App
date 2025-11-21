@@ -24,6 +24,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
   int _currentPage = 1;
   int _totalPages = 0;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +90,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
       ),
       body: Stack(
         children: [
-          if (widget.pdfUrl != null)
+          if (widget.pdfUrl != null && _errorMessage == null)
             SfPdfViewer.network(
               widget.pdfUrl!,
               controller: _pdfViewerController,
@@ -97,6 +98,12 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 setState(() {
                   _totalPages = details.document.pages.count;
                   _isLoading = false;
+                });
+              },
+              onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
+                setState(() {
+                  _isLoading = false;
+                  _errorMessage = details.description;
                 });
               },
               onPageChanged: (PdfPageChangedDetails details) {
@@ -121,25 +128,53 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 });
               },
             )
-          else
+          else if (_errorMessage != null || widget.pdfUrl == null)
             Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 40,
-                    color: AppColors.error,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No se pudo cargar el PDF',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: AppColors.error,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'No se pudo cargar el PDF',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    if (_errorMessage != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        _errorMessage!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                    if (widget.pdfUrl != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'URL: ${widget.pdfUrl}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
           if (_isLoading)
