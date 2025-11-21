@@ -96,6 +96,51 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  void _loginWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _authService.signInWithGoogle();
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+
+        if (result['success'] == true) {
+          TextInput.finishAutofillContext();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Bienvenido con Google'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Error al iniciar sesión con Google'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error de conexión con Google: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -103,8 +148,18 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: Container(
+        // Gradiente sutil de fondo
         decoration: BoxDecoration(
-          gradient: isDark ? AppColors.darkGradient : null,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [AppColors.darkBackground, AppColors.darkBackground]
+                : [
+                    AppColors.cream,
+                    AppColors.white,
+                  ],
+          ),
         ),
         child: SafeArea(
           child: Center(
@@ -119,30 +174,33 @@ class _LoginScreenState extends State<LoginScreen>
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo con gradiente
-                        Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                                isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                        // Logo con Hero animation
+                        Hero(
+                          tag: 'logo_hero',
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                  isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                  blurRadius: 16,
+                                  spreadRadius: 1,
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                                blurRadius: 16,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.auto_stories_rounded,
-                            size: 40,
-                            color: isDark ? AppColors.black : AppColors.white,
+                            child: Icon(
+                              Icons.auto_stories_rounded,
+                              size: 28,
+                              color: isDark ? AppColors.black : AppColors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 28),
@@ -159,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen>
                             'Bienvenido',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: -0.3,
@@ -178,133 +236,132 @@ class _LoginScreenState extends State<LoginScreen>
                         const SizedBox(height: 48),
 
                         // Email Field
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           ),
-                          child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            autofillHints: const [AutofillHints.email],
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          decoration: InputDecoration(
+                            hintText: 'Email',
+                            hintStyle: TextStyle(
+                              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              labelStyle: TextStyle(
-                                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                            prefixIcon: Icon(
+                              Icons.email_outlined,
+                              size: 20,
+                              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                width: 1.5,
                               ),
-                              prefixIcon: Icon(
-                                Icons.email_outlined,
-                                size: 24,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
                                 color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
+                                width: 2,
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor ingresa tu email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Ingresa un email válido';
-                              }
-                              return null;
-                            },
+                            filled: true,
+                            fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingresa tu email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Ingresa un email válido';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 20),
 
                         // Password Field
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.2 : 0.06),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          autofillHints: const [AutofillHints.password],
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                           ),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            autofillHints: const [AutofillHints.password],
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          decoration: InputDecoration(
+                            hintText: 'Contraseña',
+                            hintStyle: TextStyle(
+                              color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                             ),
-                            decoration: InputDecoration(
-                              labelText: 'Contraseña',
-                              labelStyle: TextStyle(
+                            prefixIcon: Icon(
+                              Icons.lock_outline,
+                              size: 20,
+                              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                size: 20,
                                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                               ),
-                              prefixIcon: Icon(
-                                Icons.lock_outline,
-                                size: 24,
-                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
-                                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                                ),
-                                onPressed: () {
-                                  setState(() => _obscurePassword = !_obscurePassword);
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              filled: true,
-                              fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
+                              onPressed: () {
+                                setState(() => _obscurePassword = !_obscurePassword);
+                              },
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                width: 1.5,
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Por favor ingresa tu contraseña';
-                              }
-                              if (value.length < 6) {
-                                return 'La contraseña debe tener al menos 6 caracteres';
-                              }
-                              return null;
-                            },
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                                width: 2,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingresa tu contraseña';
+                            }
+                            if (value.length < 6) {
+                              return 'La contraseña debe tener al menos 6 caracteres';
+                            }
+                            return null;
+                          },
                         ),
 
                         // Olvidé mi contraseña
@@ -333,7 +390,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                         // Botón Login con gradiente
                         Container(
-                          height: 56,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -355,6 +411,7 @@ class _LoginScreenState extends State<LoginScreen>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -410,62 +467,36 @@ class _LoginScreenState extends State<LoginScreen>
                         const SizedBox(height: 24),
 
                         // Google Sign-In Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: OutlinedButton.icon(
-                            onPressed: _isLoading
-                                ? null
-                                : () async {
-                                    setState(() => _isLoading = true);
-
-                                    final result = await _authService.signInWithGoogle();
-
-                                    if (mounted) {
-                                      setState(() => _isLoading = false);
-
-                                      if (result['success'] == true) {
-                                        Navigator.pushReplacementNamed(context, '/home');
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              result['message'] ?? 'Error al iniciar sesión',
-                                            ),
-                                            backgroundColor: AppColors.error,
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                            icon: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.g_mobiledata_rounded,
-                                size: 28,
-                                color: Colors.red.shade600,
-                              ),
+                        OutlinedButton.icon(
+                          onPressed: _isLoading ? null : _loginWithGoogle,
+                          icon: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
                             ),
-                            label: Text(
-                              'Continuar con Google',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                              ),
+                            child: Icon(
+                              Icons.g_mobiledata_rounded,
+                              size: 24,
+                              color: Colors.red.shade600,
                             ),
-                            style: OutlinedButton.styleFrom(
-                              backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              side: BorderSide(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                          ),
+                          label: Text(
+                            'Continuar con Google',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(
+                              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                         ),

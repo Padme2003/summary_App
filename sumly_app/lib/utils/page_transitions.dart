@@ -10,7 +10,7 @@ class SlideUpRoute extends PageRouteBuilder {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
-          const curve = Curves.easeInOutCubic;
+          const curve = Curves.easeOut;
 
           var tween = Tween(
             begin: begin,
@@ -22,7 +22,7 @@ class SlideUpRoute extends PageRouteBuilder {
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 400),
+        transitionDuration: const Duration(milliseconds: 200),
       );
 }
 
@@ -34,9 +34,12 @@ class FadeRoute extends PageRouteBuilder {
     : super(
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
+          return FadeTransition(
+            opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
+            child: child,
+          );
         },
-        transitionDuration: const Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 200),
       );
 }
 
@@ -48,7 +51,7 @@ class ScaleFadeRoute extends PageRouteBuilder {
     : super(
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const curve = Curves.easeInOutCubic;
+          const curve = Curves.easeOut;
 
           var scaleTween = Tween(
             begin: 0.8,
@@ -68,7 +71,7 @@ class ScaleFadeRoute extends PageRouteBuilder {
             ),
           );
         },
-        transitionDuration: const Duration(milliseconds: 400),
+        transitionDuration: const Duration(milliseconds: 200),
       );
 }
 
@@ -82,7 +85,7 @@ class SlideRightRoute extends PageRouteBuilder {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
-          const curve = Curves.easeInOut;
+          const curve = Curves.easeOut;
 
           var tween = Tween(
             begin: begin,
@@ -94,7 +97,7 @@ class SlideRightRoute extends PageRouteBuilder {
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 300),
+        transitionDuration: const Duration(milliseconds: 200),
       );
 }
 
@@ -106,7 +109,7 @@ class RotationFadeRoute extends PageRouteBuilder {
     : super(
         pageBuilder: (context, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const curve = Curves.easeInOutCubic;
+          const curve = Curves.easeOut;
 
           var rotationTween = Tween(
             begin: 0.8,
@@ -119,7 +122,7 @@ class RotationFadeRoute extends PageRouteBuilder {
           ).chain(CurveTween(curve: curve));
 
           return RotationTransition(
-            turns: animation.drive(Tween(begin: -0.05, end: 0.0)),
+            turns: animation.drive(Tween(begin: -0.05, end: 0.0).chain(CurveTween(curve: curve))),
             child: ScaleTransition(
               scale: animation.drive(rotationTween),
               child: FadeTransition(
@@ -129,7 +132,7 @@ class RotationFadeRoute extends PageRouteBuilder {
             ),
           );
         },
-        transitionDuration: const Duration(milliseconds: 500),
+        transitionDuration: const Duration(milliseconds: 200),
       );
 }
 

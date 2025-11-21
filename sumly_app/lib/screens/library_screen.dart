@@ -14,7 +14,7 @@ class LibraryScreen extends StatefulWidget {
   State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
-class _LibraryScreenState extends State<LibraryScreen> {
+class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateMixin {
   // Services
   final AuthService _authService = AuthService();
   final DocumentService _documentService = DocumentService();
@@ -31,18 +31,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  late AnimationController _decorativeIconController;
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     debugPrint('📱 LibraryScreen initState - Loading data...');
+
+    // Inicializar animación del icono decorativo
+    _decorativeIconController = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat();
+
     _loadData();
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _decorativeIconController.dispose();
     super.dispose();
   }
 
@@ -185,7 +195,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
         child: CustomScrollView(
           slivers: [
-            // App Bar con gradiente
+            // App Bar con gradiente premium
             SliverAppBar(
               expandedHeight: 240,
               floating: false,
@@ -197,42 +207,79 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
-                      ],
+                      colors: isDark
+                          ? [
+                              AppColors.darkAccent.withOpacity(0.8),
+                              AppColors.darkAccent2.withOpacity(0.6),
+                            ]
+                          : [
+                              AppColors.lightAccent.withOpacity(0.9),
+                              AppColors.lightAccent2.withOpacity(0.7),
+                            ],
                     ),
                   ),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${_getGreeting()},',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark ? AppColors.black.withOpacity(0.7) : AppColors.white.withOpacity(0.9),
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
+                  child: Stack(
+                    children: [
+                      // Fondo gradiente animado con icono decorativo
+                      Positioned(
+                        right: -30,
+                        top: -30,
+                        child: RotationTransition(
+                          turns: _decorativeIconController,
+                          child: Container(
+                            width: 150,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDark
+                                  ? AppColors.gold.withOpacity(0.08)
+                                  : AppColors.brown.withOpacity(0.08),
+                            ),
+                            child: Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 100,
+                              color: isDark
+                                  ? AppColors.gold.withOpacity(0.1)
+                                  : AppColors.brown.withOpacity(0.1),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _getDisplayName(),
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.black : AppColors.white,
-                              letterSpacing: -0.5,
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      // Contenido principal
+                      SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${_getGreeting()},',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? AppColors.black.withOpacity(0.75)
+                                      : AppColors.white.withOpacity(0.9),
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _getDisplayName(),
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? AppColors.black : AppColors.white,
+                                  letterSpacing: -0.5,
+                                  height: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

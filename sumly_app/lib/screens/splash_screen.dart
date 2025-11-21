@@ -9,9 +9,13 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late AnimationController _scaleController;
+  late AnimationController _shimmerController;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _shimmerAnimation;
 
   final AuthService _authService = AuthService();
 
@@ -19,16 +23,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    // Fade animation para el contenedor principal
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
     );
 
-    _controller.forward();
+    // Scale animation para el logo
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
+
+    // Shimmer animation para el texto
+    _shimmerController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
+
+    _shimmerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOut),
+    );
+
+    _fadeController.forward();
+    _scaleController.forward();
     _checkAuthAndNavigate();
   }
 
@@ -51,7 +77,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   void dispose() {
-    _controller.dispose();
+    _fadeController.dispose();
+    _scaleController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -60,75 +88,125 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: isDark ? AppColors.darkGradient : null,
+      body: Container(
+        // Gradiente premium: gold a brown
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? [AppColors.blackLight, AppColors.brownDark]
+                : [AppColors.cream, AppColors.creamDark],
+            stops: const [0.0, 1.0],
           ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo/Icono
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.goldGradient,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.gold.withOpacity(0.3),
-                        blurRadius: 20,
-                        spreadRadius: 3,
+                // Logo/Icono con escala animada
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: isDark
+                            ? [AppColors.gold, AppColors.goldLight]
+                            : [AppColors.goldDark, AppColors.gold],
                       ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.auto_stories_rounded,
-                    size: 40,
-                    color: isDark ? AppColors.black : AppColors.white,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Título
-                ShaderMask(
-                  shaderCallback: (bounds) => AppColors.goldGradient.createShader(bounds),
-                  child: const Text(
-                    'Sumly',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 2,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.gold.withOpacity(0.4),
+                          blurRadius: 30,
+                          spreadRadius: 5,
+                          offset: const Offset(0, 8),
+                        ),
+                        BoxShadow(
+                          color: AppColors.brown.withOpacity(0.2),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.auto_stories_rounded,
+                      size: 50,
+                      color: isDark ? AppColors.black : AppColors.white,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 32),
 
-                // Subtítulo
-                Text(
-                  'Tu biblioteca de resúmenes',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                    letterSpacing: 1,
+                // Título animado con shimmer
+                ShaderMask(
+                  shaderCallback: (bounds) {
+                    final shimmerOffset = _shimmerAnimation.value * 2 - 1;
+                    return LinearGradient(
+                      begin: Alignment(-1 - shimmerOffset, 0),
+                      end: Alignment(1 - shimmerOffset, 0),
+                      colors: isDark
+                          ? [
+                              AppColors.gold.withOpacity(0.3),
+                              AppColors.gold,
+                              AppColors.goldLight,
+                              AppColors.gold,
+                              AppColors.gold.withOpacity(0.3),
+                            ]
+                          : [
+                              AppColors.brown.withOpacity(0.3),
+                              AppColors.brown,
+                              AppColors.goldDark,
+                              AppColors.brown,
+                              AppColors.brown.withOpacity(0.3),
+                            ],
+                      stops: const [0, 0.2, 0.5, 0.8, 1],
+                    ).createShader(bounds);
+                  },
+                  child: const Text(
+                    'Sumly',
+                    style: TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                    ),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
 
-                // Loading indicator
+                // Subtítulo con opacidad animada
+                Opacity(
+                  opacity: _fadeAnimation.value,
+                  child: Text(
+                    'Tu biblioteca de resúmenes',
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: isDark
+                          ? AppColors.gold.withOpacity(0.8)
+                          : AppColors.brown.withOpacity(0.7),
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 48),
+
+                // Loading indicator animado
                 SizedBox(
-                  width: 40,
-                  height: 40,
+                  width: 50,
+                  height: 50,
                   child: CircularProgressIndicator(
-                    strokeWidth: 3,
+                    strokeWidth: 3.5,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       isDark ? AppColors.gold : AppColors.brown,
                     ),

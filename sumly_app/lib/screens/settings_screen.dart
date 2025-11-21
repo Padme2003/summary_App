@@ -27,8 +27,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _isLoading = true;
 
   // Settings
-  bool _notifications = true;
-  bool _autoPlay = false;
   double _defaultSpeed = 1.0;
   String _voiceLanguage = 'es-ES';
   bool _wifiOnly = false;
@@ -69,8 +67,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _notifications = prefs.getBool('notifications') ?? true;
-      _autoPlay = prefs.getBool('autoPlay') ?? false;
       _defaultSpeed = prefs.getDouble('defaultSpeed') ?? 1.0;
       _voiceLanguage = prefs.getString('voiceLanguage') ?? 'es-ES';
       _wifiOnly = prefs.getBool('wifiOnly') ?? false;
@@ -80,8 +76,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notifications', _notifications);
-    await prefs.setBool('autoPlay', _autoPlay);
     await prefs.setDouble('defaultSpeed', _defaultSpeed);
     await prefs.setString('voiceLanguage', _voiceLanguage);
     await prefs.setBool('wifiOnly', _wifiOnly);
@@ -177,39 +171,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle: _getFontSizeName(_fontSize),
                         icon: Icons.text_fields_rounded,
                         onTap: () => _showFontSizeDialog(),
-                        isDark: isDark,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-                  
-                  // NOTIFICACIONES
-                  _buildSection(
-                    title: 'NOTIFICACIONES',
-                    icon: Icons.notifications_outlined,
-                    isDark: isDark,
-                    children: [
-                      _buildSwitchTile(
-                        title: 'Resumen completado',
-                        subtitle: 'Notificar cuando esté listo',
-                        icon: Icons.notifications_active_outlined,
-                        value: _notifications,
-                        onChanged: (value) {
-                          setState(() => _notifications = value);
-                          _saveSettings();
-                        },
-                        isDark: isDark,
-                      ),
-                      _buildDivider(isDark),
-                      _buildSwitchTile(
-                        title: 'Nuevas funcionalidades',
-                        subtitle: 'Avisar sobre actualizaciones',
-                        icon: Icons.new_releases_outlined,
-                        value: _autoPlay,
-                        onChanged: (value) {
-                          setState(() => _autoPlay = value);
-                          _saveSettings();
-                        },
                         isDark: isDark,
                       ),
                     ],
