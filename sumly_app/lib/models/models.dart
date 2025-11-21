@@ -76,7 +76,7 @@ class DocumentModel {
       metadata: json['metadata'],
       status: json['status'] ?? 'uploaded',
       isFavorite: json['isFavorite'] ?? false,
-      summaryId: json['summary']?['_id'] ?? json['summary'],
+      summaryId: json['summary'] is Map ? json['summary']['_id'] : json['summary'],
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
     );
   }
@@ -119,7 +119,7 @@ class Summary {
       audioDuration: json['audioDuration'],
       status: json['status'] ?? 'generating',
       isFavorite: json['isFavorite'] ?? false,
-      documentId: json['document']?['_id'] ?? json['document'],
+      documentId: json['document'] is Map ? json['document']['_id'] : json['document'],
       metadata: json['metadata'],
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
     );

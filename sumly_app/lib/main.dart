@@ -122,8 +122,8 @@ class SumlyApp extends StatelessWidget {
           final args = settings.arguments as Map<String, dynamic>?;
           return MaterialPageRoute(
             builder: (context) => PdfViewerScreen(
-              documentTitle: args?['documentTitle'] ?? 'PDF',
-              pdfUrl: args?['pdfUrl'],
+              documentTitle: args?['documentTitle'] ?? args?['title'] ?? 'PDF',
+              pdfUrl: args?['pdfUrl'] ?? args?['url'],
               pdfPath: args?['pdfPath'],
             ),
           );
