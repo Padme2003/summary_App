@@ -940,7 +940,7 @@ Widget _buildLogoutButton(bool isDark) {
                 final result = await _authService.updateProfile(
                   name: nameController.text.trim(),
                 ).timeout(
-                  const Duration(seconds: 10),
+                  const Duration(seconds: 5),
                   onTimeout: () {
                     return {'success': false, 'message': 'Tiempo de espera agotado. Verifica tu conexión.'};
                   },
