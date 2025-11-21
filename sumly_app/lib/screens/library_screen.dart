@@ -1300,65 +1300,60 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
         ],
       ),
       child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              selectedCount == 0
-                  ? 'Selecciona documentos'
-                  : '$selectedCount seleccionado${selectedCount > 1 ? 's' : ''}',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  selectedCount == 0
+                      ? 'Seleccionar'
+                      : '$selectedCount',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  ),
+                ),
               ),
-            ),
-            Row(
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      if (_selectedDocuments.length == filteredDocs.length) {
-                        _selectedDocuments.clear();
-                      } else {
-                        _selectedDocuments = filteredDocs.map((d) => d.id).toSet();
-                      }
-                    });
-                  },
-                  icon: Icon(
-                    _selectedDocuments.length == filteredDocs.length
-                        ? Icons.deselect_rounded
-                        : Icons.select_all_rounded,
-                    size: 20,
-                  ),
-                  label: Text(
-                    _selectedDocuments.length == filteredDocs.length
-                        ? 'Deseleccionar'
-                        : 'Seleccionar Todos',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    if (_selectedDocuments.length == filteredDocs.length) {
+                      _selectedDocuments.clear();
+                    } else {
+                      _selectedDocuments = filteredDocs.map((d) => d.id).toSet();
+                    }
+                  });
+                },
+                icon: Icon(
+                  _selectedDocuments.length == filteredDocs.length
+                      ? Icons.deselect_rounded
+                      : Icons.select_all_rounded,
+                  size: 22,
+                  color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                ),
+                tooltip: _selectedDocuments.length == filteredDocs.length
+                    ? 'Deseleccionar'
+                    : 'Seleccionar todos',
+              ),
+              const SizedBox(width: 4),
+              ElevatedButton.icon(
+                onPressed: selectedCount > 0 ? _deleteSelectedDocuments : null,
+                icon: const Icon(Icons.delete_rounded, size: 16),
+                label: const Text('Borrar', style: TextStyle(fontSize: 13)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.3),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: selectedCount > 0 ? _deleteSelectedDocuments : null,
-                  icon: const Icon(Icons.delete_rounded, size: 18),
-                  label: const Text('Borrar'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey.withOpacity(0.3),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
