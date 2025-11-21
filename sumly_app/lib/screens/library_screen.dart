@@ -1221,12 +1221,14 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           ? document.filePath!
           : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
 
-      final uri = Uri.parse(fileUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No se puede abrir el PDF';
-      }
+      Navigator.pushNamed(
+        context,
+        '/pdf-viewer',
+        arguments: {
+          'url': fileUrl,
+          'title': document.title,
+        },
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

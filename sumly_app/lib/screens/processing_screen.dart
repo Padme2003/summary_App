@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/summary_service.dart';
+import '../models/models.dart';
 import '../utils/app_colors.dart';
 
 class ProcessingScreen extends StatefulWidget {
@@ -109,7 +110,16 @@ class _ProcessingScreenState extends State<ProcessingScreen>
         }
 
         final summary = statusResult['summary'];
-        final status = summary.status;
+
+        // Obtener status - puede venir como Map o como objeto Summary
+        String status;
+        if (summary is Map) {
+          status = summary['status'] ?? '';
+        } else if (summary is Summary) {
+          status = summary.status;
+        } else {
+          continue; // Skip si no es ninguno de los dos
+        }
 
         if (status == 'completed') {
           // ¡Completado!
