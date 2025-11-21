@@ -31,6 +31,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   double _playbackSpeed = 1.0;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
+  double _textSize = 16.0;
 
   @override
   void initState() {
