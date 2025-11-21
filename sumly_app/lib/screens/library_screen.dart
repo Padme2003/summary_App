@@ -1441,8 +1441,12 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                 content: Text('$successCount documento${successCount > 1 ? 's' : ''} eliminado${successCount > 1 ? 's' : ''}'),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 2),
               ),
             );
+
+            // Recargar datos para actualizar estadísticas
+            _loadData();
           }
 
           if (successCount < count) {

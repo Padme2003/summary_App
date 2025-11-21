@@ -39,6 +39,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSettings();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Recargar datos cada vez que vuelves a esta pantalla
+    if (mounted) {
+      _loadUserData();
+    }
+  }
+
   Future<void> _loadUserData() async {
     try {
       final userResult = await _authService.getProfile();
@@ -927,29 +936,49 @@ Widget _buildLogoutButton(bool isDark) {
                 ),
               );
 
-              final result = await _authService.updateProfile(
-                name: nameController.text.trim(),
-              );
+              try {
+                final result = await _authService.updateProfile(
+                  name: nameController.text.trim(),
+                ).timeout(
+                  const Duration(seconds: 10),
+                  onTimeout: () {
+                    return {'success': false, 'message': 'Tiempo de espera agotado. Verifica tu conexión.'};
+                  },
+                );
 
-              if (mounted) {
-                Navigator.pop(context);
+                if (mounted) {
+                  Navigator.pop(context);
 
-                if (result['success'] == true) {
-                  setState(() {
-                    _user = result['user'];
-                  });
+                  if (result['success'] == true) {
+                    setState(() {
+                      _user = result['user'];
+                    });
 
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Perfil actualizado'),
+                        backgroundColor: AppColors.success,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result['message'] ?? 'Error al actualizar'),
+                        backgroundColor: AppColors.error,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Perfil actualizado'),
-                      backgroundColor: AppColors.success,
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(result['message'] ?? 'Error al actualizar'),
+                      content: Text('Error: $e'),
                       backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
