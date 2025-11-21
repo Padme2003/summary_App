@@ -366,34 +366,34 @@ class _ActivityScreenState extends State<ActivityScreen> {
           child: Column(
             children: [
               SizedBox(
-                height: 120,
+                height: 100,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: _monthlyStats.entries.map((entry) {
                     final height = maxValue > 0
-                        ? (entry.value / maxValue) * 160
+                        ? (entry.value / maxValue) * 80
                         : 0.0;
                     return Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             if (entry.value > 0)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 4),
+                                padding: const EdgeInsets.only(bottom: 3),
                                 child: Text(
                                   '${entry.value}',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                     color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                                   ),
                                 ),
                               ),
                             Container(
-                              height: height > 0 ? height : 4,
+                              height: height > 0 ? height : 3,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
@@ -403,11 +403,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                     isDark ? AppColors.darkAccent2 : AppColors.lightAccent2,
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(6),
                                 boxShadow: [
                                   BoxShadow(
                                     color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.3),
-                                    blurRadius: 8,
+                                    blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
                                 ],

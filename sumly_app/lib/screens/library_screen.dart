@@ -26,8 +26,10 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
   List<DocumentModel> _documents = [];
   Map<String, List<Summary>> _documentSummaries = {};
   Set<String> _expandedDocuments = {};
+  Set<String> _selectedDocuments = {};
   String _selectedFilter = 'all';
   bool _isSearching = false;
+  bool _isSelectionMode = false;
   String _searchQuery = '';
   bool _isLoading = true;
   String? _errorMessage;
@@ -272,18 +274,34 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                 ),
               ),
               actions: [
+                if (!_isSelectionMode)
+                  IconButton(
+                    icon: Icon(
+                      _isSearching ? Icons.close : Icons.search_rounded,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      size: 22,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isSearching = !_isSearching;
+                        if (!_isSearching) {
+                          _searchQuery = '';
+                          _searchController.clear();
+                        }
+                      });
+                    },
+                  ),
                 IconButton(
                   icon: Icon(
-                    _isSearching ? Icons.close : Icons.search_rounded,
+                    _isSelectionMode ? Icons.close : Icons.delete_outline_rounded,
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                     size: 22,
                   ),
                   onPressed: () {
                     setState(() {
-                      _isSearching = !_isSearching;
-                      if (!_isSearching) {
-                        _searchQuery = '';
-                        _searchController.clear();
+                      _isSelectionMode = !_isSelectionMode;
+                      if (!_isSelectionMode) {
+                        _selectedDocuments.clear();
                       }
                     });
                   },
@@ -298,7 +316,7 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           ],
         ),
       ),
-      floatingActionButton: Container(
+      floatingActionButton: _isSelectionMode ? null : Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -333,6 +351,7 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           elevation: 0,
         ),
       ),
+      bottomNavigationBar: _isSelectionMode ? _buildSelectionBottomBar() : null,
     );
   }
 
@@ -732,44 +751,77 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
             child: InkWell(
               borderRadius: BorderRadius.circular(24),
               onTap: () async {
-                if (isExpanded) {
+                if (_isSelectionMode) {
                   setState(() {
-                    _expandedDocuments.remove(document.id);
+                    if (_selectedDocuments.contains(document.id)) {
+                      _selectedDocuments.remove(document.id);
+                    } else {
+                      _selectedDocuments.add(document.id);
+                    }
                   });
                 } else {
-                  setState(() {
-                    _expandedDocuments.add(document.id);
-                  });
-                  // Cargar resúmenes solo cuando se expande
-                  await _loadSummariesForDocument(document.id);
+                  if (isExpanded) {
+                    setState(() {
+                      _expandedDocuments.remove(document.id);
+                    });
+                  } else {
+                    setState(() {
+                      _expandedDocuments.add(document.id);
+                    });
+                    // Cargar resúmenes solo cuando se expande
+                    await _loadSummariesForDocument(document.id);
+                  }
                 }
               },
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    // Icono con gradiente
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                            (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
-                          ],
+                    // Checkbox o icono
+                    if (_isSelectionMode)
+                      Container(
+                        width: 40,
+                        height: 40,
+                        margin: const EdgeInsets.only(right: 14),
+                        child: Checkbox(
+                          value: _selectedDocuments.contains(document.id),
+                          onChanged: (value) {
+                            setState(() {
+                              if (value == true) {
+                                _selectedDocuments.add(document.id);
+                              } else {
+                                _selectedDocuments.remove(document.id);
+                              }
+                            });
+                          },
+                          activeColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                      )
+                    else
+                      Container(
+                        width: 40,
+                        height: 40,
+                        margin: const EdgeInsets.only(right: 14),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                              (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          getFileIcon(),
+                          color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          size: 24,
+                        ),
                       ),
-                      child: Icon(
-                        getFileIcon(),
-                        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
 
                     // Información
                     Expanded(
@@ -863,37 +915,38 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                       ),
                     ),
 
-                    const SizedBox(width: 8),
+                    if (!_isSelectionMode) const SizedBox(width: 8),
 
                     // Botones de acción
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            document.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                            color: document.isFavorite
-                                ? AppColors.error
-                                : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                            size: 22,
+                    if (!_isSelectionMode)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              document.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              color: document.isFavorite
+                                  ? AppColors.error
+                                  : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
+                              size: 22,
+                            ),
+                            onPressed: () => _toggleFavorite(document),
                           ),
-                          onPressed: () => _toggleFavorite(document),
-                        ),
-                        Icon(
-                          isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-                          color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                          size: 24,
-                        ),
-                      ],
-                    ),
+                          Icon(
+                            isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                            color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                            size: 24,
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
             ),
           ),
 
-          // Summaries list (when expanded)
-          if (isExpanded) ...[
+          // Summaries list (when expanded) - solo si no está en modo selección
+          if (isExpanded && !_isSelectionMode) ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Divider(
@@ -901,13 +954,13 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
               ),
             ),
-            // Botón para abrir documento original
+            // Botón para ver resumen
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: ElevatedButton.icon(
                 onPressed: () => _openDocument(document),
-                icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                label: const Text('Ver Documento Original'),
+                icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+                label: const Text('Ver Resumen'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                   foregroundColor: isDark ? AppColors.black : AppColors.white,
@@ -1138,36 +1191,231 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
   }
 
   Future<void> _openDocument(DocumentModel document) async {
-    if (document.filePath == null || document.filePath!.isEmpty) {
+    // Intentar navegar a la pantalla de resúmenes directamente
+    final summaries = _documentSummaries[document.id] ?? [];
+
+    if (summaries.isNotEmpty) {
+      // Si hay resúmenes, abrir el primero
+      Navigator.pushNamed(
+        context,
+        '/summary',
+        arguments: {'id': summaries[0].id},
+      );
+    } else {
+      // Si no hay resúmenes, ofrecer generar uno
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Documento no disponible'),
+        SnackBar(
+          content: const Text('No hay resúmenes para este documento'),
+          action: SnackBarAction(
+            label: 'Generar',
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/processing',
+                arguments: {
+                  'mode': 'summary',
+                  'documentId': document.id,
+                },
+              );
+            },
+          ),
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
         ),
       );
-      return;
     }
+  }
 
-    try {
-      final fileUrl = document.filePath!.startsWith('http')
-          ? document.filePath!
-          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+  Widget _buildSelectionBottomBar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedCount = _selectedDocuments.length;
+    final filteredDocs = _filteredDocuments;
 
-      final uri = Uri.parse(fileUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No se puede abrir el archivo';
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al abrir documento: $e'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : AppColors.lightCard,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+            width: 1,
           ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedCount == 0
+                  ? 'Selecciona documentos'
+                  : '$selectedCount seleccionado${selectedCount > 1 ? 's' : ''}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
+            ),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      if (_selectedDocuments.length == filteredDocs.length) {
+                        _selectedDocuments.clear();
+                      } else {
+                        _selectedDocuments = filteredDocs.map((d) => d.id).toSet();
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    _selectedDocuments.length == filteredDocs.length
+                        ? Icons.deselect_rounded
+                        : Icons.select_all_rounded,
+                    size: 20,
+                  ),
+                  label: Text(
+                    _selectedDocuments.length == filteredDocs.length
+                        ? 'Deseleccionar'
+                        : 'Seleccionar Todos',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: selectedCount > 0 ? _deleteSelectedDocuments : null,
+                  icon: const Icon(Icons.delete_rounded, size: 18),
+                  label: const Text('Borrar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.error,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.withOpacity(0.3),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _deleteSelectedDocuments() async {
+    final count = _selectedDocuments.length;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+          title: Text(
+            '¿Eliminar $count documento${count > 1 ? 's' : ''}?',
+            style: TextStyle(
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            ),
+          ),
+          content: Text(
+            count == 1
+                ? '¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer.'
+                : '¿Estás seguro de que deseas eliminar estos $count documentos? Esta acción no se puede deshacer.',
+            style: TextStyle(
+              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: TextButton.styleFrom(foregroundColor: AppColors.error),
+              child: const Text('Eliminar'),
+            ),
+          ],
         );
+      },
+    );
+
+    if (confirmed == true) {
+      // Mostrar loading
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      try {
+        int successCount = 0;
+        for (final docId in _selectedDocuments) {
+          final result = await _documentService.deleteDocument(docId);
+          if (result['success'] == true) {
+            successCount++;
+          }
+        }
+
+        if (mounted) {
+          Navigator.pop(context); // Cerrar loading
+
+          if (successCount > 0) {
+            setState(() {
+              _documents.removeWhere((doc) => _selectedDocuments.contains(doc.id));
+              _selectedDocuments.clear();
+              _isSelectionMode = false;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$successCount documento${successCount > 1 ? 's' : ''} eliminado${successCount > 1 ? 's' : ''}'),
+                backgroundColor: AppColors.success,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+
+          if (successCount < count) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error al eliminar algunos documentos'),
+                backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          Navigator.pop(context); // Cerrar loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: $e'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     }
   }
