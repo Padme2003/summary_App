@@ -774,15 +774,15 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                 }
               },
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
                     // Checkbox o icono
                     if (_isSelectionMode)
                       Container(
-                        width: 40,
-                        height: 40,
-                        margin: const EdgeInsets.only(right: 14),
+                        width: 32,
+                        height: 32,
+                        margin: const EdgeInsets.only(right: 10),
                         child: Checkbox(
                           value: _selectedDocuments.contains(document.id),
                           onChanged: (value) {
@@ -802,9 +802,9 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                       )
                     else
                       Container(
-                        width: 40,
-                        height: 40,
-                        margin: const EdgeInsets.only(right: 14),
+                        width: 36,
+                        height: 36,
+                        margin: const EdgeInsets.only(right: 10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -814,12 +814,12 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                               (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           getFileIcon(),
                           color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                          size: 24,
+                          size: 20,
                         ),
                       ),
 
@@ -915,27 +915,41 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                       ),
                     ),
 
-                    if (!_isSelectionMode) const SizedBox(width: 8),
+                    if (!_isSelectionMode) const SizedBox(width: 4),
 
                     // Botones de acción
                     if (!_isSelectionMode)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // Botón para ver PDF
+                          IconButton(
+                            icon: Icon(
+                              Icons.picture_as_pdf_rounded,
+                              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              size: 20,
+                            ),
+                            padding: EdgeInsets.all(8),
+                            constraints: BoxConstraints(minWidth: 36, minHeight: 36),
+                            onPressed: () => _viewPDF(document),
+                            tooltip: 'Ver PDF',
+                          ),
                           IconButton(
                             icon: Icon(
                               document.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                               color: document.isFavorite
                                   ? AppColors.error
                                   : (isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary),
-                              size: 22,
+                              size: 20,
                             ),
+                            padding: EdgeInsets.all(8),
+                            constraints: BoxConstraints(minWidth: 36, minHeight: 36),
                             onPressed: () => _toggleFavorite(document),
                           ),
                           Icon(
                             isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
                             color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
-                            size: 24,
+                            size: 22,
                           ),
                         ],
                       ),
@@ -1184,6 +1198,42 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           SnackBar(
             content: Text('Error: $e'),
             backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _viewPDF(DocumentModel document) async {
+    if (document.filePath == null || document.filePath!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF no disponible'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final fileUrl = document.filePath!.startsWith('http')
+          ? document.filePath!
+          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+      final uri = Uri.parse(fileUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el PDF';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al abrir PDF: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
