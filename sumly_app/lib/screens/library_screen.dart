@@ -168,6 +168,51 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
     return 'Buenas noches';
   }
 
+  String _getFilterDescription() {
+    switch (_selectedFilter) {
+      case 'all':
+        return 'Todos tus archivos subidos (PDF, Word, Excel, PowerPoint, TXT)';
+      case 'favorites':
+        return 'Documentos que marcaste como favoritos ⭐ para acceso rápido';
+      case 'recent':
+        return 'Los 10 documentos más recientes que subiste';
+      case 'processing':
+        return 'Documentos que están siendo procesados o pendientes';
+      default:
+        return 'Tus documentos';
+    }
+  }
+
+  String _getEmptyStateTitle() {
+    switch (_selectedFilter) {
+      case 'all':
+        return 'No hay documentos aún';
+      case 'favorites':
+        return 'No tienes favoritos';
+      case 'recent':
+        return 'No hay documentos recientes';
+      case 'processing':
+        return 'No hay documentos procesándose';
+      default:
+        return 'No hay documentos';
+    }
+  }
+
+  String _getEmptyStateMessage() {
+    switch (_selectedFilter) {
+      case 'all':
+        return 'Sube tu primer archivo (PDF, Word, Excel, PowerPoint o TXT) y genera resúmenes inteligentes con IA';
+      case 'favorites':
+        return 'Toca el corazón ❤️ en cualquier documento para marcarlo como favorito y encontrarlo rápidamente aquí';
+      case 'recent':
+        return 'Tus documentos más recientes aparecerán aquí automáticamente cuando subas archivos';
+      case 'processing':
+        return 'Los documentos que estén siendo procesados aparecerán aquí temporalmente';
+      default:
+        return 'No hay documentos con este filtro';
+    }
+  }
+
   String _formatDate(DateTime? date) {
     if (date == null) return 'Hoy';
     final now = DateTime.now();
@@ -489,40 +534,53 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
           const SizedBox(height: 32),
 
           // Título de documentos
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Mis Documentos',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                  letterSpacing: -0.5,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Mis Documentos',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
+                          (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      '${_filteredDocuments.length} total',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                      (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.4),
-                    width: 1.5,
-                  ),
-                ),
-                child: Text(
-                  '${_filteredDocuments.length} total',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                  ),
+              const SizedBox(height: 8),
+              Text(
+                _getFilterDescription(),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                 ),
               ),
             ],
@@ -975,6 +1033,9 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                             padding: EdgeInsets.all(8),
                             constraints: BoxConstraints(minWidth: 36, minHeight: 36),
                             onPressed: () => _toggleFavorite(document),
+                            tooltip: document.isFavorite
+                                ? 'Quitar de favoritos'
+                                : 'Marcar como favorito para acceso rápido',
                           ),
                           Icon(
                             isExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
@@ -1172,7 +1233,7 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 16),
             Text(
-              'No hay documentos',
+              _getEmptyStateTitle(),
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -1181,14 +1242,12 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 10),
             Text(
-              _selectedFilter == 'all'
-                  ? 'Comienza subiendo tu primer documento'
-                  : 'No hay documentos con este filtro',
+              _getEmptyStateMessage(),
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
