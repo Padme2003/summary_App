@@ -1,5 +1,6 @@
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -23,15 +24,29 @@ exports.uploadDocument = async (req, res) => {
 
     try {
       if (fileType === 'pdf') {
+        console.log('📄 Procesando PDF...');
         const dataBuffer = await fs.readFile(filePath);
         const pdfData = await pdfParse(dataBuffer);
         content = pdfData.text;
         pages = pdfData.numpages;
+        console.log(`✓ PDF procesado: ${pages} páginas, ${content.length} caracteres`);
       } else if (fileType === 'txt') {
+        console.log('📝 Procesando TXT...');
         content = await fs.readFile(filePath, 'utf-8');
+        console.log(`✓ TXT procesado: ${content.length} caracteres`);
+      } else if (fileType === 'docx' || fileType === 'doc') {
+        console.log('📝 Procesando DOCX/DOC...');
+        const dataBuffer = await fs.readFile(filePath);
+        const result = await mammoth.extractRawText({ buffer: dataBuffer });
+        content = result.value;
+        // Estimar páginas (aproximadamente 500 palabras por página)
+        const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+        pages = Math.ceil(wordCount / 500);
+        console.log(`✓ DOCX procesado: ~${pages} páginas, ${content.length} caracteres`);
       }
     } catch (error) {
-      console.error('Error al procesar archivo:', error);
+      console.error('❌ Error al procesar archivo:', error);
+      content = ''; // Si falla, dejar contenido vacío pero continuar
     }
 
     const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;

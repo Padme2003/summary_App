@@ -1108,6 +1108,23 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
         if (result['success'] == true) {
           final document = result['document'] as DocumentModel;
 
+          // Verificar si el archivo es realmente un PDF
+          if (document.fileType.toLowerCase() != 'pdf') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Este documento es formato ${document.fileType.toUpperCase()}. '
+                  'Solo se pueden visualizar archivos PDF.\n'
+                  'El texto fue extraído para generar el resumen.'
+                ),
+                backgroundColor: AppColors.warning,
+                duration: const Duration(seconds: 4),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            return;
+          }
+
           if (document.filePath != null && document.filePath!.isNotEmpty) {
             final pdfUrl = document.filePath!.startsWith('http')
                 ? document.filePath!
