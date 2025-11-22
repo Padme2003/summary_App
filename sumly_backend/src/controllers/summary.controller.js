@@ -27,7 +27,23 @@ exports.generateSummary = async (req, res) => {
     if (!document.content || document.content.trim().length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'El documento no tiene contenido para resumir. Verifica que el PDF sea válido y contenga texto.',
+        message: `El documento ${document.fileType.toUpperCase()} no tiene contenido para resumir. Verifica que el archivo sea válido y contenga texto.`,
+      });
+    }
+
+    // Verificar si ya existe un resumen para este documento
+    const existingSummary = await Summary.findOne({
+      document: document._id,
+      user: req.user._id,
+    });
+
+    if (existingSummary) {
+      return res.status(400).json({
+        success: false,
+        message: 'Este documento ya tiene un resumen generado. Solo se permite 1 resumen por documento.',
+        data: {
+          summary: existingSummary,
+        },
       });
     }
 

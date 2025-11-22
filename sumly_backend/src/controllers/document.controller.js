@@ -1,9 +1,11 @@
 const Document = require('../models/Document');
+const Summary = require('../models/Summary');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const XLSX = require('xlsx');
 const AdmZip = require('adm-zip');
 const fs = require('fs').promises;
+const fssync = require('fs');
 const path = require('path');
 
 // Subir documento
@@ -358,23 +360,60 @@ exports.deleteDocument = async (req, res) => {
       });
     }
 
-    // Eliminar archivo físico si existe
+    // Eliminar archivo físico del documento si existe
     if (document.filePath) {
       try {
         await fs.unlink(document.filePath);
+        console.log(`✓ Archivo del documento eliminado: ${document.filePath}`);
       } catch (error) {
-        console.error('Error al eliminar archivo:', error);
+        console.error('Error al eliminar archivo del documento:', error);
       }
     }
 
+    // Buscar todos los resúmenes asociados a este documento
+    const summaries = await Summary.find({ document: document._id });
+
+    if (summaries.length > 0) {
+      console.log(`📝 Encontrados ${summaries.length} resúmenes para eliminar`);
+
+      // Eliminar archivos de audio de los resúmenes
+      for (const summary of summaries) {
+        if (summary.audioUrl) {
+          try {
+            // Construir ruta del archivo de audio
+            const audioPath = summary.audioUrl.replace('/uploads/', './uploads/');
+            if (fssync.existsSync(audioPath)) {
+              await fs.unlink(audioPath);
+              console.log(`✓ Audio eliminado: ${audioPath}`);
+            }
+          } catch (error) {
+            console.error('Error al eliminar audio:', error);
+          }
+        }
+      }
+
+      // Eliminar todos los resúmenes de la BD
+      await Summary.deleteMany({ document: document._id });
+      console.log(`✓ ${summaries.length} resúmenes eliminados de la BD`);
+    }
+
+    // Eliminar el documento
     await document.deleteOne();
 
     req.user.stats.totalDocuments = Math.max(0, req.user.stats.totalDocuments - 1);
+    req.user.stats.totalSummaries = Math.max(0, req.user.stats.totalSummaries - summaries.length);
     await req.user.save({ validateBeforeSave: false });
+
+    const message = summaries.length > 0
+      ? `Documento y ${summaries.length} resumen(es) eliminados exitosamente`
+      : 'Documento eliminado exitosamente';
 
     res.status(200).json({
       success: true,
-      message: 'Documento eliminado exitosamente',
+      message,
+      data: {
+        deletedSummaries: summaries.length,
+      },
     });
   } catch (error) {
     console.error('Error al eliminar documento:', error);
