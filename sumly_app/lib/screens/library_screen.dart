@@ -716,14 +716,43 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
     }
 
     IconData getFileIcon() {
-      switch (document.fileType) {
+      switch (document.fileType?.toLowerCase()) {
         case 'pdf':
           return Icons.picture_as_pdf_rounded;
         case 'doc':
         case 'docx':
           return Icons.description_rounded;
-        default:
+        case 'ppt':
+        case 'pptx':
+          return Icons.slideshow_rounded;
+        case 'xls':
+        case 'xlsx':
+          return Icons.table_chart_rounded;
+        case 'txt':
           return Icons.text_snippet_rounded;
+        default:
+          return Icons.insert_drive_file_rounded;
+      }
+    }
+
+    Color getFileColor() {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      switch (document.fileType?.toLowerCase()) {
+        case 'pdf':
+          return Colors.red;
+        case 'doc':
+        case 'docx':
+          return Colors.blue;
+        case 'ppt':
+        case 'pptx':
+          return Colors.orange;
+        case 'xls':
+        case 'xlsx':
+          return Colors.green;
+        case 'txt':
+          return Colors.grey;
+        default:
+          return isDark ? AppColors.darkAccent : AppColors.lightAccent;
       }
     }
 
@@ -806,19 +835,16 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                         height: 36,
                         margin: const EdgeInsets.only(right: 10),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              (isDark ? AppColors.darkAccent : AppColors.lightAccent).withOpacity(0.2),
-                              (isDark ? AppColors.darkAccent2 : AppColors.lightAccent2).withOpacity(0.15),
-                            ],
-                          ),
+                          color: getFileColor().withOpacity(0.15),
                           borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: getFileColor().withOpacity(0.4),
+                            width: 1.5,
+                          ),
                         ),
                         child: Icon(
                           getFileIcon(),
-                          color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                          color: getFileColor(),
                           size: 20,
                         ),
                       ),
@@ -922,17 +948,17 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Botón para ver PDF
+                          // Botón para ver documento
                           IconButton(
                             icon: Icon(
-                              Icons.picture_as_pdf_rounded,
-                              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                              getFileIcon(),
+                              color: getFileColor(),
                               size: 20,
                             ),
                             padding: EdgeInsets.all(8),
                             constraints: BoxConstraints(minWidth: 36, minHeight: 36),
-                            onPressed: () => _viewPDF(document),
-                            tooltip: 'Ver PDF',
+                            onPressed: () => _viewDocument(document),
+                            tooltip: 'Ver ${fileType}',
                           ),
                           IconButton(
                             icon: Icon(
@@ -1204,41 +1230,89 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
     }
   }
 
-  Future<void> _viewPDF(DocumentModel document) async {
-    if (document.filePath == null || document.filePath!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PDF no disponible'),
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
+  Future<void> _viewDocument(DocumentModel document) async {
+    final fileType = document.fileType?.toLowerCase() ?? 'txt';
 
-    try {
-      final fileUrl = document.filePath!.startsWith('http')
-          ? document.filePath!
-          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
-
-      Navigator.pushNamed(
-        context,
-        '/pdf-viewer',
-        arguments: {
-          'url': fileUrl,
-          'title': document.title,
-        },
-      );
-    } catch (e) {
-      if (mounted) {
+    // Para PDFs, usar el visor de PDF
+    if (fileType == 'pdf') {
+      if (document.filePath == null || document.filePath!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al abrir PDF: $e'),
-            backgroundColor: AppColors.error,
+          const SnackBar(
+            content: Text('PDF no disponible'),
             behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
           ),
         );
+        return;
       }
+
+      try {
+        final fileUrl = document.filePath!.startsWith('http')
+            ? document.filePath!
+            : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+        Navigator.pushNamed(
+          context,
+          '/pdf-viewer',
+          arguments: {
+            'url': fileUrl,
+            'title': document.title,
+          },
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error al abrir PDF: $e'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } else {
+      // Para Word, Excel, PowerPoint, TXT - mostrar contenido extraído
+      if (document.content == null || document.content!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('El documento ${fileType.toUpperCase()} no tiene contenido disponible'),
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      // Importar el DocumentViewerScreen si no está importado
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            // Usar el DocumentViewerScreen directamente
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(document.title),
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkCard
+                    : AppColors.lightCard,
+              ),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: SelectableText(
+                  document.content!,
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.8,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
     }
   }
 
