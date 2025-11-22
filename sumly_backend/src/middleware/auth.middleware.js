@@ -4,6 +4,12 @@ const config = require('../config/environment');
 
 // Verificar token JWT
 exports.protect = async (req, res, next) => {
+  console.log('🔒 Middleware protect - Verificando autenticación:', {
+    method: req.method,
+    url: req.url,
+    hasAuth: !!req.headers.authorization
+  });
+
   try {
     let token;
 
@@ -13,6 +19,7 @@ exports.protect = async (req, res, next) => {
     }
 
     if (!token) {
+      console.log('❌ Auth fallida: No hay token');
       return res.status(401).json({
         success: false,
         message: 'No autorizado. Token no proporcionado',
@@ -41,6 +48,7 @@ exports.protect = async (req, res, next) => {
       }
 
       req.user = user;
+      console.log('✅ Auth exitosa - Usuario:', user.email);
       next();
     } catch (error) {
       return res.status(401).json({

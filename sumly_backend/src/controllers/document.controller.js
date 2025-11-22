@@ -10,8 +10,19 @@ const path = require('path');
 
 // Subir documento
 exports.uploadDocument = async (req, res) => {
+  console.log('🚀 === INICIO uploadDocument ===');
+  console.log('📥 Petición recibida:', {
+    method: req.method,
+    url: req.url,
+    hasFile: !!req.file,
+    fileName: req.file?.originalname,
+    fileSize: req.file?.size,
+    body: req.body
+  });
+
   try {
     if (!req.file) {
+      console.log('❌ No hay archivo en la petición');
       return res.status(400).json({
         success: false,
         message: 'No se proporcionó ningún archivo',

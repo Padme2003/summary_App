@@ -24,6 +24,7 @@ const storage = multer.diskStorage({
 
 // Filtro de archivos con validación mejorada para Multer 2.0
 const fileFilter = (req, file, cb) => {
+  console.log('🔍 === MULTER FILE FILTER ===');
   console.log(`📎 Archivo recibido: ${file.originalname}, MIME type: ${file.mimetype}`);
 
   const allowedTypes = config.allowedFileTypes;

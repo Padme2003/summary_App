@@ -7,7 +7,9 @@ const connectDB = async () => {
     console.log(' MongoDB conectado correctamente');
   } catch (error) {
     console.error('L Error al conectar a MongoDB:', error.message);
-    process.exit(1);
+    console.log('⚠️  ADVERTENCIA: Servidor iniciando SIN MongoDB. Verifica tu conexión a internet.');
+    // NO cerrar el servidor - permitir que arranque sin DB para debugging
+    // process.exit(1);
   }
 };
 
