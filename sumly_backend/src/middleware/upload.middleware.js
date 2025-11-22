@@ -28,18 +28,23 @@ const fileFilter = (req, file, cb) => {
 
   const allowedTypes = config.allowedFileTypes;
   const ext = path.extname(file.originalname).toLowerCase();
-  const allowedExtensions = ['.pdf', '.txt', '.doc', '.docx'];
+  const allowedExtensions = [
+    '.pdf', '.txt',
+    '.doc', '.docx',           // Word
+    '.ppt', '.pptx',           // PowerPoint
+    '.xls', '.xlsx'            // Excel
+  ];
 
   // Verificar por MIME type O por extensión
   if (allowedTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
-    console.log('✓ Archivo aceptado');
+    console.log(`✓ Archivo aceptado: ${ext}`);
 
     // Multer 2.0 provee detección automática de tipo de archivo (Magic Bytes)
     // Esto se validará después de que el archivo sea procesado
     cb(null, true);
   } else {
     console.log(`✗ Archivo rechazado - MIME: ${file.mimetype}, Ext: ${ext}`);
-    cb(new Error('Tipo de archivo no permitido. Solo PDF, TXT, DOC, DOCX'), false);
+    cb(new Error('Tipo de archivo no permitido. Formatos permitidos: PDF, TXT, Word (DOC/DOCX), PowerPoint (PPT/PPTX), Excel (XLS/XLSX)'), false);
   }
 };
 

@@ -9,15 +9,25 @@ module.exports = {
   uploadDir: './uploads',
   maxFileSize: 52428800, // 50MB
   allowedFileTypes: [
+    // PDF
     'application/pdf',
     'application/x-pdf',
     'application/acrobat',
     'applications/vnd.pdf',
     'text/pdf',
     'text/x-pdf',
+    // TXT
     'text/plain',
+    // Word
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/octet-stream', // Fallback para algunos sistemas
+    // PowerPoint
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    // Excel
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // Fallback
+    'application/octet-stream',
   ],
 };

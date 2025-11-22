@@ -1,6 +1,8 @@
 const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
+const XLSX = require('xlsx');
+const pptxToText = require('pptx-to-text');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -43,6 +45,44 @@ exports.uploadDocument = async (req, res) => {
         const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
         pages = Math.ceil(wordCount / 500);
         console.log(`✓ DOCX procesado: ~${pages} páginas, ${content.length} caracteres`);
+      } else if (fileType === 'pptx' || fileType === 'ppt') {
+        console.log('📊 Procesando PPTX/PPT...');
+        try {
+          const text = await pptxToText(filePath);
+          content = text;
+          // Estimar slides (aproximadamente 150 palabras por slide)
+          const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+          pages = Math.ceil(wordCount / 150);
+          console.log(`✓ PPTX procesado: ~${pages} slides, ${content.length} caracteres`);
+        } catch (pptError) {
+          console.error('❌ Error al procesar PowerPoint:', pptError);
+          content = '';
+        }
+      } else if (fileType === 'xlsx' || fileType === 'xls') {
+        console.log('📊 Procesando XLSX/XLS...');
+        const workbook = XLSX.readFile(filePath);
+        let allText = [];
+
+        // Extraer texto de todas las hojas
+        workbook.SheetNames.forEach(sheetName => {
+          const worksheet = workbook.Sheets[sheetName];
+          const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          // Convertir cada fila a texto
+          sheetData.forEach(row => {
+            const rowText = row.filter(cell => cell !== null && cell !== undefined).join(' ');
+            if (rowText.trim()) {
+              allText.push(rowText);
+            }
+          });
+        });
+
+        content = allText.join('\n');
+        pages = workbook.SheetNames.length; // Número de hojas
+        console.log(`✓ XLSX procesado: ${pages} hojas, ${content.length} caracteres`);
+      } else {
+        console.log(`⚠️  Tipo de archivo no soportado para extracción de texto: ${fileType}`);
+        console.log('   El archivo se guardará pero sin contenido de texto.');
       }
     } catch (error) {
       console.error('❌ Error al procesar archivo:', error);

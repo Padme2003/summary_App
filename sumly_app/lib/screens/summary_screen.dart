@@ -1181,14 +1181,16 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Solo mostrar "Ver documento" si existe un documentId
+            // La función _viewOriginalPDF() ya valida si es PDF antes de abrirlo
             if (_summary?.documentId != null)
               ListTile(
                 leading: Icon(
-                  Icons.picture_as_pdf_rounded,
+                  Icons.description_rounded,
                   color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
                 ),
                 title: Text(
-                  'Ver PDF original',
+                  'Ver documento original',
                   style: TextStyle(
                     color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                   ),
