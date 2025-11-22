@@ -296,17 +296,73 @@ Responde SOLO con el JSON, nada más.
   }
 }
 
+// Limpiar resúmenes huérfanos (resúmenes cuyos documentos ya no existen)
+exports.cleanOrphanSummaries = async (req, res) => {
+  try {
+    const Document = require('../models/Document');
+    console.log('🧹 Iniciando limpieza de resúmenes huérfanos...');
+
+    // Obtener todos los resúmenes del usuario
+    const allSummaries = await Summary.find({ user: req.user._id });
+    console.log(`📊 Total de resúmenes del usuario: ${allSummaries.length}`);
+
+    let orphanCount = 0;
+    const orphanIds = [];
+
+    // Verificar cada resumen
+    for (const summary of allSummaries) {
+      const documentExists = await Document.findById(summary.document);
+
+      if (!documentExists) {
+        orphanIds.push(summary._id);
+        orphanCount++;
+        console.log(`❌ Resumen huérfano encontrado: ${summary.title} (ID: ${summary._id})`);
+      }
+    }
+
+    // Eliminar resúmenes huérfanos
+    if (orphanIds.length > 0) {
+      await Summary.deleteMany({ _id: { $in: orphanIds } });
+      console.log(`✓ ${orphanCount} resúmenes huérfanos eliminados`);
+    } else {
+      console.log('✓ No se encontraron resúmenes huérfanos');
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Limpieza completada. ${orphanCount} resumen(es) huérfano(s) eliminado(s)`,
+      data: {
+        totalSummaries: allSummaries.length,
+        orphansDeleted: orphanCount,
+        remainingSummaries: allSummaries.length - orphanCount,
+      },
+    });
+  } catch (error) {
+    console.error('❌ Error en limpieza de resúmenes huérfanos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al limpiar resúmenes huérfanos',
+      error: error.message,
+    });
+  }
+};
+
 // Obtener todos los resúmenes del usuario
 exports.getSummaries = async (req, res) => {
   try {
-    const { isFavorite } = req.query;
+    const { isFavorite, documentId } = req.query;
 
     const filter = { user: req.user._id };
     if (isFavorite) filter.isFavorite = isFavorite === 'true';
+    if (documentId) filter.document = documentId;
+
+    console.log('📊 Obteniendo resúmenes con filtro:', filter);
 
     const summaries = await Summary.find(filter)
       .populate('document')
       .sort({ createdAt: -1 });
+
+    console.log(`✓ Encontrados ${summaries.length} resúmenes`);
 
     res.status(200).json({
       success: true,

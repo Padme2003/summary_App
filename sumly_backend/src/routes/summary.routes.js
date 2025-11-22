@@ -8,6 +8,7 @@ router.use(protect);
 
 // Rutas de resúmenes
 router.post('/generate', summaryController.generateSummary);
+router.post('/clean-orphans', summaryController.cleanOrphanSummaries); // Limpiar resúmenes huérfanos
 router.get('/', summaryController.getSummaries);
 router.get('/:id', summaryController.getSummary);
 router.put('/:id', summaryController.updateSummary);
