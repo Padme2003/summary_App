@@ -217,11 +217,33 @@ Responde SOLO con el JSON, nada más.
       language: 'es',
     };
 
-    // Audio: Usar TTS nativo del frontend (más rápido, no requiere Google Cloud)
-    console.log('ℹ️  Audio se generará en el frontend usando TTS nativo');
-    summary.audioUrl = null;
-    summary.audioDuration = null;
-    summary.metadata.useNativeTTS = true;
+    // Generar audio del resumen con Google TTS
+    try {
+      console.log('🎵 Iniciando generación de audio del resumen...');
+      const audioFilename = `summary_${summary._id}`;
+      const audioResult = await generateAudioFile(
+        summaryData.summary,
+        audioFilename,
+        {
+          languageCode: 'es-ES',
+          voiceName: 'es-ES-Standard-A',
+          speed: 1.0,
+        },
+      );
+
+      summary.audioUrl = audioResult.audioUrl;
+      summary.audioDuration = audioResult.duration;
+
+      console.log(`✅ Audio del resumen generado exitosamente`);
+      console.log(`   - URL: ${audioResult.audioUrl}`);
+      console.log(`   - Duración: ${audioResult.duration}s`);
+      console.log(`   - Tamaño: ${(audioResult.fileSize / 1024).toFixed(2)} KB`);
+    } catch (audioError) {
+      console.error('❌ Error al generar audio del resumen:', audioError.message);
+      // Continuar sin audio si hay error
+      summary.metadata = summary.metadata || {};
+      summary.metadata.audioGenerationError = audioError.message;
+    }
 
     await summary.save();
 
