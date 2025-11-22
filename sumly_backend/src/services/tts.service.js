@@ -8,11 +8,19 @@ let ttsClient;
 
 // Inicializar cliente si hay credenciales
 try {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  if (process.env.GOOGLE_TTS_CREDENTIALS) {
+    // Railway: Credenciales desde variable de entorno (JSON string)
+    const credentials = JSON.parse(process.env.GOOGLE_TTS_CREDENTIALS);
+    ttsClient = new textToSpeech.TextToSpeechClient({ credentials });
+    console.log('✅ Google TTS inicializado desde variable de entorno');
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    // Local: Credenciales desde archivo
     ttsClient = new textToSpeech.TextToSpeechClient();
+    console.log('✅ Google TTS inicializado desde archivo de credenciales');
   }
 } catch (error) {
   console.warn('⚠️  Google TTS no configurado. Usando modo simulación.');
+  console.error('Error al inicializar TTS:', error.message);
 }
 
 /**
