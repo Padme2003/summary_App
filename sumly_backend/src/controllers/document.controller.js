@@ -2,7 +2,7 @@ const Document = require('../models/Document');
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const XLSX = require('xlsx');
-const pptxToText = require('pptx-to-text');
+const AdmZip = require('adm-zip');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -48,14 +48,34 @@ exports.uploadDocument = async (req, res) => {
       } else if (fileType === 'pptx' || fileType === 'ppt') {
         console.log('📊 Procesando PPTX/PPT...');
         try {
-          const text = await pptxToText(filePath);
-          content = text;
+          // Los archivos PPTX son ZIP que contienen XML
+          const zip = new AdmZip(filePath);
+          const zipEntries = zip.getEntries();
+          let allText = [];
+
+          // Extraer texto de los slides (archivos XML dentro de ppt/slides/)
+          zipEntries.forEach(entry => {
+            if (entry.entryName.match(/ppt\/slides\/slide\d+\.xml/)) {
+              const xmlContent = entry.getData().toString('utf8');
+              // Extraer texto entre tags <a:t>...</a:t>
+              const textMatches = xmlContent.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+              if (textMatches) {
+                textMatches.forEach(match => {
+                  const text = match.replace(/<[^>]*>/g, '').trim();
+                  if (text) allText.push(text);
+                });
+              }
+            }
+          });
+
+          content = allText.join(' ');
           // Estimar slides (aproximadamente 150 palabras por slide)
           const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
-          pages = Math.ceil(wordCount / 150);
+          pages = Math.max(1, Math.ceil(wordCount / 150));
           console.log(`✓ PPTX procesado: ~${pages} slides, ${content.length} caracteres`);
         } catch (pptError) {
           console.error('❌ Error al procesar PowerPoint:', pptError);
+          console.log('   Nota: Solo se soporta formato PPTX (no PPT antiguo)');
           content = '';
         }
       } else if (fileType === 'xlsx' || fileType === 'xls') {
