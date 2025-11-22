@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
+import 'dart:io';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
 import '../services/summary_service.dart';
@@ -1271,48 +1275,266 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
         }
       }
     } else {
-      // Para Word, Excel, PowerPoint, TXT - mostrar contenido extraído
-      if (document.content == null || document.content!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('El documento ${fileType.toUpperCase()} no tiene contenido disponible'),
-            behavior: SnackBarBehavior.floating,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        return;
-      }
+      // Para Word, Excel, PowerPoint - mostrar opciones
+      _showDocumentOptionsDialog(document);
+    }
+  }
 
-      // Importar el DocumentViewerScreen si no está importado
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            // Usar el DocumentViewerScreen directamente
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(document.title),
-                backgroundColor: Theme.of(context).brightness == Brightness.dark
-                    ? AppColors.darkCard
-                    : AppColors.lightCard,
-              ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: SelectableText(
-                  document.content!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.8,
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.lightTextPrimary,
-                  ),
+  Future<void> _showDocumentOptionsDialog(DocumentModel document) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fileType = document.fileType?.toLowerCase() ?? 'txt';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        title: Row(
+          children: [
+            Icon(
+              _getIconForFileType(fileType),
+              color: _getColorForFileType(fileType),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                document.title,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            );
-          },
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '¿Cómo deseas ver este documento?',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Opción 1: Ver texto extraído
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.text_snippet_rounded, color: Colors.blue, size: 20),
+              ),
+              title: const Text('Ver texto extraído'),
+              subtitle: const Text('Contenido en texto plano'),
+              onTap: () {
+                Navigator.pop(context);
+                _viewExtractedText(document);
+              },
+            ),
+            const SizedBox(height: 8),
+            // Opción 2: Abrir con...
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.open_in_new_rounded, color: Colors.orange, size: 20),
+              ),
+              title: const Text('Abrir con...'),
+              subtitle: const Text('Usar app externa (Word, Excel, etc.)'),
+              onTap: () {
+                Navigator.pop(context);
+                _downloadAndOpenFile(document);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForFileType(String fileType) {
+    switch (fileType) {
+      case 'docx':
+      case 'doc':
+        return Icons.description_rounded;
+      case 'xlsx':
+      case 'xls':
+        return Icons.table_chart_rounded;
+      case 'pptx':
+      case 'ppt':
+        return Icons.slideshow_rounded;
+      default:
+        return Icons.text_snippet_rounded;
+    }
+  }
+
+  Color _getColorForFileType(String fileType) {
+    switch (fileType) {
+      case 'docx':
+      case 'doc':
+        return Colors.blue;
+      case 'xlsx':
+      case 'xls':
+        return Colors.green;
+      case 'pptx':
+      case 'ppt':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Future<void> _viewExtractedText(DocumentModel document) async {
+    final fileType = document.fileType?.toLowerCase() ?? 'txt';
+
+    if (document.content == null || document.content!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('El documento ${fileType.toUpperCase()} no tiene contenido disponible'),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
         ),
       );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(document.title),
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkCard
+                  : AppColors.lightCard,
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: SelectableText(
+                document.content!,
+                style: TextStyle(
+                  fontSize: 16,
+                  height: 1.8,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _downloadAndOpenFile(DocumentModel document) async {
+    if (document.filePath == null || document.filePath!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Archivo no disponible'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final fileType = document.fileType?.toLowerCase() ?? 'txt';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Mostrar diálogo de descarga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Descargando ${fileType.toUpperCase()}...',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      // Construir URL del archivo
+      final fileUrl = document.filePath!.startsWith('http')
+          ? document.filePath!
+          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+      // Obtener directorio temporal
+      final tempDir = await getTemporaryDirectory();
+      final fileName = '${document.id}.${fileType}';
+      final filePath = '${tempDir.path}/$fileName';
+
+      // Descargar archivo
+      final dio = Dio();
+      await dio.download(fileUrl, filePath);
+
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de descarga
+
+        // Abrir archivo con app externa
+        final result = await OpenFilex.open(filePath);
+
+        if (result.type != ResultType.done) {
+          // Si no se pudo abrir
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se encontró una app para abrir archivos ${fileType.toUpperCase()}'),
+              backgroundColor: AppColors.warning,
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Ver texto',
+                onPressed: () => _viewExtractedText(document),
+                textColor: Colors.white,
+              ),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de descarga
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al descargar archivo: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 

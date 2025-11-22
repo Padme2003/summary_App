@@ -53,6 +53,9 @@ dependencies:
   google_sign_in: ^6.2.1
   firebase_messaging: ^15.2.10
   flutter_local_notifications: ^17.2.3
+  open_filex: ^4.5.0
+  path_provider: ^2.1.4
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:
