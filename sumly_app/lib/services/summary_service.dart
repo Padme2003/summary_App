@@ -222,4 +222,37 @@ class SummaryService {
       };
     }
   }
+
+  // Limpiar resúmenes huérfanos (resúmenes sin documento asociado)
+  Future<Map<String, dynamic>> cleanOrphanSummaries() async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.summaries}/clean-orphans'),
+        headers: headers,
+      ).timeout(const Duration(seconds: 30)); // Timeout largo porque puede tomar tiempo
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['success'] == true) {
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Limpieza completada',
+          'orphansDeleted': data['data']?['orphansDeleted'] ?? 0,
+          'remainingSummaries': data['data']?['remainingSummaries'] ?? 0,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Error al limpiar resúmenes',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error de conexión: $e',
+      };
+    }
+  }
 }

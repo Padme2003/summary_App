@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/theme_provider.dart';
 import '../services/auth_service.dart';
 import '../services/document_service.dart';
+import '../services/summary_service.dart';
 import '../models/models.dart';
 import '../utils/app_colors.dart';
 
@@ -21,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final AuthService _authService = AuthService();
   final DocumentService _documentService = DocumentService();
+  final SummaryService _summaryService = SummaryService();
 
   User? _user;
   List<DocumentModel> _documents = [];
@@ -219,7 +221,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   const SizedBox(height: 48),
-                  
+
+                  // LIMPIAR RESÚMENES HUÉRFANOS (TEMPORAL - DESARROLLO)
+                  _buildCleanOrphansButton(isDark),
+                  const SizedBox(height: 24),
+
                   // CERRAR SESIÓN
                   _buildLogoutButton(isDark),
                   const SizedBox(height: 80),
@@ -1189,5 +1195,171 @@ Widget _buildLogoutButton(bool isDark) {
         ],
       ),
     );
+  }
+
+  // Botón de limpiar resúmenes huérfanos (TEMPORAL)
+  Widget _buildCleanOrphansButton(bool isDark) {
+    return Container(
+      width: double.infinity,
+      height: 64,
+      decoration: BoxDecoration(
+        color: AppColors.warning.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.warning.withOpacity(0.3),
+          width: 2,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: _showCleanOrphansDialog,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.cleaning_services_rounded,
+                  color: AppColors.warning,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '🧹 Limpiar Resúmenes Huérfanos',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.warning,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCleanOrphansDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.cleaning_services_rounded, color: AppColors.warning),
+            const SizedBox(width: 12),
+            Text(
+              'Limpiar Resúmenes',
+              style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+            ),
+          ],
+        ),
+        content: Text(
+          'Esta función eliminará resúmenes que ya no tienen un documento asociado.\n\nEsto puede ayudar si ves resúmenes incorrectos en la biblioteca.\n\n¿Deseas continuar?',
+          style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar', style: TextStyle(color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _cleanOrphanSummaries();
+            },
+            style: TextButton.styleFrom(foregroundColor: AppColors.warning),
+            child: const Text('Limpiar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _cleanOrphanSummaries() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Mostrar diálogo de carga
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Limpiando resúmenes huérfanos...',
+              style: TextStyle(
+                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final result = await _summaryService.cleanOrphanSummaries();
+
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de carga
+
+        if (result['success'] == true) {
+          final orphansDeleted = result['orphansDeleted'] ?? 0;
+          final remainingSummaries = result['remainingSummaries'] ?? 0;
+
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: isDark ? AppColors.darkCard : AppColors.lightCard,
+              title: Row(
+                children: [
+                  Icon(Icons.check_circle_rounded, color: AppColors.success),
+                  const SizedBox(width: 12),
+                  const Text('Limpieza Completada'),
+                ],
+              ),
+              content: Text(
+                'Se eliminaron $orphansDeleted resumen(es) huérfano(s).\n\nResúmenes restantes: $remainingSummaries',
+                style: TextStyle(color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Error al limpiar resúmenes'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Cerrar diálogo de carga
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 }
