@@ -43,7 +43,7 @@ class _UploadScreenState extends State<UploadScreen>
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'txt', 'doc', 'docx'],
+        allowedExtensions: ['pdf', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'],
       );
 
       if (result != null) {
@@ -54,6 +54,55 @@ class _UploadScreenState extends State<UploadScreen>
       }
     } catch (e) {
       _showErrorSnackBar('Error al seleccionar archivo: $e');
+    }
+  }
+
+  void _clearFile() {
+    setState(() {
+      _selectedFileName = null;
+      _selectedFilePath = null;
+    });
+  }
+
+  IconData _getFileIcon(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return Icons.picture_as_pdf;
+      case 'doc':
+      case 'docx':
+        return Icons.description;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow;
+      case 'xls':
+      case 'xlsx':
+        return Icons.table_chart;
+      case 'txt':
+        return Icons.text_snippet;
+      default:
+        return Icons.insert_drive_file;
+    }
+  }
+
+  Color _getFileColor(String fileName, bool isDark) {
+    final extension = fileName.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return Colors.red;
+      case 'doc':
+      case 'docx':
+        return Colors.blue;
+      case 'ppt':
+      case 'pptx':
+        return Colors.orange;
+      case 'xls':
+      case 'xlsx':
+        return Colors.green;
+      case 'txt':
+        return Colors.grey;
+      default:
+        return isDark ? AppColors.gold : AppColors.brown;
     }
   }
 
@@ -225,7 +274,7 @@ class _UploadScreenState extends State<UploadScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'PDF, TXT, DOC, DOCX',
+            'PDF, Word, PowerPoint, Excel, TXT',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -247,12 +296,31 @@ class _UploadScreenState extends State<UploadScreen>
 
   Widget _buildFilePreview() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fileColor = _getFileColor(_selectedFileName!, isDark);
+    final fileIcon = _getFileIcon(_selectedFileName!);
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.check_circle, size: 36, color: AppColors.success),
+          // Ícono del tipo de archivo con color específico
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: fileColor.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: fileColor.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: Icon(
+              fileIcon,
+              size: 36,
+              color: fileColor,
+            ),
+          ),
           const SizedBox(height: 12),
           Text(
             'Archivo seleccionado',
@@ -266,19 +334,19 @@ class _UploadScreenState extends State<UploadScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.15),
+              color: fileColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: (isDark ? AppColors.gold : AppColors.brown).withOpacity(0.3),
+                color: fileColor.withOpacity(0.3),
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  Icons.insert_drive_file,
+                  fileIcon,
                   size: 20,
-                  color: isDark ? AppColors.gold : AppColors.brown,
+                  color: fileColor,
                 ),
                 const SizedBox(width: 8),
                 Flexible(
@@ -296,16 +364,34 @@ class _UploadScreenState extends State<UploadScreen>
             ),
           ),
           const SizedBox(height: 12),
-          TextButton.icon(
-            onPressed: _pickFile,
-            icon: Icon(Icons.refresh, color: isDark ? AppColors.gold : AppColors.brown),
-            label: Text(
-              'Cambiar archivo',
-              style: TextStyle(
-                color: isDark ? AppColors.gold : AppColors.brown,
-                fontWeight: FontWeight.w600,
+          // Botones para cambiar o eliminar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton.icon(
+                onPressed: _pickFile,
+                icon: Icon(Icons.refresh, color: fileColor, size: 18),
+                label: Text(
+                  'Cambiar',
+                  style: TextStyle(
+                    color: fileColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: _clearFile,
+                icon: Icon(Icons.close, color: AppColors.error, size: 18),
+                label: Text(
+                  'Eliminar',
+                  style: TextStyle(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

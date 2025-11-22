@@ -10,6 +10,7 @@ import '../services/document_service.dart';
 import '../models/models.dart';
 import '../config/api_config.dart';
 import '../utils/app_colors.dart';
+import 'document_viewer_screen.dart';
 
 class SummaryScreen extends StatefulWidget {
   final String? summaryId;
@@ -1108,43 +1109,54 @@ ${_summary!.keyPoints.isNotEmpty ? 'Puntos Clave:\n${_summary!.keyPoints.map((p)
         if (result['success'] == true) {
           final document = result['document'] as DocumentModel;
 
-          // Verificar si el archivo es realmente un PDF
-          if (document.fileType.toLowerCase() != 'pdf') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Este documento es formato ${document.fileType.toUpperCase()}. '
-                  'Solo se pueden visualizar archivos PDF.\n'
-                  'El texto fue extraído para generar el resumen.'
+          // Si es PDF, abrir visor de PDF
+          if (document.fileType.toLowerCase() == 'pdf') {
+            if (document.filePath != null && document.filePath!.isNotEmpty) {
+              final pdfUrl = document.filePath!.startsWith('http')
+                  ? document.filePath!
+                  : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+
+              Navigator.pushNamed(
+                context,
+                '/pdf-viewer',
+                arguments: {
+                  'url': pdfUrl,
+                  'title': document.title,
+                },
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('PDF no disponible'),
+                  backgroundColor: AppColors.warning,
                 ),
-                backgroundColor: AppColors.warning,
-                duration: const Duration(seconds: 4),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-            return;
-          }
-
-          if (document.filePath != null && document.filePath!.isNotEmpty) {
-            final pdfUrl = document.filePath!.startsWith('http')
-                ? document.filePath!
-                : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
-
-            Navigator.pushNamed(
-              context,
-              '/pdf-viewer',
-              arguments: {
-                'url': pdfUrl,
-                'title': document.title,
-              },
-            );
+              );
+            }
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('PDF no disponible'),
-                backgroundColor: AppColors.warning,
-              ),
-            );
+            // Para otros tipos de documentos, mostrar el contenido extraído
+            if (document.content != null && document.content!.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DocumentViewerScreen(
+                    title: document.title,
+                    content: document.content!,
+                    fileType: document.fileType,
+                  ),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'No se pudo extraer el contenido del documento ${document.fileType.toUpperCase()}.'
+                  ),
+                  backgroundColor: AppColors.warning,
+                  duration: const Duration(seconds: 3),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
