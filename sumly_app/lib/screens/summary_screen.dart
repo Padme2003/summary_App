@@ -275,8 +275,12 @@ Generado con Sumly - Resúmenes Inteligentes con IA
       onPopInvoked: (bool didPop) async {
         if (didPop) return;
 
-        final shouldPop = await _showExitConfirmation(context);
-        if (shouldPop && context.mounted) {
+        final shouldGoToLibrary = await _showExitConfirmation(context);
+        if (shouldGoToLibrary && context.mounted) {
+          // Volver a la biblioteca (pantalla principal, index 1)
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else if (!shouldGoToLibrary && context.mounted) {
+          // Solo cerrar el resumen si el usuario no quiere ir a biblioteca
           Navigator.of(context).pop();
         }
       },
@@ -291,8 +295,12 @@ Generado con Sumly - Resúmenes Inteligentes con IA
               color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             ),
             onPressed: () async {
-              final shouldPop = await _showExitConfirmation(context);
-              if (shouldPop && context.mounted) {
+              final shouldGoToLibrary = await _showExitConfirmation(context);
+              if (shouldGoToLibrary && context.mounted) {
+                // Volver a la biblioteca (pantalla principal, index 1)
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              } else if (!shouldGoToLibrary && context.mounted) {
+                // Solo cerrar el resumen si el usuario no quiere ir a biblioteca
                 Navigator.of(context).pop();
               }
             },

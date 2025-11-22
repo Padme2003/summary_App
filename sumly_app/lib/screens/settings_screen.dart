@@ -1226,7 +1226,7 @@ Widget _buildLogoutButton(bool isDark) {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '🧹 Limpiar Resúmenes Huérfanos',
+                  'Limpiar Resúmenes',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,

@@ -1497,9 +1497,20 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
       final fileName = '${document.id}.${fileType}';
       final filePath = '${tempDir.path}/$fileName';
 
-      // Descargar archivo
+      // Obtener token para autenticación
+      final token = await _authService.getToken();
+
+      // Descargar archivo con autenticación
       final dio = Dio();
-      await dio.download(fileUrl, filePath);
+      await dio.download(
+        fileUrl,
+        filePath,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
 
       if (mounted) {
         Navigator.pop(context); // Cerrar diálogo de descarga
