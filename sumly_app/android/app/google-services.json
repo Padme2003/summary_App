@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481057013930",
+    "project_id": "sumly-d7dee",
+    "storage_bucket": "sumly-d7dee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481057013930:android:2cf8b30b130b81a0f0d0d3",
+        "android_client_info": {
+          "package_name": "com.example.sumly_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBHKiARVmqGaK7FOOzen2qSFUMw9rDNMPg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

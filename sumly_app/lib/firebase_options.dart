@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBHKiARVmqGaK7FOOzen2qSFUMw9rDNMPg',
+    appId: '1:481057013930:android:2cf8b30b130b81a0f0d0d3',
+    messagingSenderId: '481057013930',
+    projectId: 'sumly-d7dee',
+    storageBucket: 'sumly-d7dee.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyBHKiARVmqGaK7FOOzen2qSFUMw9rDNMPg',
+    appId: '1:481057013930:ios:PLACEHOLDER',
+    messagingSenderId: '481057013930',
+    projectId: 'sumly-d7dee',
+    storageBucket: 'sumly-d7dee.firebasestorage.app',
     iosBundleId: 'com.example.sumlyApp',
   );
 }
