@@ -124,12 +124,15 @@ exports.uploadDocument = async (req, res) => {
 
     const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
 
+    // Normalizar ruta para servir archivos estáticos (sin ./ inicial, con / inicial)
+    const normalizedPath = req.file.path.replace(/^\.\//, '/');
+
     // Crear documento
     const document = await Document.create({
       user: req.user._id,
       title: title || req.file.originalname,
       originalFileName: req.file.originalname,
-      filePath: req.file.path,
+      filePath: normalizedPath,
       fileSize: req.file.size,
       fileType,
       content,
@@ -142,6 +145,8 @@ exports.uploadDocument = async (req, res) => {
       tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       status: 'completed',
     });
+
+    console.log(`✓ Documento guardado con ruta: ${document.filePath}`);
 
     // Actualizar estadísticas del usuario
     req.user.stats.totalDocuments += 1;

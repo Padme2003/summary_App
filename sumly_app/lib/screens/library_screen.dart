@@ -1310,9 +1310,19 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
       }
 
       try {
-        final fileUrl = document.filePath!.startsWith('http')
-            ? document.filePath!
-            : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+        // Construir URL correcta del PDF
+        String fileUrl;
+        if (document.filePath!.startsWith('http')) {
+          fileUrl = document.filePath!;
+        } else {
+          // Remover /api del baseUrl y agregar el filePath
+          final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+          // Asegurar que filePath comienza con /
+          final path = document.filePath!.startsWith('/') ? document.filePath! : '/${document.filePath}';
+          fileUrl = '$baseUrl$path';
+        }
+
+        debugPrint('📄 Abriendo PDF: $fileUrl');
 
         Navigator.pushNamed(
           context,
@@ -1546,30 +1556,28 @@ class _LibraryScreenState extends State<LibraryScreen> with TickerProviderStateM
     );
 
     try {
-      // Construir URL del archivo
-      final fileUrl = document.filePath!.startsWith('http')
-          ? document.filePath!
-          : '${ApiConfig.baseUrl.replaceAll('/api', '')}${document.filePath}';
+      // Construir URL correcta del archivo
+      String fileUrl;
+      if (document.filePath!.startsWith('http')) {
+        fileUrl = document.filePath!;
+      } else {
+        // Remover /api del baseUrl y agregar el filePath
+        final baseUrl = ApiConfig.baseUrl.replaceAll('/api', '');
+        // Asegurar que filePath comienza con /
+        final path = document.filePath!.startsWith('/') ? document.filePath! : '/${document.filePath}';
+        fileUrl = '$baseUrl$path';
+      }
+
+      debugPrint('📥 Descargando archivo desde: $fileUrl');
 
       // Obtener directorio temporal
       final tempDir = await getTemporaryDirectory();
       final fileName = '${document.id}.${fileType}';
       final filePath = '${tempDir.path}/$fileName';
 
-      // Obtener token para autenticación
-      final token = await _authService.getToken();
-
-      // Descargar archivo con autenticación
+      // Descargar archivo (sin token, ya que /uploads es público)
       final dio = Dio();
-      await dio.download(
-        fileUrl,
-        filePath,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
+      await dio.download(fileUrl, filePath);
 
       if (mounted) {
         Navigator.pop(context); // Cerrar diálogo de descarga
