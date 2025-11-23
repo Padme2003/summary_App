@@ -48,5 +48,5 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
-// Apply Google Services plugin (only if google-services.json exists)
-apply(plugin = "com.google.gms.google-services")
+// Google Services plugin comentado - Firebase funciona con firebase_options.dart
+// apply(plugin = "com.google.gms.google-services")
