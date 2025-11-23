@@ -93,40 +93,50 @@ exports.uploadDocument = async (req, res) => {
         }
       } else if (fileType === 'xlsx' || fileType === 'xls') {
         console.log('📊 Procesando XLSX/XLS...');
-        const workbook = XLSX.readFile(filePath);
-        let allText = [];
+        try {
+          const workbook = XLSX.readFile(filePath);
+          let allText = [];
 
-        // Extraer texto de todas las hojas
-        workbook.SheetNames.forEach(sheetName => {
-          const worksheet = workbook.Sheets[sheetName];
-          const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          // Extraer texto de todas las hojas
+          workbook.SheetNames.forEach(sheetName => {
+            const worksheet = workbook.Sheets[sheetName];
+            const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-          // Convertir cada fila a texto
-          sheetData.forEach(row => {
-            const rowText = row.filter(cell => cell !== null && cell !== undefined).join(' ');
-            if (rowText.trim()) {
-              allText.push(rowText);
-            }
+            // Convertir cada fila a texto
+            sheetData.forEach(row => {
+              const rowText = row.filter(cell => cell !== null && cell !== undefined).join(' ');
+              if (rowText.trim()) {
+                allText.push(rowText);
+              }
+            });
           });
-        });
 
-        content = allText.join('\n');
-        pages = workbook.SheetNames.length; // Número de hojas
-        console.log(`✓ XLSX procesado: ${pages} hojas, ${content.length} caracteres`);
+          content = allText.join('\n');
+          pages = workbook.SheetNames.length; // Número de hojas
+          console.log(`✓ XLSX procesado: ${pages} hojas, ${content.length} caracteres`);
+        } catch (xlsxError) {
+          console.error('❌ Error al procesar Excel:', xlsxError);
+          console.log('   Nota: Solo se soporta formato XLSX (no XLS antiguo)');
+          content = '';
+        }
       } else {
         console.log(`⚠️  Tipo de archivo no soportado para extracción de texto: ${fileType}`);
         console.log('   El archivo se guardará pero sin contenido de texto.');
       }
     } catch (error) {
       console.error('❌ Error al procesar archivo:', error);
+      console.error('   Stack:', error.stack);
       content = ''; // Si falla, dejar contenido vacío pero continuar
     }
 
     const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+    console.log(`📊 Estadísticas: ${wordCount} palabras, ${content.length} caracteres`);
 
     // Normalizar ruta para servir archivos estáticos (sin ./ inicial, con / inicial)
     const normalizedPath = req.file.path.replace(/^\.\//, '/');
+    console.log(`📁 Ruta normalizada: ${normalizedPath}`);
 
+    console.log('💾 Creando documento en base de datos...');
     // Crear documento
     const document = await Document.create({
       user: req.user._id,
@@ -146,11 +156,17 @@ exports.uploadDocument = async (req, res) => {
       status: 'completed',
     });
 
-    console.log(`✓ Documento guardado con ruta: ${document.filePath}`);
+    console.log(`✅ Documento guardado exitosamente!`);
+    console.log(`   ID: ${document._id}`);
+    console.log(`   Ruta: ${document.filePath}`);
+    console.log(`   Tipo: ${document.fileType}`);
+    console.log(`   Tamaño: ${document.fileSize} bytes`);
 
     // Actualizar estadísticas del usuario
     req.user.stats.totalDocuments += 1;
     await req.user.save({ validateBeforeSave: false });
+
+    console.log(`✅ Proceso completado. Enviando respuesta al cliente.`);
 
     res.status(201).json({
       success: true,
@@ -160,7 +176,11 @@ exports.uploadDocument = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error al subir documento:', error);
+    console.error('❌ ========== ERROR AL SUBIR DOCUMENTO ==========');
+    console.error('Mensaje:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('================================================');
+
     res.status(500).json({
       success: false,
       message: 'Error al subir documento',
