@@ -3,6 +3,8 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Google Services plugin for Firebase
+    id("com.google.gms.google-services") apply false
 }
 
 android {
@@ -47,3 +49,6 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
+
+// Apply Google Services plugin (only if google-services.json exists)
+apply(plugin = "com.google.gms.google-services")

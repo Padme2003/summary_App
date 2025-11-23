@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -30,7 +31,9 @@ void main() async {
   // Inicializar Firebase (opcional - solo si los archivos de configuración existen)
   bool firebaseInitialized = false;
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     firebaseInitialized = true;
     debugPrint('✅ Firebase inicializado correctamente');
 
