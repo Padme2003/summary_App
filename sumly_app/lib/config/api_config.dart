@@ -15,10 +15,11 @@ class ApiConfig {
 
   // PRODUCCIÓN - RAILWAY (Backend en la nube 24/7):
   // Funciona con datos móviles y cualquier red
-  static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
+  // TEMPORALMENTE DESHABILITADO - Railway tiene código antiguo sin últimos fixes
+  // static const String baseUrl = 'https://summaryapp-production.up.railway.app/api';
 
   // DESARROLLO LOCAL (solo WiFi local):
-  // static const String baseUrl = 'http://192.168.18.54:5000/api';
+  static const String baseUrl = 'http://192.168.18.54:5000/api';
 
   // Auth Endpoints
   static const String login = '$baseUrl/auth/login';
